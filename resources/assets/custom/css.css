@@ -1,0 +1,8 @@
+.login-box, .register-box{
+	width: 600px;
+}
+.icon-container::after{
+    content: " ";
+    clear: both;
+    display: block;
+}
