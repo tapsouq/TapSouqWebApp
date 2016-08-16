@@ -67,11 +67,22 @@ return [
 	'select_country'			=> "Select Country",
 	'are_u_sure_run'			=> 'Are you sure you want to run the campaign.',
 	'are_u_sure_pause'			=> 'Are you sure you want to pause the campaign.',
+	'are_u_sure_run_ads'		=> 'Are you sure you want to run the creative Ads.',
+	'are_u_sure_pause_ads'		=> 'Are you sure you want to pause the creative Ads.',
 	'serving'					=> "Serving",
 	'ads'						=> "Creative Ads",
 	'all_ads'					=> "All Creative Ads",
 	'add_new_ad'				=> "Add new creative ad",
 	'click_url'					=> "Click Url",
 	'image_file'				=> "Imge File",
-	'no_active_camps'			=> "There is no active campaigns yet."
+	'no_active_camps'			=> "There is no active campaigns yet.",
+	'no_ads_yet'				=> "There is no creative ads yet.",
+	'edit_ads'					=> "Edit Creative Ads",
+	'run_camp'					=> "Running Campaign",
+	'delete_camp'				=> "Deleting Campaign",
+	'pause_camp'				=> "Pausing Campaign",
+	'run_ads'					=> "Running Creative Ads",
+	'delete_ads'				=> "Deleting Creative Ads",
+	'pause_ads'					=> "Pausing Creative Ads",
+	'creative_ads'				=> "creative Ads."
 ];

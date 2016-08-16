@@ -123,7 +123,13 @@ class ZoneCtrl extends Controller
         $title  = trans( 'admin.edit_place_ad' );
         
         $zone   = Zone::where( 'id', '=', $zone_id );
-        $zone   = $this->_user->role == ADMIN_PRIV ? $zone : $zone->where( 'status', '!=', DELETED_ZONE );
+        if( $this->_user->role != ADMIN_PRIV ){
+            $zone = $zone->leftJoin( 'applications', 'applications.id', '=', 'ad_placement.app_id' )
+                        ->where( 'applications.user_id', '=', $this->_user->id )
+                        ->where( 'applications.status', '!=', DELETED_APP )
+                        ->where( 'ad_placement.status', '!=', DELETED_ZONE )
+                        ->select( 'ad_placement.*' );
+        }
         $zone   = $zone->first();  
 
         $applications = $this->_applications;

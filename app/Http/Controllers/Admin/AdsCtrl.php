@@ -46,6 +46,30 @@ class AdsCtrl extends Controller
     }
 
     /**
+     * index. 
+     *
+     * @param void
+     * @return void
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function index ( ){
+        $mTitle = $this->_mTitle;
+        $title  = trans( 'admin.all_ads' );
+        $ads    = Ads::leftJoin( 'campaigns', 'campaigns.id', '=', 'ad_creative.id' ); 
+
+        if( $this->_user->role != ADMIN_PRIV ){
+            $ads = $ads->where('campaigns.status', '!=', DELETED_CAMP )
+                        ->where('ad_creative.status', '!=', DELETED_AD )
+                        ->where( 'campaigns.user_id', '=', $this->_user->id );
+        }
+        $ads    = $ads->select('ad_creative.*', 'campaigns.name as campaign')->get(); 
+        $data   = [ 'mTitle', 'title', 'ads' ];
+        return view( 'admin.ads.index' )
+                    ->with( compact( $data ) );
+    }
+
+    /**
      * create. To show create ads page
      *
      * @param void
@@ -72,7 +96,9 @@ class AdsCtrl extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function store ( Request $request ){
-        $validator = Validator::make( $request->all(), [ 'image_file' => 'required|image|mimes:png,bmp,jpeg,jpg,gif'] );
+        $validator = Validator::make( $request->all(), array_merge($this->_initRules, [
+                'image_file' => 'required|image|mimes:png,bmp,jpeg,jpg,gif'
+            ]));
 
         if( $validator->fails() ){
             return redirect()->back()
@@ -98,8 +124,14 @@ class AdsCtrl extends Controller
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.edit_ads' );
         $camps  = $this->_camps;
-        $ad     = Ads::where( 'ad_creative.id', '=', $ad_id );  
-        $ad     = $this->_user->role == ADMIN_PRIV ? $ad : $ad->leftJoin('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )->where( 'campaigns.user_id', '=', $this->_user->id );
+        $ad     = Ads::where( 'ad_creative.id', '=', $ad_id );
+        
+        if( $this->_user->role != ADMIN_PRIV ){
+            $ad = $ad->leftJoin('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
+                    ->where( 'campaigns.user_id', '=', $this->_user->id )
+                    ->where( 'ad_creative.status', '!=', DELETED_AD )
+                    ->where( 'campaigns.status', '!=', DELETED_CAMP );
+        }  
         $ad     = $ad->select('ad_creative.*')->first();
 
         if( is_null($ad) ){
@@ -111,6 +143,74 @@ class AdsCtrl extends Controller
         return view( 'admin.ads.create' )
                     ->with( compact( $data ) );
     }
+
+    /**
+     * save. To save edited ads
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function save ( Request $request ){
+        $rules = array_merge($this->_initRules, [
+                'id'            => 'required|exists:ad_creative,id',
+                'image_file'    => 'image|mimes:png,bmp,jpeg,jpg,gif'
+            ]);
+        $validator = Validator::make( $request->all(), $rules );
+        if( $validator->fails() ){
+            return redirect()->back()
+                            ->withInput()
+                            ->withErrors( $validator )
+                            ->with( 'error', trans( 'lang.validate_msg' ) );
+        }else{
+            $this->_store( $request );
+            return redirect()->back()
+                            ->with( 'success', trans( 'lang.compeleted_msg' ) );
+        }
+    }
+
+    /**
+      * changeStatus. To change the ads status.
+      *
+      * @param \Illuminate\Http\Request $request
+      * @return void
+      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+      * @copyright Smart Applications Co. <www.smartapps-ye.com>
+      */
+    public function changeStatus ( Request $request ){
+        if( $request->has( 'id' ) && $request->has('token') && $request->has('s') ){
+            $ad = Ads::leftJoin( 'campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
+                    ->where( 'ad_creative.id', '=', $request->id )
+                    ->select('ad_creative.*');
+            $session_token = session( "_token" );
+            $adStates = array_keys( config('consts.ads_status') );
+            // Token Validation. and assure that campaign id exists in campaigns DB table 
+            if( $request->token == $session_token && $ad->first() != null && in_array( $request->input('s'), $adStates ) ){
+                // To prevent users to delete another users's campagind ( than more step )
+                if( $this->_user->role != ADMIN_PRIV ){
+                    $ad = $ad->where( 'campaigns.user_id', '=', $this->_user->id );
+                    if( is_null( $ad->first() ) ){
+                        return redirect()->back()
+                                        ->with( 'warning', trans( 'lang.spam_msg' ) );
+                    } 
+                }
+
+                $ad = $ad->first();
+                $ad->status = $request->input('s');
+                if( $ad->status == DELETED_AD ){
+                    $ad->deleted_at = date( 'Y-m-d H:i:s' );
+                }
+                $ad->save();
+
+                return redirect()->back()
+                                ->with( 'success', trans( 'lang.compeleted_msg' ) );
+            }
+        }
+        return redirect()->back()
+                        ->with( 'warning', trans( 'lang.spam_msg' ) );
+    }
+
     /** *** ***
      * Private Methods
      */
@@ -135,7 +235,9 @@ class AdsCtrl extends Controller
         $ad->type          = $request->type;
         $ad->format        = $request->format;
         $ad->click_url     = $request->click_url;
-        $ad->image_file    = uploadFile($request->image_file , 'public/uploads/ad-images/');
+        if( $request->hasFile( 'image_file' ) ){
+            $ad->image_file    = uploadFile($request->image_file , 'public/uploads/ad-images/');
+        }
 
         $ad->title         = $request->type == TEXT_AD ?  $request->title : '';
         $ad->description   = $request->type == TEXT_AD ?  $request->description : '';
