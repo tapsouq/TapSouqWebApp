@@ -133,7 +133,7 @@ if(! function_exists('customUploadFile')) {
 
 if( ! function_exists( 'getAppAds' ) ){
     /**
-     * getAppAds. To get all activated ads connected to that applicayion
+     * getAppAds. To get all activated ads connected to that application
      *
      * @param int $app_id
      * @return array.
@@ -143,6 +143,22 @@ if( ! function_exists( 'getAppAds' ) ){
      function getAppAds ( $app_id ){
         $ads = App\Models\Zone::where( 'app_id', '=', $app_id );
         $ads = Auth::user()->role == ADMIN_PRIV ? $ads : $ads->where( 'status', '!=', DELETED_ZONE );
+        return $ads->get();
+    }   
+}
+
+if( ! function_exists( 'getCampAds' ) ){
+    /**
+     * getCampAds. To get all activated ads connected to that Campaign
+     *
+     * @param int $camp_id
+     * @return array.
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+     function getCampAds ( $camp_id ){
+        $ads = App\Models\Ads::where( 'camp_id', '=', $camp_id );
+        $ads = Auth::user()->role == ADMIN_PRIV ? $ads : $ads->where( 'status', '!=', DELETED_AD );
         return $ads->get();
     }   
 }

@@ -197,6 +197,9 @@
                         <div class="box-body">
                             <p>
                                 {{ trans( 'admin.no_active_camps' ) }}
+                                <a href="{{ url( 'camp/create' ) }}">
+                                     {{ trans( 'admin.add_new_campaign' ) }}
+                                </a>
                             </p>
                         </div>
                     @endif

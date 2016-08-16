@@ -38,7 +38,7 @@ class UserCtrl extends Controller
      public function index (  ){
         $mTitle = $this->_mTitle;
      	$title 	= trans( 'admin.all_users' );
-     	$users  = User::join( 'countries', 'countries.id', '=', 'users.country' )
+     	$users  = User::leftJoin( 'countries', 'countries.id', '=', 'users.country' )
                         ->where( 'role', '=', DEV_PRIV )
                         ->select( 'users.*', 'countries.name as country_name' )
                         ->get();

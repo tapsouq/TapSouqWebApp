@@ -75,7 +75,7 @@ return [
 	'add_new_ad'				=> "Add new creative ad",
 	'click_url'					=> "Click Url",
 	'image_file'				=> "Imge File",
-	'no_active_camps'			=> "There is no active campaigns yet.",
+	'no_active_camps'			=> "There is no campaigns yet.",
 	'no_ads_yet'				=> "There is no creative ads yet.",
 	'edit_ads'					=> "Edit Creative Ads",
 	'run_camp'					=> "Running Campaign",
@@ -84,5 +84,7 @@ return [
 	'run_ads'					=> "Running Creative Ads",
 	'delete_ads'				=> "Deleting Creative Ads",
 	'pause_ads'					=> "Pausing Creative Ads",
-	'creative_ads'				=> "creative Ads."
+	'creative_ads'				=> "creative Ads.",
+	'no_users_yet'				=> "There is no users yet.",
+	'camp_is_deleted'			=> "Campaign is deleted",
 ];

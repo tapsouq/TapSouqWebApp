@@ -224,7 +224,15 @@ class AppCtrl extends Controller
     private function _store ( Request $request ){
         if( $request->has( 'id' ) ){
             $app = Application::find( $request->id );
-            $app->status = $request->has( 'status' ) ? $request->status : $app->status;
+            
+            if( $request->has( 'status' ) ){
+                if( $request->status == DELETED_APP ){
+                    //delete all ads connected to that application.
+                    Zone::where( 'app_id', '=', $app->id )
+                            ->update( [ 'status' => DELETED_ZONE ] );
+                }
+                $app->status =$request->status; 
+            }
         }else{
             $app = new Application;
             $app->user_id  = Auth::user()->id; 

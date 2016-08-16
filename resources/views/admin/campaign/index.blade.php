@@ -73,7 +73,7 @@
                         </table>
                     @else
                         <p>
-                            {{ trans( 'admin.no_camps' ) }}
+                            {{ trans( 'admin.no_active_camps' ) }}
                         </p>
                     @endif
                 </div>

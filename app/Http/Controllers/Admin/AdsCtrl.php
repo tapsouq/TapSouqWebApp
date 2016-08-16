@@ -56,15 +56,18 @@ class AdsCtrl extends Controller
     public function index ( ){
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.all_ads' );
-        $ads    = Ads::leftJoin( 'campaigns', 'campaigns.id', '=', 'ad_creative.id' ); 
-
+        
+        $camps   = Campaign::LeftJoin( 'ad_creative', 'ad_creative.camp_id', '=', 'campaigns.id' )
+                        ->select( 'campaigns.*', 'campaigns.name as campaign' )
+                        ->groupBy( 'campaigns.id' );
         if( $this->_user->role != ADMIN_PRIV ){
-            $ads = $ads->where('campaigns.status', '!=', DELETED_CAMP )
-                        ->where('ad_creative.status', '!=', DELETED_AD )
-                        ->where( 'campaigns.user_id', '=', $this->_user->id );
+            $camps = $camps->where( 'campaigns.status', '!=', DELETED_CAMP  )
+                            ->where( 'ad_creative.status', '!=', DELETED_AD )
+                            ->where( 'campaigns.user_id', '=', $this->_user->id );
         }
-        $ads    = $ads->select('ad_creative.*', 'campaigns.name as campaign')->get(); 
-        $data   = [ 'mTitle', 'title', 'ads' ];
+        $camps = $camps->get();
+
+        $data   = [ 'mTitle', 'title', 'camps' ];
         return view( 'admin.ads.index' )
                     ->with( compact( $data ) );
     }

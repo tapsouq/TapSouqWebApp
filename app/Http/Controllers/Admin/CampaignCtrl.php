@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Models\Country, App\Models\Category, App\Models\Campaign;
+use App\Models\Country, App\Models\Category, App\Models\Campaign, App\Models\Ads;
 use Validator, DB, Auth;
+
+use Raulr\GooglePlayScraper\Scraper;
 
 class CampaignCtrl extends Controller
 {
@@ -55,12 +57,14 @@ class CampaignCtrl extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function index (  ){
+
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.all_campaigns' );
         $camps  = Campaign::leftJoin( 'users', 'users.id', '=', 'campaigns.user_id' );
 
         if( $this->_user->role != ADMIN_PRIV ){
-            $camps = $camps->where( 'campaigns.user_id', '=', $this->_user->id );
+            $camps = $camps->where( 'campaigns.user_id', '=', $this->_user->id )
+                            ->where( 'campaigns.status', '!=', DELETED_CAMP );
         }
         $camps  = $camps->select( 'campaigns.*', 'users.fname', 'users.lname' )
                         ->get();
@@ -186,6 +190,10 @@ class CampaignCtrl extends Controller
                 $camp->status = $request->input('s');
                 if( $camp->status == DELETED_CAMP ){
                     $camp->deleted_at = date( 'Y-m-d H:i:s' );
+
+                    // delete all ads to these campaign
+                    Ads::where( 'camp_id', '=', $camp->id )
+                        ->update( [ 'status' => DELETED_AD ] );
                 }
                 $camp->save();
 
@@ -226,6 +234,11 @@ class CampaignCtrl extends Controller
         $camp->ad_serving_pace  = $request->input( 'ad_serving_pace' );
 
         if( $request->has('status') ){
+            if( $request->status == DELETED_CAMP ){
+                // delete all ads to these campaign
+                Ads::where( 'camp_id', '=', $camp->id )
+                    ->update( [ 'status' => DELETED_AD ] );
+            }
             $camp->status = $request->status;
         }
 
