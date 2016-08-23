@@ -56,11 +56,11 @@
                                         <td>
                                             <div class="btn-group">
                                                 <a href="{{ url('app/edit/' . $value->id ) }}" class="btn btn-sm btn-info">
-                                                    {{ trans( 'lang.edit' ) }}
+                                                    <i class="fa fa-edit"></i>
                                                 </a>
                                                 @if( $value->status != DELETED_APP )
                                                 <a data-toggle="modal" data-target="#deactivate-app-modal" data-id="{{ $value->id }}" class="btn btn-sm btn-danger deactivate-app">
-                                                    {{ trans( 'lang.delete' ) }}
+                                                    <i class="fa fa-trash"></i>
                                                 </a>
                                                 @endif
                                             </div>

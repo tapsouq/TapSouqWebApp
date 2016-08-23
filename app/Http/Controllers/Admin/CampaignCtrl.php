@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Models\Country, App\Models\Category, App\Models\Campaign, App\Models\Ads;
+use App\Models\Keyword;
 use Validator, DB, Auth;
 
 use Raulr\GooglePlayScraper\Scraper;
@@ -45,6 +46,7 @@ class CampaignCtrl extends Controller
                 'status'            => 'in:' . implode(',' , array_keys( config( 'consts.camp_status' ) )),
                 'start_date'        => 'required|date_format:m/d/Y g:i A',
                 'end_date'          => 'required|date_format:m/d/Y g:i A',
+                'keywords'          => 'array|exists:keywords,id'
             ];
     }
     
@@ -123,10 +125,22 @@ class CampaignCtrl extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function edit ( $camp_id ){
-        $mTitle = $this->_mTitle;
-        $title  = trans( 'admin.edit_campaign' );
+        $mTitle     = $this->_mTitle;
+        $title      = trans( 'admin.edit_campaign' );
         $categories = $this->_categories;
         $countries  = $this->_countries;
+        
+        $selected_cats      = DB::table( 'campaign_categories' )
+                                ->where( 'camp_id', '=', $camp_id )
+                                ->lists( 'cat_id' );
+
+        $selected_countries = DB::table( 'campaign_countries' )
+                                ->where( 'camp_id', '=', $camp_id )
+                                ->lists( 'country_id' );
+        $keywords           = DB::table( 'campaign_keywords' )
+                                ->leftJoin( 'keywords', 'keywords.id', '=', 'campaign_keywords.keyword_id' )
+                                ->where( 'campaign_keywords.camp_id', '=', $camp_id )
+                                ->get();
 
         $camp   = Campaign::where( 'campaigns.id', '=', $camp_id );
         $camp   = $this->_user->role == ADMIN_PRIV ? $camp : $camp->where( 'campaigns.user_id', '=', $this->_user->id ) ; 
@@ -136,7 +150,7 @@ class CampaignCtrl extends Controller
                             ->with( 'warning', trans('lang.spam_msg') );
         }
 
-        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries' ];
+        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'selected_cats', 'selected_countries', 'keywords' ];
         return view( 'admin.campaign.create' )
                     ->with( compact( $data ) );
     }
@@ -255,5 +269,38 @@ class CampaignCtrl extends Controller
             syncPivot( 'campaign_countries', 'camp_id', $camp->id, 'country_id', $countries );
         }
 
+        // save application keywords
+        $this->_saveCampKeywords( $request, $camp->id );
+    }
+
+    /**
+     * _saveCampKeywords. To save campaign keywords
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $camp_id
+     * @return void
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _saveCampKeywords ( Request $request, $camp_id ){
+
+        $keywords = [];
+        
+        // To save selected keywords that match this application.
+        if( $request->has( 'keywords' ) ){
+            $keywords = $request->keywords;
+        }
+        
+        // To save new keywords and link it with this application
+        if( $request->has('new_keywords') ){
+            foreach( $request->new_keywords as $value  ){
+                $keyword = new Keyword;
+                $keyword->name = $value;
+                $keyword->save();
+                $new_keywords[] = $keyword->id;
+            }
+            $keywords = array_merge($keywords, $new_keywords);
+            syncPivot( 'campaign_keywords', 'camp_id', $camp_id, 'keyword_id', $keywords );
+        }
     }
 }

@@ -44,11 +44,11 @@
 									<td>
 										<div class="btn-group">
 											<a href="{{ url('user/edit/' . $_user->id ) }}" class="btn btn-sm btn-info">
-												{{ trans( 'lang.edit' ) }}
+												<i class="fa fa-edit"></i>
 											</a>
 											@if( $_user->status != SUSPEND_USER )
 											<a data-toggle="modal" data-target="#deactivate-user-modal" data-id="{{ $_user->id }}" class="btn btn-sm btn-danger deactivate-user">
-												{{ trans( 'lang.deactivate' ) }}
+												<i class="fa fa-trash"></i>
 											</a>
 											@endif
 										</div>

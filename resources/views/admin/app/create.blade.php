@@ -142,11 +142,13 @@
     <script type="text/javascript" src="{{ url() }}/resources/assets/plugins/bootsnipp-file-input/bootsnipp-file-input.js" ></script>
     <script type="text/javascript">
         $(document).ready( function(){
+
             $("select.category").select2({
                 placeholder : "{{ trans( 'admin.select_cat' ) }}",
                 maximumInputLength: 7, // only allow terms up to 20 characters long
                 maximumSelectionLength: 2
             });
         });
+
     </script>
 @stop

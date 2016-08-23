@@ -7,9 +7,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use Validator, Auth;
+use Validator, Auth, DB;
 use App\Models\Category, App\Models\Application;
 use App\Models\Zone;
+
 class AppCtrl extends Controller
 {
     /**
@@ -39,7 +40,7 @@ class AppCtrl extends Controller
                     'name'          => 'required|max:255',
                     'platform'      => 'required|in:' . implode( ',' , array_keys( config('consts.app_platforms') ) ), 
                     'package_id'    => 'required|max:255',
-                    'category'      => 'required|array|exists:categories,id'
+                    'category'      => 'required|array|exists:categories,id',
                 ];
     }
 
@@ -210,6 +211,30 @@ class AppCtrl extends Controller
                         ->with( 'warning', trans( 'lang.spam_msg' ) );
     }
 
+    /**
+     * getKeywords. To get all keywords that match the search words.
+     *
+     * @param \Illuminate\Http\Request $Request
+     * @return json
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function getKeywords ( Request $request ){
+        if( $request->has('key') ){
+            $ids = [];
+            $search = $request->key;
+            if( $request->has('present') ){
+                $ids = $request->present;
+            }
+            //$results = DB::select("SELECT * FROM `keywords` WHERE ( `id` NOT IN ( {$ids} ) ) AND ( `name` LIKE :s ) ", [ 's' => "%{$search}%" ] );
+            $results = DB::table('keywords')
+                            ->whereNotIn( 'id', $ids )
+                            ->where( 'name', 'LIKE', "%{$search}%" )
+                            ->get();
+            return response()->json( $results );
+        }
+    }
+
     /** *** ***
      * Private Methods
      */
@@ -251,6 +276,6 @@ class AppCtrl extends Controller
         // To make sure that two categories only be inserted
         $categories = array_slice($request->category, 0, 2);
         syncPivot( 'application_categories', 'app_id', $app->id, 'cat_id', $categories );
-
     }
+
 }

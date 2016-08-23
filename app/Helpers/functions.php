@@ -67,10 +67,10 @@ if(! function_exists('syncPivot')) {
         $newValues = array_diff($values, $presentValues);
 
         if( count( $newValues ) > 0 ){
-	        foreach ( $newValues as $value ) {
-	            $insertArray[] = [ $col => $key, $syncCol => $value ];
-	        }
-	        return \DB::table( $table )->insert( $insertArray );
+            foreach ( $newValues as $value ) {
+                $insertArray[] = [ $col => $key, $syncCol => $value ];
+            }
+            return \DB::table( $table )->insert( $insertArray );
         }
     }
 }

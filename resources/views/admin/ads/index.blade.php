@@ -80,17 +80,17 @@
                                                                         @if( $camp->status != DELETED_CAMP )
                                                                             <div class="btn-group">
                                                                                 <a href="{{ url('ads/edit/' . $ad->id ) }}" class="btn btn-sm btn-info">
-                                                                                    {{ trans( 'lang.edit' ) }}
+                                                                                    <i class="fa fa-edit"></i>
                                                                                 </a>
                                                                                 @if( in_array( $ad->status, [ RUNNING_AD, PAUSED_AD ] ) )
                                                                                     <?php $href = url( 'ads/change-status?id=' . $ad->id . '&token=' . csrf_token() . '&s=' ); ?>
                                                                                     <a data-href="{{ $href . ( $ad->status == RUNNING_AD ? PAUSED_AD : RUNNING_AD ) }}" data-toggle="modal" data-target="#change-status-modal" class="btn btn-sm change-status {{ $ad->status == RUNNING_AD ? 'btn-warning pause' : 'btn-success run' }}">
-                                                                                        {{ $ad->status == RUNNING_AD ? trans( 'lang.pause' ) : trans( 'lang.run' ) }}
+                                                                                        {!! $ad->status == RUNNING_AD ? '<i class="fa fa-pause"></i>' : '<i class="fa fa-play"></i>' !!}
                                                                                     </a>
                                                                                 @endif
                                                                                 @if( $ad->status != DELETED_AD )
                                                                                     <a data-toggle="modal" data-target="#change-status-modal" data-id="{{ $ad->id }}" class="btn btn-sm btn-danger deactivate-ad">
-                                                                                        {{ trans( 'lang.delete' ) }}
+                                                                                        <i class="fa fa-trash"></i>
                                                                                     </a>
                                                                                 @endif
                                                                             </div>

@@ -32,6 +32,29 @@
                     <span> {{ trans( 'admin.users' ) }} </span>
                 </a>
             </li>
+            <li class="treeview {{ Request::segment(1) == 'matching' ? 'active' : '' }}">
+                <a href="#">
+                    <i class="fa fa-link"></i>
+                    <span>{{ trans('admin.matching') }}</span>
+                    <span class="pull-right-container">
+                    <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li class="{{ Request::url() == url('matching/matched-keywords') ? 'active' : '' }}">
+                        <a href="{{ url('matching/matched-keywords') }}">
+                            <i class="fa fa-circle-o"></i> 
+                            {{ trans( 'admin.matched_keywords' ) }}
+                        </a>
+                    </li>
+                    <li class="{{ Request::url() == url('matching/unmatched-keywords') ? 'active' : '' }}">
+                        <a href="{{ url('matching/unmatched-keywords') }}">
+                            <i class="fa fa-circle-o"></i> 
+                            {{ trans( 'admin.empty_keywords' ) }}
+                        </a>
+                    </li>
+              </ul>
+            </li>
             @endif
             <li class="treeview {{ Request::segment(1) == 'app' ? 'active' : '' }}">
                 <a href="#">

@@ -52,17 +52,17 @@
                                         <td>
                                             <div class="btn-group">
                                                 <a href="{{ url('campaign/edit/' . $camp->id ) }}" class="btn btn-sm btn-info">
-                                                    {{ trans( 'lang.edit' ) }}
+                                                    <i class="fa fa-edit"></i>
                                                 </a>
                                                 @if( in_array( $camp->status, [ RUNNING_CAMP, PAUSED_CAMP ] ) )
                                                     <?php $href = url( 'camp/change-status?id=' . $camp->id . '&token=' . csrf_token() . '&s=' ); ?>
                                                     <a data-href="{{ $href . ( $camp->status == RUNNING_CAMP ? PAUSED_CAMP : RUNNING_CAMP ) }}" data-toggle="modal" data-target="#change-status-modal" class="btn btn-sm change-status {{ $camp->status == RUNNING_CAMP ? 'btn-warning pause' : 'btn-success run' }}">
-                                                        {{ $camp->status == RUNNING_CAMP ? trans( 'lang.pause' ) : trans( 'lang.run' ) }}
+                                                        {!! $camp->status == RUNNING_CAMP ? '<i class="fa fa-pause"></i>' : '<i class="fa fa-play"></i>' !!}
                                                     </a>
                                                 @endif
                                                 @if( $camp->status != DELETED_CAMP )
                                                 <a data-toggle="modal" data-target="#change-status-modal" data-id="{{ $camp->id }}" class="btn btn-sm btn-danger deactivate-camp">
-                                                    {{ trans( 'lang.delete' ) }}
+                                                    <i class="fa fa-trash"></i>
                                                 </a>
                                                 @endif
                                             </div>

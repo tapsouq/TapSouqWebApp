@@ -4,6 +4,11 @@
     <link rel="stylesheet" type="text/css" href="{{ url() }}/resources/assets/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
     <!-- daterange picker -->
     <link rel="stylesheet" href="{{ url() }}/resources/assets/plugins/daterangepicker/daterangepicker.css">
+    <style type="text/css">
+        .wrapper{
+            overflow-x: visible;
+        }
+    </style>
 @stop
 
 @section( 'content' )
@@ -42,7 +47,7 @@
                                         @if( sizeof( $categories ) > 0 )
                                             <select class="form-control cat-select" name="category[]" multiple >
                                                 @foreach( $categories as $key => $category )
-                                                    <option value="{{ $category->id }}" {{ isset($camp) ? ( $camp->category == $category->id ? 'selected' : '' ) : ( old('category') == $category->id ? 'selected' :'' ) }} >
+                                                    <option value="{{ $category->id }}" {{ isset($camp) ? ( in_array($category->id, $selected_cats) ? 'selected' : '' ) : ( old('category') ? ( in_array($category->id, old('category')) ? 'selected' :'' ) : '' ) }} >
                                                         {{ $category->name }}
                                                     </option>
                                                 @endforeach
@@ -132,26 +137,49 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group has-feedback {{ $errors->has( 'country' ) ? 'has-error' : '' }}">
-                                            <label>
-                                                {{ trans( 'lang.country' ) }}
-                                            </label>
-                                            @if( sizeof( $countries ) > 0 )
-                                                <select class="form-control country-select" name="country[]" multiple="">
-                                                    <option value="">{{ trans('admin.all_countries') }}</option>
-                                                    @foreach( $countries as $key => $country )
-                                                        <option value="{{ $country->id }}" {{ isset($camp) ? ( $camp->country == $country->id ? 'selected' : '' ) : ( old('country') == $country->id ? 'selected' :'' ) }} >
-                                                            {{ $country->name }}
-                                                        </option>
+                                        <label>
+                                            {{ trans( 'lang.country' ) }}
+                                        </label>
+                                        @if( sizeof( $countries ) > 0 )
+                                            <select class="form-control country-select" name="country[]" multiple="">
+                                                <option value="">{{ trans('admin.all_countries') }}</option>
+                                                @foreach( $countries as $key => $country )
+                                                    <option value="{{ $country->id }}" {{ isset($camp) ? ( in_array($country->id, $selected_countries) ? 'selected' : '' ) : ( old('country') ? ( in_array($country->id, old('country')) ? 'selected' :'' ) : '' ) }} >
+                                                        {{ $country->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <span class="help-block">
+                                                {{ $errors->has( 'country' ) ? $errors->first( 'country' ) : '' }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="form-group has-feedback {{ $errors->has( 'keyword' ) ? 'has-error' : '' }}">
+                                        <label>
+                                            {{ trans( 'admin.keywords' ) }}
+                                        </label>
+                                        <div class="selected-keywords">
+                                            @if( isset($camp) )
+                                                @if( sizeof( $keywords ) > 0 )
+                                                    @foreach( $keywords as $keyword  )
+                                                        <span class='label label-primary'>
+                                                            {{ $keyword->name }}
+                                                            <i data-id='{{ $keyword->keyword_id }}' class='remove-keyword fa fa-times' ></i>
+                                                            <input type="hidden" name="keywords[]" value="{{ $keyword->id }}">
+                                                        </span>
                                                     @endforeach
-                                                </select>
-                                                <span class="help-block">
-                                                    {{ $errors->has( 'country' ) ? $errors->first( 'country' ) : '' }}
-                                                </span>
+                                                @endif
                                             @endif
-                                      </div>  
+                                        </div>
+                                        <input type="text" class="form-control keyword" placeholder="{{ trans('admin.type_keywords') }}" >
+                                        <ul class="list-unstyled keywords-list"></ul>
+                                        <span class="help-block">
+                                            {{ $errors->has( 'keyword' ) ? $errors->first( 'keyword' ) : '' }}
+                                        </span>
+                                    </div>
                                 </div>
-                                @if( Auth::user()->role == ADMIN_PRIV && isset($camp) )
-                                    <div class="col-md-6">
+                                <div class="col-md-6">
+                                    @if( Auth::user()->role == ADMIN_PRIV && isset($camp) )
                                         <div class="form-group has-feedback {{ $errors->has( 'status' ) ? 'has-error' : '' }}">
                                             <label>
                                                 {{ trans( 'lang.status' ) }}
@@ -169,9 +197,7 @@
                                                 </span>
                                             @endif
                                         </div>
-                                    </div>
-                                @endif
-                                <div class="col-md-6">
+                                    @endif
                                     <div class="form-group has-feedback {{ $errors->has( 'description' ) ? 'has-error' : '' }}">
                                         <label>
                                             {{ trans( 'admin.description' ) }}
@@ -225,6 +251,88 @@
                 });                    
             });
 
+            // To handle search keywords.
+            $(".keyword").on( 'keyup', function(e){
+                $this = $(this);
+                e.preventDefault();
+
+                // variable to delay sent ajax request not to overlap.
+                if ( $this.data('requestRunning') || $(this).val() == '' ) {
+                    $('.keywords-list li').remove();
+                    return;
+                }
+                $(this).data('requestRunning', true);
+
+                $('.keywords-list li').remove();
+                
+                ids = [];
+                $("input[name='keywords[]']").each(function( i, val ){
+                    ids[i] = $(this).val();
+                });
+                $('.keywords-list').append( "<li class='spinner'><i class='fa fa-spinner fa-spin' ></i>{{ trans('lang.loading') }}</li>" );
+                $.ajax({
+                    url     : '{{ url('get-keywords') }}',
+                    type    : 'post',
+                    data    : {
+                        key : $(this).val(),
+                        present : ids
+                    },
+                    success : function(data){
+                        $('.keywords-list li').remove();
+                        if( data.length > 0 ){
+                            for (var i = data.length - 1; i >= 0; i--) {
+                                var id = data[i]['id'];
+                                var name = data[i]['name'];
+                                var listItem = "<li data-id='" + id + "' >" + name + "</li>";
+                                $('.keywords-list').append( listItem )
+                                                .css('display', 'none')
+                                                .fadeIn(200);
+                            }
+                        }else{
+                            $('.keywords-list').append( "<li data-id='new'>{{ trans('admin.add_new_keyword') }} <em>" + $('.keyword').val() + "</em></li>")
+                                                .css('display', 'none')
+                                                .slideDown();
+                        }
+                    },
+                    complete : function(){
+                        $this.data('requestRunning', false);
+                    }
+                });
+            });
+
+            $('.keywords-list').on( 'click', 'li', function(){
+                
+                // Rest the shown keywords list
+                $('input.keyword').val('');
+                $('.keywords-list li').remove();
+
+                var id = $(this).attr('data-id');
+                var newKeyword = '';
+
+                if( id == 'new' ){
+                    var name = $(this).find('em').text();
+                    var input = "<input name='new_keywords[]' type='hidden' value='" + name + "' />";
+                    id = name;
+                    newKeyword = 'new';
+                }else{
+                    var name = $(this).text();
+                    var input ="<input name='keywords[]' type='hidden' value='" + id + "' />";
+                }
+                $(this).remove();
+                $('.keywords-list').append( input ); 
+                var keyword = "<span class='label label-primary'>" + name + " <i data-id='" + id + "' class='" + newKeyword + " remove-keyword fa fa-times' ></i></span>";
+                $('.selected-keywords').append( keyword );
+            });
+
+            $('.selected-keywords').on( 'click', '.remove-keyword', function(){
+                var id = $(this).attr('data-id');
+                if( $(this).hasClass('new') ){
+                    $('input[name="new_keywords[]"][value="' + id + '""]').remove();
+                }else{
+                    $('input[name="keywords[]"][value="' + id + '"]').remove();
+                }
+                $(this).parents('span').remove();
+            });
         });
     </script>
 @stop

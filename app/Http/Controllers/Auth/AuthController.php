@@ -75,9 +75,9 @@ class AuthController extends Controller
         $user->city      = $data['city'];
         $user->address   = $data['address'];
         $user->remember_token  = getToken();
-        $user->save();
 
         if( $this->_sendVerifyMail( $user ) ){
+            $user->save();
             return $user;
         }
     }
@@ -128,7 +128,7 @@ class AuthController extends Controller
                         ->where( 'remember_token', '=', $request->token )
                         ->first();
             if( $user ){
-                $user->status = 1;
+                $user->status = AC;
                 $user->save();
                 $msg = trans( "admin.success_verification" );
             }

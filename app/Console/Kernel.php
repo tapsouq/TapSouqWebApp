@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\Inspire::class,
+        Commands\GetApplicationInfo::class,
+        Commands\KeywordMatcher::class,
     ];
 
     /**
@@ -26,5 +28,11 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('inspire')
                  ->hourly();
+        
+        $schedule->command('application:getifo')
+                 ->dailyAt('00:10');                 
+        
+        $schedule->command('matchKewords')
+                 ->dailyAt('02:00');                 
     }
 }

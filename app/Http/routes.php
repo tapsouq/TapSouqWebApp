@@ -44,6 +44,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get( 'app/edit/{app}', 'AppCtrl@edit' ); // To edit the appliaction.
 		Route::post( 'save-app', 'AppCtrl@save' ); // To save edited application.
 		Route::get( 'delete-app', 'AppCtrl@destroy' ); // To deactivate application.
+		Route::post( 'get-keywords', 'AppCtrl@getKeywords' ); // To get the keywords that contain search words.
 		/** End Application Module**/
 
 		/** Ad Zones ( Ad Placement ) Module  **/
@@ -83,6 +84,13 @@ Route::group(['middleware' => 'auth'], function () {
 			Route::post( 'save-user', "UserCtrl@save" ); // To save edited user.
 			Route::get( 'user/delete', "UserCtrl@destroy" );// To delete the user.
 			/** End User Module **/
+
+			/** For Keywords Module **/
+			Route::get( 'matching/matched-keywords', 'MatchingCtrl@showMatched' ); // To show all matched keywords with applications.
+			Route::get( 'matching/unmatched-keywords', 'MatchingCtrl@showEmpty' ); // To show all empty keywords matching
+			Route::get( 'delete-matching', 'MatchingCtrl@deleteMatching' ); // to delete keyword matching
+			Route::get( 'change-priority', 'MatchingCtrl@changePriority' ); // to change priority for matching
+			/** End Keywords Module **/
 		});
 	});
 });

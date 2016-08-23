@@ -47,5 +47,8 @@ return [
 	'run'						=> "Run",
 	'title'						=> "Title",
 	'description'				=> "Description",
-	'type'						=> "Type"
+	'type'						=> "Type",
+	'loading'					=> " Loading ...",
+	'increase'					=> 'Increment',
+	'decrease'					=> "Decrement"
 ];

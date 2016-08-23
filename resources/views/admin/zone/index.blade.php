@@ -77,11 +77,11 @@
                                                                     @if( $application->status != DELETED_APP )
                                                                         <div class="btn-group">
                                                                             <a href="{{ url('zone/edit/' . $ad->id ) }}" class="btn btn-sm btn-info">
-                                                                                {{ trans( 'lang.edit' ) }}
+                                                                                <i class="fa fa-edit"></i>
                                                                             </a>
                                                                             @if( $ad->status != DELETED_ZONE )
                                                                                 <a data-toggle="modal" data-target="#deactivate-zone-modal" data-id="{{ $ad->id }}" class="btn btn-sm btn-danger deactivate-zone">
-                                                                                    {{ trans( 'lang.delete' ) }}
+                                                                                    <i class="fa fa-trash"></i>
                                                                                 </a>
                                                                             @endif
                                                                         </div>
