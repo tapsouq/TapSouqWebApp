@@ -2,7 +2,7 @@
 
 return [
 	"register"					=> "Register",
-	"register_new_membership"	=> "Register a new membership",
+	"register_new_membership"	=> "Register a new account",
 	"fname"						=> "First Name",
 	"lname"						=> "Last Name",
 	"email"						=> "Email",

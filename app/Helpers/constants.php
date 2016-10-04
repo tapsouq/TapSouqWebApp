@@ -41,3 +41,12 @@ define( 'RUNNING_AD', 1 );
 define( 'PAUSED_AD', 2 );
 define( 'COMPLETED_AD', 3 );
 define( 'DELETED_AD', 4 );
+
+// For SDK Module
+define('REQUEST_ACTION', 1);
+define('SHOW_ACTION', 2);
+define('CLICK_ACTION', 3);
+define('INSTALL_ACTION', 4);
+
+define('PLACEMENT_AD', 1);
+define('CREATIVE_AD', 2);

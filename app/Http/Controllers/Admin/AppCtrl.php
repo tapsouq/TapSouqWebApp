@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 
 use Validator, Auth, DB;
 use App\Models\Category, App\Models\Application;
-use App\Models\Zone;
+use App\Models\Zone, App\Models\PlacementLog;
 
 class AppCtrl extends Controller
 {
@@ -40,33 +40,56 @@ class AppCtrl extends Controller
                     'name'          => 'required|max:255',
                     'platform'      => 'required|in:' . implode( ',' , array_keys( config('consts.app_platforms') ) ), 
                     'package_id'    => 'required|max:255',
-                    'category'      => 'required|array|exists:categories,id',
+                    'fcategory'     => 'required|exists:categories,id'
                 ];
     }
 
     /**
      * index. To show all apps page.
      *
-     * @param void
+     * @param int $user_id
      * @return \Illuminate\Http\Response
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function index ( ){
+    public function index ( $user_id = null ){
 
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.all_applications' );
 
-        $apps   = Application::leftJoin( 'users', 'users.id', '=', 'applications.user_id' )
-                            ->select( 'applications.*', 'users.fname','users.lname' );
-        if( $this->_user->role != ADMIN_PRIV ){ // if the user isn't admin
+        $apps   = PlacementLog::join('ad_placement', 'ad_placement.id', '=', 'placement_log.ads_id')
+                            ->join('applications', 'applications.id', '=', 'ad_placement.app_id')
+                            ->join( 'users', 'users.id', '=', 'applications.user_id' )
+                            ->select( 
+                                'applications.*',
+                                'placement_log.created_at as time',
+                                DB::raw('DATE(placement_log.created_at) AS date'),
+                                DB::raw('SUM(`placement_log`.`requests`) AS requests'), 
+                                DB::raw('SUM(`placement_log`.`impressions`) AS impressions'), 
+                                DB::raw('SUM(`placement_log`.`clicks`) AS clicks'),
+                                DB::raw('SUM(`placement_log`.`installed`) AS installed')
+                            );
+        if( $this->_user->role != ADMIN_PRIV ){ // if the user isn't an admin
             $apps = $apps->where( 'applications.user_id', '=', $this->_user->id )
-                        ->where( 'applications.status', '=', ACTIVE_APP );
+                        ->where( 'applications.status', '!=', DELETED_APP );
+        }else if( $user_id != null ){ // if the user is an admin and check user apps
+            $apps = $apps->where( 'applications.user_id', '=', $user_id );
         }
 
-        $apps = $apps->get();
-
-        $data = [ 'title', 'mTitle', 'apps' ];
+        $chartData = adaptChartData( clone($apps), 'placement_log' );
+        
+        $apps   = $apps->groupBy('ad_placement.app_id')
+                        ->orderBy('placement_log.created_at', 'ASC')
+                        ->get();
+        
+        // get the count of all placement ads
+        $adsCount = Zone::leftJoin('applications', 'applications.id', '=', 'ad_placement.app_id')
+                        ->where( 'applications.user_id', '=', $this->_user->id )
+                        ->where('applications.status', '!=', DELETED_APP)
+                        ->where('ad_placement.status', '!=', DELETED_ZONE)
+                        ->count();
+            
+        $data = [ 'title', 'mTitle', 'apps', 'adsCount', 'chartData' ];
         return view( 'admin.app.index' )
                     ->with( compact( $data ) );
     }
@@ -98,8 +121,11 @@ class AppCtrl extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function store ( Request $request ){
-
-        $rules =array_merge( $this->_initRules, [ 'icon' => 'required|image|mimes:jpeg,jpg,bmp,png,gif' ] );
+        $createRules = [
+                'icon'      => 'required|image|mimes:jpeg,jpg,bmp,png,gif',
+                'scategory' => 'required|exists:categories,id|not_in:' . $request->input('fcategory') // to make sure that secondary category differ than first category
+            ];
+        $rules =array_merge( $this->_initRules, $createRules );
         
         $validator = Validator::make( $request->all(), $rules );
         if( $validator->fails() ){
@@ -109,7 +135,7 @@ class AppCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $this->_store( $request );
-            return redirect()->back()
+            return redirect('app/all')
                             ->with( 'success', trans( 'lang.compeleted_msg' ) );
         }
     }
@@ -158,6 +184,7 @@ class AppCtrl extends Controller
         $editRules  = [ 
                 'id'        => 'required|exists:applications,id',
                 'icon'      => 'image|mimes:jpeg,jpg,bmp,png,gif',
+                'scategory' => 'required|exists:categories,id|not_in:' . $request->input('fcategory'),
                 'status'    => 'in:' . implode( ',' , array_keys( config('consts.app_status') ) )
             ]; 
         $rules      = array_merge( $this->_initRules, $editRules );
@@ -274,8 +301,7 @@ class AppCtrl extends Controller
         $app->save();
 
         // To make sure that two categories only be inserted
-        $categories = array_slice($request->category, 0, 2);
+        $categories = [ $request->fcategory, $request->scategory ];
         syncPivot( 'application_categories', 'app_id', $app->id, 'cat_id', $categories );
     }
-
 }

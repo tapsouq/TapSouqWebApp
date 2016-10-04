@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>{{ $siteTitle }} | {{ $mTitle }} | {{ $title }} </title>
+        <title>{{ isset($siteTitle) ? $siteTitle : '' }} | {{ isset($mTitle) ? $mTitle : '' }} | {{ isset($title) ? $title : '' }} </title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <!-- Bootstrap 3.3.6 -->
@@ -32,7 +32,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         @yield( 'head' )
     </head>
-    <body class="hold-transition skin-blue sidebar-mini" >
+    <body class="skin-blue sidebar-mini sidebar-collapse" >
         <div class="wrapper">
             <!-- Header section -->
             @include( 'admin.layout.header' )
@@ -49,13 +49,13 @@
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>
-                        {{ $mTitle }}
-                        <small>{{ $title }}</small>
+                        {{ isset($mTitle) ? $mTitle : trans( 'admin.dashboard' ) }}
+                        <small>{{ isset($title) ? $title : trans( 'admin.dashboard' ) }}</small>
                     </h1>
                     <ol class="breadcrumb">
                         <li><a href="#"><i class="fa fa-dashboard"></i> {{ trans( 'admin.dashboard' ) }}</a></li>
-                        <li><a href="#">{{ $mTitle }}</a></li>
-                        <li class="active">{{ $title }}</li>
+                        <li><a href="#">{{ isset($mTitle) ? $mTitle : trans( 'admin.dashboard' ) }}</a></li>
+                        <li class="active">{{ isset($title) ? $title : trans( 'admin.dashboard' ) }}</li>
                     </ol>
                 </section>
 
@@ -72,6 +72,8 @@
         <script src="{{ url( 'resources/assets' ) }}/plugins/jQuery/jquery-2.2.3.min.js"></script>
         <!-- Bootstrap 3.3.6 -->
         <script src="{{ url( 'resources/assets' ) }}/bootstrap/js/bootstrap.min.js"></script>
+        <!-- date-range-picker -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
         <!-- Select2 -->
         <script src="{{ url( 'resources/assets' ) }}/plugins/select2/select2.full.min.js"></script>
         <!-- iCheck 1.0.1 -->
@@ -79,27 +81,206 @@
         <!-- FastClick -->
         <script src="{{ url( 'resources/assets' ) }}/plugins/fastclick/fastclick.js"></script>
         <!-- AdminLTE App -->
-        <script src="{{ url( 'resources/assets' ) }}/dist/js/app.min.js"></script>
+        <script src="{{ url( 'resources/assets' ) }}/dist/js/app.js"></script>
         <!-- AdminLTE for demo purposes -->
         <script src="{{ url( 'resources/assets' ) }}/dist/js/demo.js"></script>
         <script>
-          $(function () {
-            
-            //Initialize Select2 Elements
-            $(".select2").select2();
+            $(function () {
+                
+                //Initialize Select2 Elements
+                $(".select2").select2();
 
-            //iCheck for checkbox and radio inputs
-            $('input[type="checkbox"].minimal-blue, input[type="radio"].minimal-blue').iCheck({
-                checkboxClass: 'icheckbox_minimal-blue',
-                radioClass: 'iradio_minimal-blue'
+                //iCheck for checkbox and radio inputs
+                $('input[type="checkbox"].minimal-blue, input[type="radio"].minimal-blue').iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue'
+                });
+                $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                });
             });
-            $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-            });
-        });
         </script>
+        @if( isset( $chartData) )
+            <script type="text/javascript" src="{{ url( 'resources/assets/plugins/highcharts/highcharts.js' ) }}"></script>
+            <script type="text/javascript">
+                // Yellow, aqua, green, purple, red
+                Highcharts.setOptions().colors= [ "#f39c12", "#00c0ef", "#00a65a", "#605ca8", "#dd4b39" ];
+                data = JSON.parse('{!! json_encode($chartData) !!}');
+                var chartOptions = {
+                        renderTo : 'chart-container',
+                        type: 'spline'
+                    };
+                var chartTitle = {
+                        text : "{!! $title !!}"
+                    };
+                var xAxis = {
+                        type: 'datetime'
+                    };
+                var tooltip = {
+                        crosshairs : true,
+                        useHTML : true,
+                        formatter : function(){
+                            var values = getOtherValues( this.point.x );
+                            var day = moment(this.point.x).format('dd, MMMM Do YYYY');
+                            var html = "<div id='custom-tooltip'> " + day + "<br>";
+                            for( i=0; i< values.length; i++ ){
+                                var name = (values[i][0]).replace(/\s/g, '').toLowerCase();
+                                html += "<span class='span-" + name + "'><i class='fa fa-circle'></i>" + values[i][0] + " : </span->" + values[i][1] + "<br>"
+                            }
+                            html += "</div>"
+                            return html;
+                        }
+                    };
+                var plotOptions = {
+                        spline: {
+                            marker: {
+                                radius: 3,
+                                lineColor: '#666666',
+                                lineWidth: 1
+                            }
+                        }
+                    };
+                var legend = {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'top',
+                        borderWidth: 0,
+                        y : 20
+                    };
+
+                var yAxes = [
+                        { // Primary yAxis
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[0]
+                                }
+                            },
+                            title: {
+                                text: '{{ trans( 'admin.requests' ) }}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[0]
+                                }
+                            },
+                            min: 0
+
+                        }, { // Secondary yAxis
+                            title: {
+                                text: '{{ trans( 'admin.impressions' ) }}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            min :0
+
+                        }, { // Tertiary yAxis
+                            title: {
+                                text: '{{ trans( 'admin.clicks' ) }}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[2]
+                                }
+                            },
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[2]
+                                }
+                            },
+                            opposite: true,
+                            min: 0
+                        }, { // Tertiary yAxis
+                            title: {
+                                text: '{{ trans( 'admin.fill_rate' ) }}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[3]
+                                }
+                            },
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[3]
+                                }
+                            },
+                            opposite: true,
+                            min : 0
+                        }, { // Tertiary yAxis
+                            title: {
+                                text: '{{ trans( 'admin.ctr' ) }}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[4]
+                                }
+                            },
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[4]
+                                }
+                            },
+                            opposite: true,
+                            min: 0
+                        }
+                    ];
+                var series = [
+                        {
+                            name: '{{ trans( 'admin.requests' ) }}',
+                            yAxis:0,
+                            data: data.requests
+                        }, {
+                            name: '{{ trans( 'admin.impressions' ) }}',
+                            yAxis:1,
+                            data: data.impressions
+                        }, {
+                            name: '{{ trans( 'admin.clicks' ) }}',
+                            yAxis:2,
+                            data: data.clicks
+                        }, {
+                            name: '{{ trans( 'admin.fill_rate' ) }}',
+                            yAxis:3,
+                            data: data.fill_rate,
+                            visible: false
+                        }, {
+                            name: '{{ trans( 'admin.ctr' ) }}',
+                            yAxis:4,
+                            data: data.ctr,
+                            visible: false
+                        }
+                    ];
+                 var chart = new Highcharts.chart({
+                    chart: chartOptions,
+                    title : chartTitle,
+                    xAxis: xAxis,
+                    yAxis: yAxes,
+                    tooltip: tooltip,
+                    plotOptions: plotOptions,
+                    legend: legend,
+                    series: series
+                });
+                function getOtherValues(x){
+                    var array = [];
+                    for (var i = 0; i < chart.series.length; i++) {
+                        if(chart.series[i].visible){
+                            var points = chart.series[i].points;
+                            for (var j =0; j < points.length; j++) {
+                                if( points[j].x == x){
+                                    y = points[j].y;
+                                    break;
+                                }
+                            } 
+                            array.push( [ chart.series[i].name, y ] );
+                        }
+                    }
+                    return array;
+                } 
+            </script>
+        @endif
         @yield( 'script' )
     </body>
 </html>

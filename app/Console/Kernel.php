@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         Commands\Inspire::class,
         Commands\GetApplicationInfo::class,
         Commands\KeywordMatcher::class,
+        Commands\SetLog::class,
     ];
 
     /**
@@ -29,10 +30,25 @@ class Kernel extends ConsoleKernel
         $schedule->command('inspire')
                  ->hourly();
         
+        /** 
+         * To run curl to get the information of the new added application, that        
+         * is been added in last day
+         */
         $schedule->command('application:getifo')
                  ->dailyAt('00:10');                 
         
+        /**
+         * To match between keywords that user entered in the last days with all application, 
+         * the same for new application to be matched with all keywords
+         */
         $schedule->command('matchKewords')
-                 ->dailyAt('02:00');                 
+                 ->dailyAt('02:00');
+
+        /**
+         *
+         *
+         */
+         $schedule->command('setlog')
+                  ->dailyAt('02:00');                 
     }
 }

@@ -8,7 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use Auth, DB, Validator;
-use App\Models\Ads, App\Models\Campaign;
+use App\Models\Ads, App\Models\Campaign, App\Models\CreativeLog;
 class AdsCtrl extends Controller
 {
     // the main Title of all pages controlled by this controller
@@ -46,29 +46,88 @@ class AdsCtrl extends Controller
     }
 
     /**
-     * index. 
+     * index. to show all ads page
      *
-     * @param void
+     * @param int $camp_id
      * @return void
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function index ( ){
+    public function index ($camp_id = null ){
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.all_ads' );
         
-        $camps   = Campaign::LeftJoin( 'ad_creative', 'ad_creative.camp_id', '=', 'campaigns.id' )
-                        ->select( 'campaigns.*', 'campaigns.name as campaign' )
-                        ->groupBy( 'campaigns.id' );
+        $ads    = CreativeLog::join('ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id')
+                                ->join( 'campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
+                                ->select( 
+                                            'ad_creative.*',
+                                            'creative_log.created_at as time',
+                                            DB::raw('DATE(creative_log.created_at) as date'), 
+                                            DB::raw('SUM(creative_log.requests) AS requests'), 
+                                            DB::raw('SUM(creative_log.impressions) AS impressions'), 
+                                            DB::raw('SUM(creative_log.clicks) AS clicks'),
+                                            DB::raw('SUM(creative_log.installed) AS installed')
+                                        );
+
         if( $this->_user->role != ADMIN_PRIV ){
-            $camps = $camps->where( 'campaigns.status', '!=', DELETED_CAMP  )
+            $ads = $ads->where( 'campaigns.status', '!=', DELETED_CAMP  )
                             ->where( 'ad_creative.status', '!=', DELETED_AD )
                             ->where( 'campaigns.user_id', '=', $this->_user->id );
         }
-        $camps = $camps->get();
 
-        $data   = [ 'mTitle', 'title', 'camps' ];
+        // to get the ads that within that campaign
+        if( $camp_id != null ){
+            $ads    = $ads->where('ad_creative.camp_id', '=', $camp_id);
+            $camp   = Campaign::find($camp_id);
+            $title  = trans('admin.ads_of') . $camp->name; 
+        }
+
+        $chartData = adaptChartData( clone($ads), 'creative_log' );
+        $ads = $ads->groupBy('ad_creative.id')
+                        ->orderBy('created_at', 'ASC')
+                        ->get();
+
+        $data   = [ 'mTitle', 'title', 'ads', 'camp', 'chartData' ];
         return view( 'admin.ads.index' )
+                    ->with( compact( $data ) );
+    }
+
+    /**
+     * show. To show the ads page
+     *
+     * @param int ads_id
+     * @return \Illuminate\Http\Response
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function show ( $ads_id ){
+        $mTitle = $this->_mTitle;
+        $ads    = Ads::find($ads_id);
+
+        $items  = CreativeLog::join('ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id')
+                                ->select( 
+                                            'ad_creative.*',
+                                            'creative_log.created_at as time',
+                                            DB::raw('DATE(creative_log.created_at) as date'), 
+                                            DB::raw('SUM(creative_log.requests) AS requests'), 
+                                            DB::raw('SUM(creative_log.impressions) AS impressions'), 
+                                            DB::raw('SUM(creative_log.clicks) AS clicks'),
+                                            DB::raw('SUM(creative_log.installed) AS installed')
+                                        )
+                                ->where('ad_creative.id', '=', $ads_id);
+
+        if( is_null($ads) ){
+            return redirect('admin')
+                        ->with('warning', trans('lang.spam'));
+        }
+
+        $chartData      = adaptChartData( clone($items), 'creative_log' );
+        $adsDetails    = $items->groupBy('ad_creative.id')
+                            ->first();
+
+        $title  = $ads->name;
+        $data = [ 'mTitle', 'title', 'chartData', 'adsDetails' ];
+        return view( 'admin.ads.show' )
                     ->with( compact( $data ) );
     }
 
@@ -80,12 +139,17 @@ class AdsCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function create (  ){
-        $mTitle = $this->_mTitle;
-        $title  = trans( 'admin.add_new_ad' );
-        $camps  = $this->_camps;
+    public function create (){
+        $mTitle     = $this->_mTitle;
+        $title      = trans( 'admin.add_new_ad' );
+        
+        // To get the camp_id from the previous link
+        $camp_id    = $this->_getIdFromPrevLink();
+        
+        if( ! $camp_id )
+            return redirect('admin')->with( 'warning', trans('lang.spam_msg') );
 
-        $data   = [ 'mTitle', 'title', 'camps' ];
+        $data   = [ 'mTitle', 'title', 'camp_id' ];
         return view( 'admin.ads.create' )
                     ->with( compact( $data ) );
     }
@@ -100,7 +164,8 @@ class AdsCtrl extends Controller
      */
     public function store ( Request $request ){
         $validator = Validator::make( $request->all(), array_merge($this->_initRules, [
-                'image_file' => 'required|image|mimes:png,bmp,jpeg,jpg,gif'
+                'image_file'    => 'required|image|mimes:png,bmp,jpeg,jpg,gif',
+                'campaign'      => 'required|exists:campaigns,id' 
             ]));
 
         if( $validator->fails() ){
@@ -126,7 +191,6 @@ class AdsCtrl extends Controller
     public function edit ( $ad_id ){
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.edit_ads' );
-        $camps  = $this->_camps;
         $ad     = Ads::where( 'ad_creative.id', '=', $ad_id );
         
         if( $this->_user->role != ADMIN_PRIV ){
@@ -141,8 +205,9 @@ class AdsCtrl extends Controller
             return redirect()->back()
                             ->with( 'warning', trans('lang.spam_msg') );
         }
+        $camp_id = $ad->camp_id;
 
-        $data = [ 'mTitle', 'title', 'camps', 'ad' ];
+        $data = [ 'mTitle', 'title', 'camp_id', 'ad' ];
         return view( 'admin.ads.create' )
                     ->with( compact( $data ) );
     }
@@ -250,5 +315,31 @@ class AdsCtrl extends Controller
         }
 
         $ad->save();
+    }
+
+    /**
+     * _getIdFromPrevLink. To get the Camp_id from the previous link
+     *
+     * @param void
+     * @return int
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _getIdFromPrevLink ( ){
+        
+        $prevUrl        = \URL::previous();
+        $segments = explode('/', $prevUrl);
+        
+        $segments = array_values(array_filter($segments, function ($v) {
+                        return $v != '';
+                    }));
+        $count = count($segments);
+        
+        // To assure that the 
+        if( !( $segments[ $count- 3] == 'ads' && (int)$segments[ $count - 1 ]  ) ){
+            return false;
+        }
+
+        return $segments[ $count - 1 ];
     }
 }

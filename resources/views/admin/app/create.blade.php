@@ -34,16 +34,17 @@
                                     {{ trans( 'admin.platform' ) }}
                                 </label>
                                 @if( sizeof( $platforms = config( 'consts.app_platforms' ) ) > 0 )
-                                    <select name="platform" class="form-control" required>
+                                    <div class="radio-list">
                                         @foreach( $platforms as $key => $value )
-                                            <option value="{{ $key }}" {{ isset($_app)? ( $_app->platform == $key ? 'selected' : '' ) : ( old('platform') == $key ? 'selected' : '' ) }}>
-                                                {{ $value }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <span class="help-block">
-                                        {{ $errors->has( 'platform' ) ? $errors->first( 'platform' ) : '' }}
-                                    </span>
+                                            <label>
+                                                <input type="radio" name="platform" value="{{ $key }}" class="minimal-blue" {{ isset($_app)? ( $_app->platform == $key ? 'checked' : '' ) : ( old('platform') == $key ? 'checked' : '' ) }} required="">
+                                                <span class="radio-label">{{ $value }}</span> 
+                                            </label>
+                                            @endforeach
+                                        <span class="help-block">
+                                            {{ $errors->has( 'platform' ) ? $errors->first( 'platform' ) : '' }}
+                                        </span>
+                                    </div>
                                 @endif
                             </div>
                             <div class="form-group has-feedback {{ $errors->has( 'package_id' ) ? 'has-error' : '' }}">
@@ -88,22 +89,47 @@
                                     {{ $errors->has( 'icon' ) ? $errors->first( 'icon' ) : '' }}
                                 </span>
                             </div>
-                            <div class="form-group has-feedback {{ $errors->has( 'category' ) ? 'has-error' : '' }}">
-                                <label>
-                                    {{ trans( 'admin.category' ) }}
-                                </label>
-                                @if( sizeof( $categories ) > 0 )
-                                    <select class="form-control category" name="category[]" multiple required>
-                                        @foreach( $categories as $key => $value )
-                                            <option value="{{ $value->id }}" {{ isset($app_cats) ? ( in_array( $value->id, $app_cats ) ? 'selected' : '' ) :  ( old( 'category' ) ? ( in_array($value->id, old( 'category' ) ) ? 'selected' : '' ) : '' )  }} >
-                                                {{ $value->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <span class="help-block">
-                                        {{ $errors->has( 'category' ) ? $errors->first( 'category' ) : '' }}
-                                    </span>
-                                @endif
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback {{ $errors->has( 'fcategory' ) ? 'has-error' : '' }}">
+                                        <label>
+                                            {{ trans('admin.primary_cat') }}
+                                        </label>
+                                        @if( sizeof( $categories ) > 0 )
+                                            <select class="form-control select2 category" name="fcategory" required>
+                                                <option value="">{{ trans( 'admin.select_cat' ) }}</option>
+                                                @foreach( $categories as $key => $value )
+                                                    <option value="{{ $value->id }}" {{ isset($app_cats) ? ( $value->id == $app_cats[0] ? 'selected' : '' ) :  ( old( 'fcategory' ) == $value->id ? 'selected' : '' ) }} >
+                                                        {{ $value->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <span class="help-block">
+                                                {{ $errors->has( 'fcategory' ) ? $errors->first( 'fcategory' ) : '' }}
+                                            </span>
+                                        @endif        
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback {{ $errors->has( 'scategory' ) ? 'has-error' : '' }}">
+                                        <label>
+                                            {{ trans('admin.secondary_cat') }}
+                                        </label>
+                                        @if( sizeof( $categories ) > 0 )
+                                            <select class="form-control select2 category" name="scategory" required>
+                                                <option value="" >{{ trans( 'admin.select_cat' ) }}</option>
+                                                @foreach( $categories as $key => $value )
+                                                    <option value="{{ $value->id }}" {{ isset($app_cats) ? ( $value->id == $app_cats[1] ? 'selected' : '' ) :  ( old( 'scategory' ) == $value->id ? 'selected' : '' ) }} >
+                                                        {{ $value->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <span class="help-block">
+                                                {{ $errors->has( 'scategory' ) ? $errors->first( 'scategory' ) : '' }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                             @if( Auth::user()->role == ADMIN_PRIV )
                             <div class="form-group has-feedback {{ $errors->has( 'status' ) ? 'has-error' : '' }}">
@@ -143,10 +169,15 @@
     <script type="text/javascript">
         $(document).ready( function(){
 
-            $("select.category").select2({
-                placeholder : "{{ trans( 'admin.select_cat' ) }}",
-                maximumInputLength: 7, // only allow terms up to 20 characters long
-                maximumSelectionLength: 2
+            $("select.category").select2();
+
+            $("select.category").on('change', function(){
+                var catVal  = $(this).val();
+                var $secCat = $('select.category').not(this);
+
+                $secCat.find('option').not('.disabled').prop('disabled', false);
+                $secCat.find('option[value="' + catVal + '"]').prop( 'disabled', true );
+                $secCat.select2();
             });
         });
 

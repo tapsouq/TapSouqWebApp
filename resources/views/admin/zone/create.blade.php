@@ -14,7 +14,7 @@
                             {{ $title }}
                         </h3>
                     </div>
-                    @if( sizeof( $applications ) > 0 )
+                    @if( isset($app_id ) )
                         <div class="box-body">
                             <div class="row">
                                 <div class="col-md-6">
@@ -22,6 +22,7 @@
                                         <label>
                                             {{ trans( 'lang.name' ) }}
                                             {!! csrf_field() !!}
+                                            <input name="application" value="{{ $app_id }}" type="hidden">
                                             @if( isset($zone) )
                                                 <input type="hidden" name="id" value="{{ $zone->id }}" >
                                             @endif
@@ -33,20 +34,20 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'application' ) ? 'has-error' : '' }}">
+                                    <div class="form-group has-feedback {{ $errors->has( 'device_type' ) ? 'has-error' : '' }}">
                                         <label>
-                                            {{ trans( 'admin.application' ) }}
+                                            {{ trans( 'admin.device_type' ) }}
                                         </label>
-                                        @if( sizeof( $applications ) > 0 )
-                                            <select class="form-control select2" name="application" required>
-                                                @foreach( $applications as $key => $value )
-                                                    <option value="{{ $value->id }}" {{ isset($zone) ? ( $zone->app_id == $value->id ? 'selected' : '' ) : ( old('application') == $value->id ? 'selected' :'' ) }}>
-                                                        {{ $value->name }}
+                                        @if( sizeof( $devices = config( 'consts.zone_devices' ) ) > 0 )
+                                            <select name="device_type" class="form-control" required>
+                                                @foreach( $devices as $key => $value )
+                                                    <option value="{{ $key }}" {{ isset($zone) ? ( $zone->device_type == $key ? 'selected' : '' ) : ( old('device_type') == $key ? 'selected' :'' ) }} >
+                                                        {{ $value }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                             <span class="help-block">
-                                                {{ $errors->has( 'application' ) ? $errors->first( 'application' ) : '' }}
+                                                {{ $errors->has( 'device_type' ) ? $errors->first( 'device_type' ) : '' }}
                                             </span>
                                         @endif
                                     </div>
@@ -72,75 +73,6 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'device_type' ) ? 'has-error' : '' }}">
-                                        <label>
-                                            {{ trans( 'admin.device_type' ) }}
-                                        </label>
-                                        @if( sizeof( $devices = config( 'consts.zone_devices' ) ) > 0 )
-                                            <select name="device_type" class="form-control" required>
-                                                @foreach( $devices as $key => $value )
-                                                    <option value="{{ $key }}" {{ isset($zone) ? ( $zone->device_type == $key ? 'selected' : '' ) : ( old('device_type') == $key ? 'selected' :'' ) }} >
-                                                        {{ $value }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <span class="help-block">
-                                                {{ $errors->has( 'device_type' ) ? $errors->first( 'device_type' ) : '' }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'daily_freq_cap' ) ? 'has-error' : '' }}">
-                                        <label>
-                                            {{ trans( 'admin.daily_freq_cap' ) }}
-                                        </label>
-                                        <div class="row">
-                                            <div class="col-md-2">
-                                                <input type="checkbox" class="minimal-blue freq-cap" value="1" name="daily_freq" {{ isset($zone) ? ( $zone->daily_freq_cap ? 'checked' : '' ) : ( old('daily_freq') ? 'checked' : '' )  }} >
-                                            </div>
-                                            <div class="col-md-10 freq-input {{ isset($zone) ? ( $zone->daily_freq_cap ? '' : 'hidden' ) : ( old('daily_freq') ? '' : 'hidden' ) }} ">
-                                                <div class="input-group input-group-sm">
-                                                    <input class="form-control" type="number" min="1" name="daily_freq_cap" value="{{ isset($zone) ? $zone->daily_freq_cap : old('daily_freq_cap') }}">
-                                                    <span class="input-group-addon">
-                                                        {{ trans( 'admin.times_per_day' ) }}
-                                                    </span>
-                                                </div>
-                                                <span class="help-block">
-                                                    {{ $errors->has( 'daily_freq_cap' ) ? $errors->first( 'daily_freq_cap' ) : '' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'hourly_freq_cap' ) ? 'has-error' : '' }}">
-                                        <label>
-                                            {{ trans( 'admin.hourly_freq_cap' ) }}
-                                        </label>
-                                        <div class="row">
-                                            <div class="col-md-2">
-                                                <input type="checkbox" class="minimal-blue freq-cap" value="1" name="hourly_freq" {{ isset($zone) ? ( $zone->hourly_freq_cap ? 'checked' : '' ) : ( old('hourly_freq') ? 'checked' : '' )  }} >
-                                            </div>
-                                            <div class="col-md-10 freq-input {{ isset($zone) ? ( $zone->hourly_freq_cap ? '' : 'hidden' ) : ( old('hourly_freq') ? '' : 'hidden' ) }} ">
-                                                <div class="input-group input-group-sm">
-                                                    <input class="form-control" type="number" min="1" name="hourly_freq_cap" value="{{ isset($zone) ? $zone->hourly_freq_cap : old('hourly_freq_cap') }}">
-                                                    <span class="input-group-addon">
-                                                        {{ trans( 'admin.times_per_hour' ) }}
-                                                    </span>
-                                                </div>
-                                                <span class="help-block">
-                                                    {{ $errors->has( 'hourly_freq_cap' ) ? $errors->first( 'hourly_freq_cap' ) : '' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group interstitial-layout has-feedback {{ $errors->has( 'layout' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->device_type == BANNER ? 'hidden' : '' ) : ( old('device_type') == BANNER ? 'hidden' : '' ) }} ">
                                         <label>
@@ -169,7 +101,58 @@
                                         </span>
                                     </div>  
                                 </div>
-                                @if( Auth::user()->role == ADMIN_PRIV )
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback {{ $errors->has( 'hourly_freq_cap' ) ? 'has-error' : '' }}">
+                                        <label>
+                                            {{ trans( 'admin.hourly_freq_cap' ) }}
+                                        </label>
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <input type="checkbox" class="minimal-blue freq-cap" value="1" name="hourly_freq" {{ isset($zone) ? ( $zone->hourly_freq_cap ? 'checked' : '' ) : ( old('hourly_freq') ? 'checked' : '' )  }} >
+                                            </div>
+                                            <div class="col-md-10 freq-input {{ isset($zone) ? ( $zone->hourly_freq_cap ? '' : 'hidden' ) : ( old('hourly_freq') ? '' : 'hidden' ) }} ">
+                                                <div class="input-group input-group-sm">
+                                                    <input class="form-control" type="number" min="1" name="hourly_freq_cap" value="{{ isset($zone) ? $zone->hourly_freq_cap : old('hourly_freq_cap') }}">
+                                                    <span class="input-group-addon">
+                                                        {{ trans( 'admin.times_per_hour' ) }}
+                                                    </span>
+                                                </div>
+                                                <span class="help-block">
+                                                    {{ $errors->has( 'hourly_freq_cap' ) ? $errors->first( 'hourly_freq_cap' ) : '' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback {{ $errors->has( 'daily_freq_cap' ) ? 'has-error' : '' }}">
+                                        <label>
+                                            {{ trans( 'admin.daily_freq_cap' ) }}
+                                        </label>
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <input type="checkbox" class="minimal-blue freq-cap" value="1" name="daily_freq" {{ isset($zone) ? ( $zone->daily_freq_cap ? 'checked' : '' ) : ( old('daily_freq') ? 'checked' : '' )  }} >
+                                            </div>
+                                            <div class="col-md-10 freq-input {{ isset($zone) ? ( $zone->daily_freq_cap ? '' : 'hidden' ) : ( old('daily_freq') ? '' : 'hidden' ) }} ">
+                                                <div class="input-group input-group-sm">
+                                                    <input class="form-control" type="number" min="1" name="daily_freq_cap" value="{{ isset($zone) ? $zone->daily_freq_cap : old('daily_freq_cap') }}">
+                                                    <span class="input-group-addon">
+                                                        {{ trans( 'admin.times_per_day' ) }}
+                                                    </span>
+                                                </div>
+                                                <span class="help-block">
+                                                    {{ $errors->has( 'daily_freq_cap' ) ? $errors->first( 'daily_freq_cap' ) : '' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                
+                            @if( Auth::user()->role == ADMIN_PRIV )
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group has-feedback {{ $errors->has( 'status' ) ? 'has-error' : '' }}">
                                             <label>
@@ -189,8 +172,8 @@
                                             @endif
                                         </div>
                                     </div>
-                                @endif
-                            </div>
+                                </div>
+                            @endif
                         </div>
                         <div class="box-footer">
                             <button type="submit" class="btn btn-info pull-right">

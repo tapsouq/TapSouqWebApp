@@ -10,7 +10,7 @@ if( ! function_exists( 'getToken' ) ){
 	 * @copyright Sapps Company <>
 	 */
 	  function getToken ( ){
-		return str_random(40) . mt_rand();
+		return str_random(80);
 	}
 }
 
@@ -27,7 +27,7 @@ if( ! function_exists( 'getSiteInfo' ) ){
 	function getSiteInfo (  ){
 		$array = [
 			'site_title'  		=> trans( 'lang.tabsouq' ),
-			'site_email'		=> "a.esawy.sapps@gmail.com",
+			'site_email'		=> "info@tapsouq.smart-apps-ar.com"
 		];
 
 		return json_decode( json_encode( $array ) );
@@ -161,4 +161,61 @@ if( ! function_exists( 'getCampAds' ) ){
         $ads = Auth::user()->role == ADMIN_PRIV ? $ads : $ads->where( 'status', '!=', DELETED_AD );
         return $ads->get();
     }   
+}
+
+if( ! function_exists('getAppAdsCount') ){
+    /**
+     * getAppAdsCount. to get the count of ads in the specific application. 
+     *
+     * @param int $app_id
+     * @return int
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+     function getAppAdsCount ( $app_id ){
+        return \App\Models\Zone::where('app_id', '=', $app_id)->count();
+    }
+}
+
+if( ! function_exists('getCampAdsCount') ){
+    /**
+     * getCampAdsCount. to get the count of ads in the specific campaign. 
+     *
+     * @param int $camp_id
+     * @return int
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+     function getCampAdsCount ( $camp_id ){
+        return \App\Models\Ads::where('camp_id', '=', $camp_id)->count();
+    }
+}
+
+if( ! function_exists('adaptChartData') ){
+    /**
+     * adaptChartData. To adapt the array that will be used in charts
+     *
+     * @param array $items
+     * @param string $tableName
+     * @return array
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    function adaptChartData ( $items, $tableName ){
+        $items = $items->groupBy('date')
+                        ->orderBy( "{$tableName}.created_at", 'ASC')
+                        ->get();
+
+        $array = [];
+        foreach ($items as $key => $item) {
+            $fillRate   = $item->requests != 0 ? round( $item->impressions/$item->requests, 2 ) : 0;
+            $ctr        = $item->impressions != 0 ? round( $item->clicks/$item->impressions, 2) : 0;
+            $array['requests'][] = [ strtotime($item->time) * 1000, (int)$item->requests ];
+            $array['impressions'][] = [ strtotime($item->time) * 1000, (int)$item->impressions ];
+            $array['clicks'][] = [ strtotime($item->time) * 1000, (int)$item->clicks ];
+            $array['fill_rate'][] = [ strtotime($item->time) * 1000, (float)round($fillRate, 2) ];
+            $array['ctr'][] = [ strtotime($item->time) * 1000, (float)round($ctr, 2) ];
+        }
+        return $array;
+    }
 }

@@ -14,8 +14,8 @@
                             {{ $title }}
                         </h3>
                     </div>
-                    <div class="box-body">
-                        @if( sizeof( $camps ) > 0 )
+                    @if( isset( $camp_id ) )
+                        <div class="box-body">
                             <div class="form-body">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -23,6 +23,7 @@
                                             <label>
                                                 {{ trans( 'lang.name' ) }}
                                                 {!! csrf_field() !!}
+                                                <input type="hidden" name="campaign" value="{{ $camp_id }}" >
                                                 @if( isset($ad) )
                                                     <input type="hidden" name="id" value="{{ $ad->id }}">
                                                 @endif
@@ -117,11 +118,9 @@
                                             </label>
                                             @if( isset( $ad ) )
                                                 <div class="icon-container">
-                                                    <div class="col-md-4">
-                                                        <a href="#" class="thumbnail">
-                                                            <img src="{{ url('public/uploads/ad-images/' . $ad->image_file ) }}" alt="{{ trans( 'admin.image_file' ) }}">
-                                                        </a>
-                                                    </div>
+                                                    <p href="#" class="thumbnail">
+                                                        <img class="responsive-img" src="{{ url('public/uploads/ad-images/' . $ad->image_file ) }}" alt="{{ trans( 'admin.image_file' ) }}">
+                                                    </p>
                                                 </div>
                                             @endif
                                             <!-- image-preview-filename input [CUT FROM HERE]-->
@@ -140,29 +139,11 @@
                                                     </div>
                                                 </span>
                                             </div><!-- /input-group image-preview [TO HERE]--> 
+                                            <span class="help-block image-dimensions"></span>
                                             <span class="help-block">
                                                 {{ $errors->has( 'image_file' ) ? $errors->first( 'image_file' ) : '' }}
                                             </span>
                                           </div>  
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group has-feedback {{ $errors->has( 'campaign' ) ? 'has-error' : '' }}">
-                                            <label>
-                                                {{ trans( 'admin.campaign' ) }}
-                                            </label>
-                                            @if( sizeof( $camps ) > 0 )
-                                                <select class="form-control" name="campaign" required>
-                                                    @foreach( $camps as $key => $value )
-                                                        <option value="{{ $value->id }}" {{ isset($ad) ? ( $ad->camp_id == $value->id ? 'selected' : '' ) : ( old('campaign') == $value->id ? 'selected' :'' ) }}>
-                                                            {{ $value->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <span class="help-block">
-                                                    {{ $errors->has( 'campaign' ) ? $errors->first( 'campaign' ) : '' }}
-                                                </span>
-                                            @endif
-                                        </div>
                                     </div>
                                     @if( Auth::user()->role == ADMIN_PRIV )
                                         <div class="col-md-6">
@@ -196,9 +177,8 @@
                     @else
                         <div class="box-body">
                             <p>
-                                {{ trans( 'admin.no_active_camps' ) }}
-                                <a href="{{ url( 'camp/create' ) }}">
-                                     {{ trans( 'admin.add_new_campaign' ) }}
+                                <a href="{{ url('app/create') }}">
+                                    {{ trans( 'admin.create_camp_first' ) }}
                                 </a>
                             </p>
                         </div>
@@ -211,4 +191,51 @@
 
 @section( 'script' )
     <script type="text/javascript" src="{{ url() }}/resources/assets/plugins/bootsnipp-file-input/bootsnipp-file-input.js" ></script>
+    <script type="text/javascript">
+        $(function(){
+            var $texAdDetails   = $('input[name=title], input[name=description]').parents('.form-group');
+            var $imgDimension   = $('.image-dimensions');
+
+            $('select[name=type]').on( 'change', function(){
+                adaptTypeControls($(this));
+            });
+
+            adaptTypeControls( $('select[name=type]') );
+            function adaptTypeControls( $this ){
+                var val = $this.val(); 
+                if( val == "{{ TEXT_AD }}" ) {
+                    $texAdDetails.removeClass('hidden');
+                    $imgDimension.text( "{{ trans( 'admin.bann_text_dimension' ) }}" );
+                }else{
+                    $texAdDetails.addClass('hidden');
+                    $imgDimension.text( "{{ trans( 'admin.bann_image_dimension' ) }}" );
+                }
+            }
+
+            $('select[name=format]').on( 'change', function(){
+                adaptFormatControls( $(this) );                  
+            } );
+
+            adaptFormatControls( $( 'select[name=format]' ) );
+            function adaptFormatControls( $this ){
+                var $type   = $('select[name=type]');
+                var format  = $this.val();
+                if( format == "{{ INTERSTITIAL }}" ){
+                    $type.val( "{{ IMAGE_AD }}" );
+                    $texAdDetails.addClass('hidden');
+                    $type.find('option[value="{{ TEXT_AD }}"]').attr( 'disabled', true );
+                    $imgDimension.text( "{{ trans( 'admin.inters_dimension' ) }}" );
+                }else{
+                    $type.find('option[value="{{ TEXT_AD }}"]').attr( 'disabled', false );
+                    if( $type.val() == "{{ IMAGE_AD }}" ){
+                        $texAdDetails.addClass('hidden');
+                        $imgDimension.text( "{{ trans( 'admin.bann_image_dimension' ) }}" );
+                    }else{
+                        $texAdDetails.removeClass('hidden');
+                        $imgDimension.text( "{{ trans( 'admin.bann_text_dimension' ) }}" );
+                    }
+                }
+            }
+        });
+    </script>
 @stop

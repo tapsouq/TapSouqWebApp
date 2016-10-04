@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Models\Country, App\Models\Category, App\Models\Campaign, App\Models\Ads;
+use App\Models\Country, App\Models\Category, App\Models\Campaign;
+use App\Models\Ads, App\Models\CreativeLog;
 use App\Models\Keyword;
 use Validator, DB, Auth;
 
@@ -23,6 +24,8 @@ class CampaignCtrl extends Controller
     private $_countries;
     //all categories
     private $_categories;
+    // all Keywords
+    private $_keywords;
 
     /**
      * __construct. To init the class
@@ -33,20 +36,21 @@ class CampaignCtrl extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function __construct ( ){
-        $this->_mTitle  = trans( 'admin.campaigns' );
-        $this->_user    = Auth::user();
-        $this->_categories = Category::all();
-        $this->_countries = Country::all();
-        $this->_initRules = [
+        $this->_mTitle      = trans( 'admin.campaigns' );
+        $this->_user        = Auth::user();
+        $this->_categories  = Category::all();
+        $this->_countries   = Country::all();
+        $this->_keywords    = Keyword::all();
+        $this->_initRules   = [
                 'name'              => 'required|max:255',
-                'category'          => 'array|exists:categories,id',
+                'fcategory'         => 'exists:categories,id',
                 'target_platform'   => 'required|in:' . implode(',' , array_keys( config( 'consts.app_platforms' ) )),
                 'ad_serving_pace'   => 'in:' . implode(',' , array_keys( config( 'consts.camp_serving' ) )),
                 'country'           => 'array|exists:countries,id',
                 'status'            => 'in:' . implode(',' , array_keys( config( 'consts.camp_status' ) )),
                 'start_date'        => 'required|date_format:m/d/Y g:i A',
                 'end_date'          => 'required|date_format:m/d/Y g:i A',
-                'keywords'          => 'array|exists:keywords,id'
+                'keyword'          => 'array|exists:keywords,id'
             ];
     }
     
@@ -62,16 +66,38 @@ class CampaignCtrl extends Controller
 
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.all_campaigns' );
-        $camps  = Campaign::leftJoin( 'users', 'users.id', '=', 'campaigns.user_id' );
+        
+        $adsCount = Ads::leftJoin('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id')
+                        ->where('campaigns.user_id', '=', $this->_user->id )
+                        ->where('campaigns.status', '!=', DELETED_CAMP)
+                        ->where('ad_creative.status', '!=', DELETED_AD)
+                        ->count();
+
+        $camps  = CreativeLog::join( 'ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id' )
+                               ->join( 'campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
+                               ->join( 'users', 'users.id', '=', 'campaigns.user_id' )
+                               ->select(
+                                    "campaigns.*",
+                                    "creative_log.created_at AS time",
+                                    DB::raw('DATE( `creative_log`.`created_at` ) AS date'),
+                                    DB::raw('SUM(`creative_log`.`requests`) AS requests '),
+                                    DB::raw('SUM(`creative_log`.`impressions`) AS impressions '),
+                                    DB::raw('SUM(`creative_log`.`clicks`) AS clicks '),
+                                    DB::raw('SUM(`creative_log`.`installed`) AS installed ')
+                                );
 
         if( $this->_user->role != ADMIN_PRIV ){
             $camps = $camps->where( 'campaigns.user_id', '=', $this->_user->id )
-                            ->where( 'campaigns.status', '!=', DELETED_CAMP );
+                            ->where( 'campaigns.status', '!=', DELETED_CAMP )
+                            ->where('ad_creative.status', '!=', DELETED_AD);
         }
-        $camps  = $camps->select( 'campaigns.*', 'users.fname', 'users.lname' )
+        $chartData = adaptChartData( clone($camps), 'creative_log' );
+        
+        $camps  = $camps->groupBy('ad_creative.camp_id')
+                        ->orderBy('creative_log.created_at', 'ASC')
                         ->get();
 
-        $data = [ 'mTitle', 'title', 'camps' ];
+        $data = [ 'mTitle', 'title', 'camps', 'adsCount', 'chartData' ];
         return view( 'admin.campaign.index' )
                     ->with( compact( $data ) );
     }
@@ -88,8 +114,9 @@ class CampaignCtrl extends Controller
         $title      = trans( 'admin.add_new_campaign' );
         $countries  = $this->_countries;
         $categories = $this->_categories;
+        $keywords   =$this->_keywords;
 
-        $data = [ 'mTitle', 'title', 'countries', 'categories' ];
+        $data = [ 'mTitle', 'title', 'countries', 'categories', 'keywords' ];
         return view( 'admin.campaign.create' )
                     ->with( compact( $data ) );
     }
@@ -103,7 +130,9 @@ class CampaignCtrl extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function store ( Request $request ){
-        $validator = Validator::make( $request->all(), $this->_initRules );
+        $validator = Validator::make( $request->all(), array_merge($this->_initRules, [
+                    'scategory'=> 'exists:categories,id|not_in:' . $request->input('fcategory')
+                ]));
         if( $validator->fails() ){
             return redirect()->back()
                             ->withInput()
@@ -129,18 +158,21 @@ class CampaignCtrl extends Controller
         $title      = trans( 'admin.edit_campaign' );
         $categories = $this->_categories;
         $countries  = $this->_countries;
+        $keywords    = $this->_keywords;
         
         $selected_cats      = DB::table( 'campaign_categories' )
                                 ->where( 'camp_id', '=', $camp_id )
                                 ->lists( 'cat_id' );
+        array_push($selected_cats, '');
+        array_push($selected_cats, '');
 
         $selected_countries = DB::table( 'campaign_countries' )
                                 ->where( 'camp_id', '=', $camp_id )
                                 ->lists( 'country_id' );
-        $keywords           = DB::table( 'campaign_keywords' )
+        $selectedKeys       = DB::table( 'campaign_keywords' )
                                 ->leftJoin( 'keywords', 'keywords.id', '=', 'campaign_keywords.keyword_id' )
                                 ->where( 'campaign_keywords.camp_id', '=', $camp_id )
-                                ->get();
+                                ->lists('keyword_id');
 
         $camp   = Campaign::where( 'campaigns.id', '=', $camp_id );
         $camp   = $this->_user->role == ADMIN_PRIV ? $camp : $camp->where( 'campaigns.user_id', '=', $this->_user->id ) ; 
@@ -150,7 +182,7 @@ class CampaignCtrl extends Controller
                             ->with( 'warning', trans('lang.spam_msg') );
         }
 
-        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'selected_cats', 'selected_countries', 'keywords' ];
+        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'keywords', 'selected_cats', 'selected_countries', 'selectedKeys' ];
         return view( 'admin.campaign.create' )
                     ->with( compact( $data ) );
     }
@@ -165,7 +197,11 @@ class CampaignCtrl extends Controller
      */
     public function save ( Request $request ){
 
-        $rules      = array_merge( $this->_initRules, [ 'id' => 'required|exists:campaigns,id' ] );    
+        $rules      = array_merge( $this->_initRules, [ 
+                'id'            => 'required|exists:campaigns,id',
+                'scategory'     => 'exists:categories,id|not_in:' . $request->input('fcategory') 
+            ]);
+
         $validator  = Validator::make( $request->all(), $rules );
         if( $validator->fails() ){
             return redirect()->back()
@@ -258,10 +294,17 @@ class CampaignCtrl extends Controller
 
         $camp->save();
 
-        if( $request->has('category') ){
-            // To make sure that two categories only be inserted
-            $categories = array_slice($request->category, 0, 2);
+        $categories = [];
+        if( $request->has('fcategory') || $request->has('scategory') ){
+
+            $request->has('fcategory') ? array_push($categories, $request->fcategory) : '';
+            $request->has('scategory') ? array_push($categories, $request->scategory) : '';
+            
             syncPivot( 'campaign_categories', 'camp_id', $camp->id, 'cat_id', $categories );
+        }else{
+            DB::table('campaign_categories')
+                ->where('camp_id', '=', $camp->id)
+                ->delete();
         }
 
         if( $request->has( 'country' ) ){
@@ -287,8 +330,8 @@ class CampaignCtrl extends Controller
         $keywords = [];
         
         // To save selected keywords that match this application.
-        if( $request->has( 'keywords' ) ){
-            $keywords = $request->keywords;
+        if( $request->has( 'keyword' ) ){
+            $keywords = $request->keyword;
         }
         
         // To save new keywords and link it with this application

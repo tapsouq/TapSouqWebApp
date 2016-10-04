@@ -69,8 +69,8 @@ return [
 
     // For Creative Ads
     'ads_types'     => [
-            1 => 'Text',
-            2 => 'Image' 
+            2 => 'Image', 
+            1 => 'Text'
         ],
     'ads_status'    => [
             1 => 'Running',

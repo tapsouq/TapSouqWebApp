@@ -1,7 +1,7 @@
 @extends( 'admin.layout.layout' )
 
 @section( 'head' )
-
+    
 @stop
 
 @section( 'content' )
@@ -10,21 +10,35 @@
             <div class="box-header with-border">
                 <h3 class="box-title">
                     {{ $title }}
+                    ({{ count($apps) }})
+                     | 
+                    <a href="{{ url('zone/all') }}">
+                        {{ trans('admin.all_placement_ads') }}
+                        ({{ $adsCount }})
+                    </a>
                 </h3>
+                <div class="pull-right">
+                    <a class="btn btn-sm btn-info" href="{{ url('app/create') }}">
+                        <i class="fa fa-plus m5"></i>
+                        {{ trans('admin.add_new_app') }}
+                    </a>
+                </div>
             </div>
             <div class="box-body">
+                <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                 <div class="table">
                     @if( sizeof( $apps ) > 0 )
-                        <table class="table table-bordered table-striped table-hover">
+                        <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th>{{ trans( 'lang.name' ) }}</th>
-                                    <th>{{ trans( 'admin.platform' ) }}</th>
-                                    <th>{{ trans( 'admin.package_id' ) }}</th>
-                                    @if( Auth::user()->role == ADMIN_PRIV ) <!-- role = 1 => admin priveleg -->
-                                        <th>{{ trans( 'admin.developer' ) }}</th>
-                                    @endif
+                                    <th>{{ trans( 'admin.requests' ) }}</th>
+                                    <th>{{ trans( 'admin.impressions' ) }}</th>
+                                    <th>{{ trans( 'admin.clicks' ) }}</th>
+                                    <th>{{ trans( 'admin.ctr' ) }}</th>
+                                    <th>{{ trans( 'admin.fill_rate' ) }}</th>
+                                    <th>{{ trans( 'admin.convs' ) }}</th>
+                                    <th>{{ trans( 'admin.num_of_ads' ) }}</th>
                                     <th>{{ trans( 'lang.status' ) }}</th>
                                     <th>{{ trans( 'lang.actions' ) }}</th>
                                 </tr>
@@ -34,20 +48,34 @@
                                 @foreach( $apps as $key => $value )
                                     <tr>
                                         <td>
-                                            {{ $value->id }}
-                                        </td>
-                                        <td>
-                                            <a href="{{ url( 'zone/all#app_' . $value->id ) }}" title="{{ trans('admin.show_app_ads') }}" >
+                                            <span class="app-icon">
+                                                <img height="50px" width="50px" src="{{ url('public/uploads/app-icons/' . $value->icon) }}" alt="{{ $value->name }}">
+                                            </span>
+                                            <a href="{{ url( 'zone/all/' . $value->id ) }}" title="{{ trans('admin.show_app_ads') }}" >
                                                 {{ $value->name }}
                                             </a>
                                         </td>
                                         <td>
-                                            {{ config('consts.app_platforms')[$value->platform] }}
+                                            {{ $value->requests ?: 0 }}
                                         </td>
-                                        <td>{{ $value->package_id }}</td>
-                                        @if( Auth::user()->role == ADMIN_PRIV )
-                                            <td>{{ $value->fname ." " . $value->lname }}</td>
-                                        @endif
+                                        <td>
+                                            {{ $value->impressions ?: 0 }}
+                                        </td>
+                                        <td>
+                                            {{ $value->clicks ?: 0 }}
+                                        </td>
+                                        <td>
+                                            {{ $value->impressions ? round($value->clicks/$value->impressions, 2): 0.00 }}
+                                        </td>
+                                        <td>
+                                            {{ $value->requests ? round($value->impressions / $value->requests,2): 0.00 }}
+                                        </td>
+                                        <td>
+                                            {{ $value->impressions ? round( $value->installed/$value->impressions, 2 ) : 0  }}
+                                        </td>
+                                        <td>
+                                            {{ getAppAdsCount($value->id) }}
+                                        </td>
                                         <td>
                                             <div class="label {{ $css[$value->status] }}">
                                                 {{ config('consts.app_status')[$value->status] }}
@@ -105,7 +133,7 @@
 
 @section( 'script' )
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(function(){
             $('.deactivate-app').on('click', function(){
                 var id = $(this).attr('data-id');
                 var $link = $('#deactivate-app-modal .modal-footer a');

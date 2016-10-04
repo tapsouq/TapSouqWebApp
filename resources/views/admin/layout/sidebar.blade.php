@@ -56,7 +56,7 @@
               </ul>
             </li>
             @endif
-            <li class="treeview {{ Request::segment(1) == 'app' ? 'active' : '' }}">
+            <li class="treeview {{ in_array( Request::segment(1), [ 'app', 'zone' ] ) ? 'active' : '' }}">
                 <a href="#">
                     <i class="fa fa-android"></i> <span>{{ trans( 'admin.applications' ) }}</span>
                     <span class="pull-right-container">
@@ -71,31 +71,12 @@
                     </li>
                     <li class="{{ Request::url() == url('app/create') ? 'active' : '' }}" >
                         <a href="{{ url('app/create') }}">
-                            <i class="fa fa-circle-o"></i> {{ trans( 'admin.add_new_app' ) }}
+                            <i class="fa fa-plus"></i> {{ trans( 'admin.add_new_app' ) }}
                         </a>
                     </li>
                 </ul>
             </li>
-            <li class="treeview {{ Request::segment(1) == 'zone' ? 'active' : '' }}">
-              	<a href="#">
-                	<i class="fa fa-plus-square-o"></i>
-                	<span>{{ trans( 'admin.placement_ads' ) }}</span>
-                	<span class="pull-right-container">
-                  		<i class="fa fa-angle-left pull-right"></i>
-               	 	</span>
-              	</a>
-              	<ul class="treeview-menu">
-                	<li class="{{ Request::url() == url('zone/all') ? 'active' : '' }}">
-                    	<a href="{{ url('zone/all') }}">
-                    	<i class="fa fa-circle-o"></i> {{ trans( 'admin.all_placement_ads' ) }}</a>
-                	</li>
-                	<li class="{{ Request::url() == url('zone/create') ? 'active' : '' }}">
-                    	<a href="{{ url('zone/create') }}">
-                    	<i class="fa fa-circle-o"></i> {{ trans( 'admin.add_new_place_ad' ) }}</a>
-                	</li>
-              	</ul>
-            </li>
-            <li class="treeview {{ Request::segment(1) == 'campaign' ? 'active' : '' }} ">
+            <li class="treeview {{ in_array( Request::segment(1), [ 'campaign', 'ads' ] ) ? 'active' : '' }} ">
               	<a href="#">
                     <i class="fa fa-photo"></i>
                     <span>{{ trans( 'admin.campaigns' ) }}</span>
@@ -111,33 +92,10 @@
                     </li>
                     <li class="{{ Request::url() == url('campaign/create') ? 'active' : '' }}">
                         <a href="{{ url('campaign/create') }}">
-                            <i class="fa fa-circle-o"></i> {{ trans( 'admin.add_new_campaign' ) }}
+                            <i class="fa fa-plus"></i> {{ trans( 'admin.add_new_campaign' ) }}
                         </a>
                     </li>
                 </ul>
-            </li>
-            <li class="treeview {{ Request::segment(1) == 'ads' ? 'active' : '' }}">
-              	<a href="#">
-                	<i class="fa fa-laptop"></i>
-                	<span>{{ trans('admin.ads') }}</span>
-                	<span class="pull-right-container">
-                  	<i class="fa fa-angle-left pull-right"></i>
-                	</span>
-              	</a>
-              	<ul class="treeview-menu">
-                	<li class="{{ Request::url() == url('ads/all') ? 'active' : '' }}">
-                		<a href="{{ url('ads/all') }}">
-                			<i class="fa fa-circle-o"></i> 
-                			{{ trans( 'admin.all_ads' ) }}
-                		</a>
-                	</li>
-                	<li class="{{ Request::url() == url('ads/create') ? 'active' : '' }}">
-                		<a href="{{ url('ads/create') }}">
-                			<i class="fa fa-circle-o"></i> 
-                			{{ trans( 'admin.add_new_ad' ) }}
-                		</a>
-                	</li>
-              </ul>
             </li>
         </ul>
     </section>

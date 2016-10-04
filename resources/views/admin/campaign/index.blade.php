@@ -10,24 +10,35 @@
             <div class="box-header with-border">
                 <h3 class="box-title">
                     {{ $title }}
+                    ({{ count($camps) }})
+                    |
+                    <a href="{{ url( 'ads/all' ) }}">
+                        {{ trans( 'admin.ads' ) }}
+                        ({{ $adsCount }})
+                    </a>
                 </h3>
+                <div class="pull-right">
+                    <a class="btn btn-info btn-sm" href="{{ url( 'campaign/create' ) }}">
+                        <i class="fa fa-plus"></i>
+                        {{ trans( 'admin.add_new_campaign' ) }}
+                    </a>
+                </div>
             </div>
             <div class="box-body">
+                <div id="chart-container"></div>
                 <div class="table">
                     @if( sizeof( $camps ) > 0 )
                         <?php $css = [ RUNNING_CAMP => 'label-success', PAUSED_CAMP => 'label-warning', COMPLETED_CAMP => 'label-info', DELETED_CAMP=> 'label-danger' ]; ?>
                         <table class="table table-hover table-responsive table-striped table-bordered">
                             <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th>{{ trans( 'lang.name' ) }}</th>
-                                    @if( Auth::user()->role == ADMIN_PRIV )
-                                        <th>{{ trans( 'admin.user' ) }}</th>
-                                    @endif
+                                    <th>{{ trans( 'admin.impressions' ) }}</th>
+                                    <th>{{ trans( 'admin.clicks' ) }}</th>
+                                    <th>{{ trans( 'admin.convs' ) }}</th>
                                     <th>{{ trans( 'admin.start_date' ) }}</th>
                                     <th>{{ trans( 'admin.end_date' ) }}</th>
-                                    <th>{{ trans( 'admin.platform' ) }}</th>
-                                    <th>{{ trans( 'admin.serving' ) }}</th>
+                                    <th>{{ trans( 'admin.num_of_ads' ) }}</th>
                                     <th>{{ trans( 'lang.status' ) }}</th>
                                     <th>{{ trans( 'lang.actions' ) }}</th>
                                 </tr>
@@ -35,15 +46,25 @@
                             <tbody>
                                 @foreach( $camps as $key => $camp )
                                     <tr>
-                                        <td>{{ $camp->id }}</td>
-                                        <td>{{ $camp->name }}</td>
-                                        @if( Auth::user()->role == ADMIN_PRIV )
-                                            <td>{{ $camp->fname . " " . $camp->lname }}</td>
-                                        @endif
+                                        <td>
+                                            <a href="{{ url( 'ads/all/' . $camp->id ) }}" title="{{ trans('admin.show_camp_ads') }}">
+                                                {{ $camp->name }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {{ $camp->impressions }}
+                                        </td>
+                                        <td>
+                                            {{ $camp->clicks }}
+                                        </td>
+                                        <td>
+                                            {{ $camp->clicks ? round($camp->installed / $camp->clicks , 2) : 0 }}
+                                        </td>
                                         <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->start_date )->format('m/d/Y g:i A') }}</td>
                                         <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->end_date )->format('m/d/Y g:i A') }}</td>
-                                        <td>{{ config('consts.app_platforms')[ $camp->target_platform ] }}</td>
-                                        <td>{{ $camp->ad_servinf_pace ? config('consts.camp_serving')[ $camp->ad_serving_pace ] : '' }}</td>
+                                        <td>
+                                            {{ getCampAdsCount( $camp->id ) }}
+                                        </td>
                                         <td>
                                             <div class="label {{ $css[ $camp->status ] }}">
                                                 {{ config('consts.camp_status')[ $camp->status ] }}
@@ -151,6 +172,7 @@
                 var $link = $('#change-status-modal .modal-footer a');
                 $link.attr( 'href', href );
             });
+
         });
     </script>
 @stop

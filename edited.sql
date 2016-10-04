@@ -1,3 +1,4 @@
+/*
 CREATE TABLE `application_keywords` (
   `app_id` int(11) NOT NULL,
   `keyword_id` int(11) NOT NULL,
@@ -12,3 +13,5 @@ CREATE TABLE `keywords` (
 ALTER TABLE `application_keywords` ADD PRIMARY KEY (`app_id`,`keyword_id`);
 ALTER TABLE `keywords` ADD PRIMARY KEY (`id`);
 ALTER TABLE `keywords`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `users` ADD `verify_token` VARCHAR(100) NOT NULL AFTER `remember_token`;
+*/

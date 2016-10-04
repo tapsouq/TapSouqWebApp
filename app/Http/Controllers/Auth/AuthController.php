@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use Validator;
 use Mail;
+use Auth;
 use \Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
@@ -64,8 +65,10 @@ class AuthController extends Controller
      */
     protected function create(array $data)
     {
-        $user = new User;
 
+        $token = getToken();
+        
+        $user = new User;
         $user->fname     = $data['fname'];
         $user->lname     = $data['lname'];
         $user->email     = $data['email'];
@@ -74,9 +77,10 @@ class AuthController extends Controller
         $user->country   = $data['country'];
         $user->city      = $data['city'];
         $user->address   = $data['address'];
-        $user->remember_token  = getToken();
-
-        if( $this->_sendVerifyMail( $user ) ){
+        $user->verify_token = $token;
+        
+        if( $this->_sendVerifyMail( $user) ){
+            
             $user->save();
             return $user;
         }
@@ -103,7 +107,7 @@ class AuthController extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     private function _sendVerifyMail ( $user ){
-        //$site_info = 
+            
         return Mail::send('admin.emails.verify', ['user' => $user ], function ($m) use ( $user ) {
            $m->from( getSiteInfo()->site_email , getSiteInfo()->site_title );
 
@@ -121,20 +125,23 @@ class AuthController extends Controller
      */
     public function verifyEmail ( Request $request ){
         
+        $status = false;
         $msg = trans( 'admin.error_at_verification' );
         
         if( $request->has( 'token' ) && $request->has( 'email' ) ){
             $user = User::where( 'email', '=', $request->email )
-                        ->where( 'remember_token', '=', $request->token )
+                        ->where( 'verify_token', '=', $request->token )
                         ->first();
             if( $user ){
-                $user->status = AC;
+                $user->status = ACTIVE_USER;
                 $user->save();
-                $msg = trans( "admin.success_verification" );
+                $status = true;
+                $msg =  trans('admin.success_verification');
             }
         }
 
+        $data = [ 'status', 'msg' ];
         return view( 'auth.verify-email' )
-                    ->with( 'msg', $msg );
+                    ->with( compact($data) );
     }
 }

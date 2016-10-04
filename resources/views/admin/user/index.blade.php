@@ -16,12 +16,12 @@
 					<table class="table table-bordred table-hover table-striped">
 						<thead>
 							<tr>
-								<td>#</td>
 								<td>{{ trans( 'lang.name' ) }}</td>
-								<td>{{ trans( 'lang.email' ) }}</td>
-								<td>{{ trans( 'lang.company' ) }}</td>
-								<td>{{ trans( 'lang.country' ) }}</td>
-								<td>{{ trans( 'lang.city' ) }}</td>
+								<td>{{ trans( 'admin.requests' ) }}</td>
+								<td>{{ trans( 'admin.impressions' ) }}</td>
+								<td>{{ trans( 'admin.clicks' ) }}</td>
+								<td>{{ trans( 'admin.ctr' ) }}</td>
+								<td>{{ trans( 'admin.convs' ) }}</td>
 								<td>{{ trans( 'lang.status' ) }}</td>
 								<td>{{ trans( 'lang.actions' ) }}</td>
 							</tr>
@@ -30,7 +30,6 @@
 							<?php $css = [ PENDING_USER => 'label-info', ACTIVE_USER => 'label-success', SUSPEND_USER => 'label-warning' ] ?>
 							@foreach( $users as $key => $_user )
 								<tr>
-									<td>{{ $_user->id }}</td>
 									<td>{{ $_user->fname . " " . $_user->lname }}</td>
 									<td>{{ $_user->email }}</td>
 									<td>{{ $_user->company }}</td>
