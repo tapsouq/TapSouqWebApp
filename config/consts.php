@@ -78,4 +78,12 @@ return [
             3 => 'Completed',
             4 => 'Deleted'
         ],
+
+    // For sdk actions
+    'sdk_actions'   => [
+            1 => 'Request Action',
+            2 => 'Show Action',
+            3 => 'Click Action',
+            4 => 'Install Action'
+        ]
 ];

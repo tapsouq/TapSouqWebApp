@@ -10,63 +10,53 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-Route::get( 'test', function(){
-/*
-	$sdk = DB::select( "SELECT `created_at` from sdk_actions group by `created_at`" );
-	$times = array_pluck($sdk, 'created_at');
-	
-	for( $i = 26; $i < 47; $i++ ){
-		$created_at = $times[$i];
 
-		$time = time() + ( ($i - 25) * 24 * 60 * 60 );
-		$date = date( 'Y-m-d H:i:s', $time );
-		DB::update(
-				"update `sdk_actions` set `created_at` = '" . $date . "' where `created_at` = '" . $created_at ."'"
-			);
+Route::get('test/{after}/{before}', function($after, $before){
+	
+	set_time_limit(10000);
+	$rows  	= [];
+	$sdks   = [];
+	$request_id = $after + 1;
+
+	$result = DB::table('sdk_action')->where('id', '<=', $before)->where('id', '>', $after)->get();
+	foreach ($result as $key => $value) {
+		if($key == 0){
+			$lastValue = $value;
+			continue;
+		}
+
+		if( !( $value->placement_id == $lastValue->placement_id && $value->creative_id == $lastValue->creative_id && $value->device_id == $lastValue->device_id ) ){
+			$rows[] = [
+					'id'			=> $request_id,
+					'placement_id'	=> $value->placement_id,
+					'creative_id'	=> $value->creative_id,
+					'device_id'		=> $value->device_id,
+					'created_at'	=> $value->created_at,
+					'updated_at'	=> $value->updated_at
+				];
+			$sdks[] = [
+				'request_id'	=> $request_id,
+				'action'		=> 1,
+				'created_at'	=> $value->created_at,
+				'updated_at'	=> $value->updated_at
+			];
+			$request_id = $value->id;
+		}else{
+			$sdks[] = [
+				'request_id'	=> $request_id,
+				'action'		=> $value->action,
+				'created_at'	=> $value->created_at,
+				'updated_at'	=> $value->updated_at
+			];		
+		}
+
+		$lastValue = $value;
 	}
 
-*/
-	set_time_limit(1000);
-	$insertArray = [];
-	for ($i=0; $i < 1000; $i++) { 
- 		$placementId 	= mt_rand( 1, 5 );
- 		$creativeId 	= mt_rand( 1, 5 );
- 		$deviceId 		= mt_rand( 1, 100 );
- 		$time = time() + ( 15 * 24 * 60 * 60 );
- 		$sharedData = [
- 				'placement_id' 	=> $placementId,
- 				'creative_id'	=> $creativeId,
- 				'device_id'		=> $deviceId,
- 				'created_at'	=> date('Y-m-d H:i:s', $time ),
- 				'updated_at'	=> date('Y-m-d H:i:s', $time )
- 			];
+	DB::table('sdk_requests')->insert($rows);
+	DB::table('sdk_actions')->insert($sdks);
 
- 		// insert request action
- 		$insertArray[] = array_merge( $sharedData, ['action' => REQUEST_ACTION ] );
-
- 		// get show action
- 		if( mt_rand( 0, 100 ) != 0 ){
- 			// insert show action
- 			$insertArray[] = array_merge($sharedData, [ 'action' => SHOW_ACTION ]);
-
- 			// get click action
- 			if( mt_rand(0,3) != 0 ){
- 				$insertArray[] = array_merge($sharedData, [ 'action' => CLICK_ACTION ]);
-
- 				// get installed action 
- 				if( mt_rand(0, 1) != 0 ){
-
- 					// insert install action
-	 				$insertArray[] = array_merge($sharedData, [ 'action' => INSTALL_ACTION ]);
- 				}
- 			}
- 		}
- 	} 	
-
-	DB::table('sdk_actions')->insert( $insertArray );
-	
-
-} );
+});
 
 // Authentication routes...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
@@ -77,6 +67,9 @@ Route::get('auth/logout', 'Auth\AuthController@getLogout');
 Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 Route::get( 'verify-email', 'Auth\AuthController@verifyEmail' );
+
+// Home Module
+Route::get('/', 'HomeCtrl@index');
 
 // Middlware fo authinticated active users
 Route::group(['middleware' => 'auth'], function () {
@@ -111,7 +104,7 @@ Route::group(['middleware' => 'auth'], function () {
 		/** End Zone ( Ad Placement ) Module  **/
 
 		/** Campaigns Module  **/
-		Route::get( 'campaign/all', 'CampaignCtrl@index' ); // To show all campaigns page.
+		Route::get( 'campaign/all/{user?}', 'CampaignCtrl@index' ); // To show all campaigns page.
 		Route::get( 'campaign/create', 'CampaignCtrl@create' ); // To show create campaign page.
 		Route::post( 'store-campaign', 'CampaignCtrl@store' ); // To store the created campaign.
 		Route::get( 'campaign/edit/{zone}', 'CampaignCtrl@edit' ); // To show edit campaign page.
@@ -130,11 +123,11 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('ads/{ads}', 'AdsCtrl@show');
 		/** End Creative Ad Module  **/
 
-		// Middleware for admin users
+		/** Middleware for admin users **/
 		Route::group([ 'middleware' => 'admin' ], function(){
 			
 			/** For User Module **/
-			Route::get( 'user/all', 'UserCtrl@index' ); // show all users page.
+			Route::get( 'user/all', 'UserCtrl@index' ); // Show all users page.
 			Route::get( 'user/edit/{user}', 'UserCtrl@edit' ); // Show edit user page.
 			Route::post( 'save-user', "UserCtrl@save" ); // To save edited user.
 			Route::get( 'user/delete', "UserCtrl@destroy" );// To delete the user.
@@ -143,15 +136,24 @@ Route::group(['middleware' => 'auth'], function () {
 			/** For Keywords Module **/
 			Route::get( 'matching/matched-keywords', 'MatchingCtrl@showMatched' ); // To show all matched keywords with applications.
 			Route::get( 'matching/unmatched-keywords', 'MatchingCtrl@showEmpty' ); // To show all empty keywords matching
-			Route::get( 'delete-matching', 'MatchingCtrl@deleteMatching' ); // to delete keyword matching
-			Route::get( 'change-priority', 'MatchingCtrl@changePriority' ); // to change priority for matching
+			Route::get( 'delete-matching', 'MatchingCtrl@deleteMatching' ); // To delete keyword matching
+			Route::get( 'change-priority', 'MatchingCtrl@changePriority' ); // To change priority for matching
 			/** End Keywords Module **/
 		});
 	});
 });
 
-Route::get( '/', function(){
-	return "Page after login";
-});
+Route::get(
+	"create_device/{platform}/{advertising_id}/{manefacturer}/{model}/{os_version}/{language}/{country}/{city}/{carrier}/{tap_souq_sdk_version}",
+	"Admin\SdkCtrl@addDevice"
+);
 
+Route::get(
+	"sdk-action/{device_id}/{action_name}/{request_id}/{ad_placement_id}/{ad_creative_id}",
+	"Admin\SdkCtrl@setAction"
+);
 
+Route::get(
+	"update_device/{device_id}/{language}/{country}/{os}/{model}/{manefacturer}",
+	"Admin\SdkCtrl@updateDevice"
+);

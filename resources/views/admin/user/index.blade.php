@@ -9,14 +9,27 @@
 		<div class="box box-info">
 			<div class="box-header with-border">
 				{{ $title }}
+				<span class="pull-right">
+					<div class="btn-toolbar">
+						<a href="{{ url('user/all?adv=1') }}" class="btn btn-info {{ Request::input('adv') ? 'disabled' : '' }}">
+							{{ trans( 'admin.advertisers' ) }}
+						</a>
+						<a  href="{{ url('user/all') }}" class="btn btn-success {{ Request::input('adv') ? '' : 'disabled' }}" >
+							{{ trans( 'admin.publishers' ) }}
+						</a>
+					</div>
+				</span>
 			</div>
 			<div class="box-body">
+				<div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 				<div class="table">
-					@if( sizeof( $users ) > 0 )
+					@if( sizeof( $tableItems ) > 0 )
 					<table class="table table-bordred table-hover table-striped">
 						<thead>
 							<tr>
-								<td>{{ trans( 'lang.name' ) }}</td>
+								<td>
+									{{ trans( 'lang.name' ) }}
+								</td>
 								<td>{{ trans( 'admin.requests' ) }}</td>
 								<td>{{ trans( 'admin.impressions' ) }}</td>
 								<td>{{ trans( 'admin.clicks' ) }}</td>
@@ -28,25 +41,30 @@
 						</thead>
 						<tbody>
 							<?php $css = [ PENDING_USER => 'label-info', ACTIVE_USER => 'label-success', SUSPEND_USER => 'label-warning' ] ?>
-							@foreach( $users as $key => $_user )
+							@foreach( $tableItems as $key => $item )
 								<tr>
-									<td>{{ $_user->fname . " " . $_user->lname }}</td>
-									<td>{{ $_user->email }}</td>
-									<td>{{ $_user->company }}</td>
-									<td>{{ $_user->country_name }}</td>
-									<td>{{ $_user->city }}</td>
 									<td>
-										<div class="label {{ $css[ $_user->status ] }}">
-											{{ config( 'consts.user_status' )[ $_user->status ] }}
+										<a href="{{ ( Request::input('adv') ? url('campaign/all/' . $item->user_id)  : url('app/all/' . $item->user_id) )}}">
+											{{ $item->fname . " " . $item->lname }}
+										</a>
+									</td>
+									<td>{{ $item->requests }}</td>
+									<td>{{ $item->impressions }}</td>
+									<td>{{ $item->clicks }}</td>
+									<td>{{ ($item->requests != 0 ) ? round( $item->clicks / $item->requests, 2) : 0 }}</td>
+									<td>{{ ($item->clicks != 0 ) ? round( $item->installed / $item->clicks, 2) : 0 }}</td>
+									<td>
+										<div class="label {{ $css[ $item->status ] }}">
+											{{ config( 'consts.user_status' )[ $item->status ] }}
 										</div>
 									</td>
 									<td>
 										<div class="btn-group">
-											<a href="{{ url('user/edit/' . $_user->id ) }}" class="btn btn-sm btn-info">
+											<a href="{{ url('user/edit/' . $item->id ) }}" class="btn btn-sm btn-info">
 												<i class="fa fa-edit"></i>
 											</a>
-											@if( $_user->status != SUSPEND_USER )
-											<a data-toggle="modal" data-target="#deactivate-user-modal" data-id="{{ $_user->id }}" class="btn btn-sm btn-danger deactivate-user">
+											@if( $item->status != SUSPEND_USER )
+											<a data-toggle="modal" data-target="#deactivate-user-modal" data-id="{{ $item->id }}" class="btn btn-sm btn-danger deactivate-user">
 												<i class="fa fa-trash"></i>
 											</a>
 											@endif

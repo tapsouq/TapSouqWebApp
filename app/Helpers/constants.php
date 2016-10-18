@@ -50,3 +50,31 @@ define('INSTALL_ACTION', 4);
 
 define('PLACEMENT_AD', 1);
 define('CREATIVE_AD', 2);
+
+// For SDK URLs
+ /* Create device */
+define('ADD_PLATFORM', 1);
+define('ADD_ADVERTISING_ID', 2);
+define('ADD_MANEFACTURER', 3);
+define('ADD_MODEL', 4);
+define('ADD_OS_VER', 5);
+define('ADD_LANG', 6);
+define('ADD_COUNTRY', 7);
+define('ADD_CITY', 8);
+define('ADD_CARRIER', 9);
+define('TAPSOUQ_SDK_VER', 10);
+
+ /* Update device */
+define("UPDATE_DEVICE_ID", 1);
+define("UPDATE_LANG", 2);
+define("UPDATE_COUNTRY", 3);
+define("UPDATE_OS", 4);
+define("UPDATE_MODEL", 5);
+define("UPDATE_MANEFACTURER", 6);
+
+ /* sdk-action */
+define('DEVICE_ID', 1);
+define('ACTION_NAME', 2);
+define('REQUEST_ID', 3);
+define('PLACEMENT_ID', 4);
+define('CREATIVE_ID', 5);

@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Country, App\Models\Category, App\Models\Campaign;
 use App\Models\Ads, App\Models\CreativeLog;
-use App\Models\Keyword;
+use App\Models\Keyword, App\Models\Language;
 use Validator, DB, Auth;
 
 use Raulr\GooglePlayScraper\Scraper;
@@ -26,6 +26,8 @@ class CampaignCtrl extends Controller
     private $_categories;
     // all Keywords
     private $_keywords;
+    // all languages
+    private $_languages;
 
     /**
      * __construct. To init the class
@@ -41,28 +43,30 @@ class CampaignCtrl extends Controller
         $this->_categories  = Category::all();
         $this->_countries   = Country::all();
         $this->_keywords    = Keyword::all();
+        $this->_languages   = Language::all();
         $this->_initRules   = [
                 'name'              => 'required|max:255',
                 'fcategory'         => 'exists:categories,id',
                 'target_platform'   => 'required|in:' . implode(',' , array_keys( config( 'consts.app_platforms' ) )),
                 'ad_serving_pace'   => 'in:' . implode(',' , array_keys( config( 'consts.camp_serving' ) )),
                 'country'           => 'array|exists:countries,id',
+                'language'          => 'required|exists:languages,id',     
                 'status'            => 'in:' . implode(',' , array_keys( config( 'consts.camp_status' ) )),
                 'start_date'        => 'required|date_format:m/d/Y g:i A',
                 'end_date'          => 'required|date_format:m/d/Y g:i A',
-                'keyword'          => 'array|exists:keywords,id'
+                'keyword'           => 'array|exists:keywords,id'
             ];
     }
     
     /**
      * index. To show all campaigns page
      *
-     * @param void
+     * @param int $user_id
      * @return \Illuminate\Http\Response
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function index (  ){
+    public function index ( $user_id = null ){
 
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.all_campaigns' );
@@ -91,6 +95,11 @@ class CampaignCtrl extends Controller
                             ->where( 'campaigns.status', '!=', DELETED_CAMP )
                             ->where('ad_creative.status', '!=', DELETED_AD);
         }
+
+        if( $user_id != null ){
+            $camps = $camps->where('campaigns.user_id', '=', $user_id);
+        }
+        
         $chartData = adaptChartData( clone($camps), 'creative_log' );
         
         $camps  = $camps->groupBy('ad_creative.camp_id')
@@ -114,9 +123,10 @@ class CampaignCtrl extends Controller
         $title      = trans( 'admin.add_new_campaign' );
         $countries  = $this->_countries;
         $categories = $this->_categories;
-        $keywords   =$this->_keywords;
+        $keywords   = $this->_keywords;
+        $languages  = $this->_languages;
 
-        $data = [ 'mTitle', 'title', 'countries', 'categories', 'keywords' ];
+        $data = [ 'mTitle', 'title', 'countries', 'categories', 'keywords', 'languages' ];
         return view( 'admin.campaign.create' )
                     ->with( compact( $data ) );
     }
@@ -158,7 +168,8 @@ class CampaignCtrl extends Controller
         $title      = trans( 'admin.edit_campaign' );
         $categories = $this->_categories;
         $countries  = $this->_countries;
-        $keywords    = $this->_keywords;
+        $keywords   = $this->_keywords;
+        $languages  = $this->_languages;
         
         $selected_cats      = DB::table( 'campaign_categories' )
                                 ->where( 'camp_id', '=', $camp_id )
@@ -182,7 +193,7 @@ class CampaignCtrl extends Controller
                             ->with( 'warning', trans('lang.spam_msg') );
         }
 
-        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'keywords', 'selected_cats', 'selected_countries', 'selectedKeys' ];
+        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'keywords', 'selected_cats', 'selected_countries', 'selectedKeys', 'languages' ];
         return view( 'admin.campaign.create' )
                     ->with( compact( $data ) );
     }
@@ -277,6 +288,7 @@ class CampaignCtrl extends Controller
 
         $camp->name             = $request->name;
         $camp->description      = $request->input('description');
+        $camp->language         = $request->language;
 
         $camp->start_date       = date_create_from_format( 'm/d/Y g:i A', $request->start_date )->format( 'Y-m-d H:i:s' );
         $camp->end_date         = date_create_from_format( 'm/d/Y g:i A', $request->end_date )->format( 'Y-m-d H:i:s' );

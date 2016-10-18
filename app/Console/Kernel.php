@@ -45,10 +45,9 @@ class Kernel extends ConsoleKernel
                  ->dailyAt('02:00');
 
         /**
-         *
-         *
+         * To get the placement, creative logs from the sdk actions and requests
          */
          $schedule->command('setlog')
-                  ->dailyAt('02:00');                 
+                  ->dailyAt('7:52');                 
     }
 }

@@ -196,6 +196,38 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
+                                    <div class="form-group has-feedback {{ $errors->has( 'language' ) ? 'has-error' : '' }}">
+                                        <label>
+                                            {{ trans( 'admin.language' ) }}
+                                        </label>
+                                        @if( sizeof( $languages ) > 0 )
+                                            <select class="form-control" name="language">
+                                                @foreach( $languages as $key => $lang )
+                                                    <option value="{{ $lang->id }}" {{ isset($camp) ? ( $camp->language == $lang->id ? 'selected' : '' ) : ( old('language') == $lang->id ? 'selected' :'' ) }} >
+                                                        {{ $lang->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <span class="help-block">
+                                                {{ $errors->has( 'language' ) ? $errors->first( 'language' ) : '' }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback {{ $errors->has( 'description' ) ? 'has-error' : '' }}">
+                                        <label>
+                                            {{ trans( 'admin.description' ) }}
+                                        </label>
+                                        <textarea class="form-control" name="description">{{ isset($camp) ? $camp->description : old('description') }}</textarea>
+                                        <span class="help-block">
+                                            {{ $errors->has( 'description' ) ? $errors->first( 'description' ) : '' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
                                     @if( Auth::user()->role == ADMIN_PRIV && isset($camp) )
                                         <div class="form-group has-feedback {{ $errors->has( 'status' ) ? 'has-error' : '' }}">
                                             <label>
@@ -215,15 +247,6 @@
                                             @endif
                                         </div>
                                     @endif
-                                    <div class="form-group has-feedback {{ $errors->has( 'description' ) ? 'has-error' : '' }}">
-                                        <label>
-                                            {{ trans( 'admin.description' ) }}
-                                        </label>
-                                        <textarea class="form-control" name="description">{{ isset($camp) ? $camp->description : old('description') }}</textarea>
-                                        <span class="help-block">
-                                            {{ $errors->has( 'description' ) ? $errors->first( 'description' ) : '' }}
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
                         </div>

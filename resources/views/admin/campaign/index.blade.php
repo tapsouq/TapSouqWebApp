@@ -25,7 +25,7 @@
                 </div>
             </div>
             <div class="box-body">
-                <div id="chart-container"></div>
+                <div id="chart-container" style="min-width: 310px; max-width: 100%; height: 400px; margin: 0 auto"></div>
                 <div class="table">
                     @if( sizeof( $camps ) > 0 )
                         <?php $css = [ RUNNING_CAMP => 'label-success', PAUSED_CAMP => 'label-warning', COMPLETED_CAMP => 'label-info', DELETED_CAMP=> 'label-danger' ]; ?>

@@ -127,5 +127,8 @@ return [
 	'impressions'				=> "Impressions",
 	'ads_of'					=> "Ads in ",
 	'apps_by'					=> "Apps by ",
-	'of'						=> "Of "
+	'of'						=> "Of ",
+	'advertisers'				=> "Advertisers",
+	'publishers'				=> "Publishers",
+	'language'					=> "Language"
 ];

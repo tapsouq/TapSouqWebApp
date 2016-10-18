@@ -78,3 +78,6 @@ a[data-action] span{
 #custom-tooltip .span-ctr{
     color: #dd4b39;
 }
+#chart-container{
+    overflow: hidden;
+}
