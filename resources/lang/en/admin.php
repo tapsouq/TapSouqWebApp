@@ -130,5 +130,19 @@ return [
 	'of'						=> "Of ",
 	'advertisers'				=> "Advertisers",
 	'publishers'				=> "Publishers",
-	'language'					=> "Language"
+	'language'					=> "Language",
+	"created_app_msg"			=> "The application is created successfully.",
+	"created_camp_msg"			=> "The campaign is created successfully.",
+	"created_zone_msg"			=> "The ad placement is created successfully.",
+	"created_ads_msg"			=> "The ad creative is created successfully.",
+	"updated_app_msg"			=> "The application is updated successfully.",
+	"updated_camp_msg"			=> "The campaign is updated successfully.",
+	"updated_zone_msg"			=> "The ad placement is updated successfully.",
+	"updated_ads_msg"			=> "The ad creative is updated successfully.",
+	"deleted_app_msg"			=> "The application is deleted successfully.",
+	"deleted_camp_msg"			=> "The campaign is deleted successfully.",
+	"deleted_zone_msg"			=> "The ad placement is deleted successfully.",
+	"deleted_ads_msg"			=> "The ad creative is deleted successfully.",
+	"filter"					=> "Filter",
+	"select_time_period"		=> "Select time period"
 ];

@@ -24,14 +24,14 @@ class SdkCtrl extends Controller
     public function addDevice ( Request $request ){
         $array     = $request->segments();
         
-        $country    = Country::where('name', '=', $array[ADD_COUNTRY])->first();
-        $language   = Language::where('name','=', $array[ADD_LANG])->first();
+        $country    = Country::find($array[ADD_COUNTRY]);
+        $language   = Language::find($array[ADD_LANG]);
         $platform   = $array[ADD_PLATFORM];
 
         if( $language == null ){
              $response = [ 
-                     'status'    => false,
-                     'error'     => "The language name isn't valid." 
+                    'status'    => false,
+                    'error'     => "The language id isn't valid." 
                  ];
              return response()->json($response);   
         }
@@ -39,7 +39,7 @@ class SdkCtrl extends Controller
         if( $country == null  ){
             $response = [ 
                     'status'    => false,
-                    'error'     => "The country name isn't valid." 
+                    'error'     => "The country id isn't valid." 
                 ];
             return response()->json($response);
         }
@@ -93,8 +93,8 @@ class SdkCtrl extends Controller
     public function updateDevice ( Request $request ){
 
         $array      = $request->segments();
-        $country    = Country::where('name', '=', $array[UPDATE_COUNTRY])->first();
-        $language   = Language::where('name', '=', $array[UPDATE_LANG])->first();
+        $country    = Country::find($array[UPDATE_COUNTRY]);
+        $language   = Language::find($array[UPDATE_LANG]);
         
         $deviceId   = $array[UPDATE_DEVICE_ID];
         $device     = Device::find($deviceId);
@@ -124,13 +124,13 @@ class SdkCtrl extends Controller
                 }else {
                     $response = [
                             'status'    => false,
-                            'error'     => "The country name isn't valid."
+                            'error'     => "The country id isn't valid."
                         ];
                 }
             }else {
                 $response = [
                         'status'    => false,
-                        'error'     => "The language name isn't valid."
+                        'error'     => "The language id isn't valid."
                     ];
             }
         }else{
@@ -264,7 +264,7 @@ class SdkCtrl extends Controller
     public function _returnNotValidAction ( $action ){
         $response =  [
                 'status'    => false,
-                'msg'       => "Action name `" . $action . "` isn't valid. Please enter action name in values " . implode( ',' , array_keys( config('consts.sdk_actions') ) ) 
+                'error'     => "Action name `" . $action . "` isn't valid. Please enter action name in values " . implode( ',' , array_keys( config('consts.sdk_actions') ) ) 
             ];
 
         return response()->json( $response );

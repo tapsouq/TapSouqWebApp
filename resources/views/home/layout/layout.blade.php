@@ -8,8 +8,10 @@
     <link rel="stylesheet" type="text/css" href="{{ url('resources/assets/home') }}/assets/font-awesome/css/font-awesome.css">
     <link rel="stylesheet" type="text/css" href="{{ url('resources/assets/home') }}/assets/custom/helper.css">
     <link rel="stylesheet" type="text/css" href="{{ url('resources/assets/home') }}/assets/custom/hover.css">
+    <title>{{ getSiteInfo()->site_title }}</title>
+    
+    @yield('head')
     <link rel="stylesheet" type="text/css" href="{{ url('resources/assets/home') }}/assets/custom/css.css">
-    <title>Website</title>
 </head>
 <body>
     <div class="main">
@@ -27,6 +29,7 @@
     </div>
     <script src="{{ url('resources/assets/home') }}/assets/custom/jquery-2.2.4.min.js"></script>
     <script type="text/javascript" src="{{ url('resources/assets/home') }}/assets/bootstrap/js/bootstrap.js"></script>
+    @yield('script')
     <script type="text/javscript">
         $('.carousel').carousel();
     </script>

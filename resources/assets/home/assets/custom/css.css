@@ -210,5 +210,25 @@ body footer ul i.fa{
     margin-right: 6px;
 }
 .navbar-toggle .icon-bar{
-  background: #fff;
-} 
+    background: #fff;
+}
+ 
+.login-box, .register-box, .msg-box{
+    background: #fff;
+    padding: 30px;
+    color: #666;
+}
+.login-box-msg, .register-box-msg {
+    margin: 0;
+    text-align: center;
+    padding: 0 20px 20px 20px;
+}
+.register-box .form-control,
+.login-box .form-control{
+    border-radius: 0;
+    box-shadow: none;
+}
+.register-box .btn,
+.login-box .btn{
+    border-radius: 0;
+}

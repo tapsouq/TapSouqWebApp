@@ -25,9 +25,10 @@
                 </div>
             </div>
             <div class="box-body">
-                <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                 <div class="table">
+                    @include('admin.partial.filterTimePeriod')
                     @if( sizeof( $apps ) > 0 )
+                        <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
@@ -65,13 +66,13 @@
                                             {{ $value->clicks ?: 0 }}
                                         </td>
                                         <td>
-                                            {{ $value->impressions ? round($value->clicks/$value->impressions, 2): 0.00 }}
+                                            {{ $value->impressions ? round($value->clicks/$value->impressions,2)*100 : 0 }}%
                                         </td>
                                         <td>
-                                            {{ $value->requests ? round($value->impressions / $value->requests,2): 0.00 }}
+                                            {{ $value->requests ? round($value->impressions / $value->requests,2)*100: 0 }}%
                                         </td>
                                         <td>
-                                            {{ $value->impressions ? round( $value->installed/$value->impressions, 2 ) : 0  }}
+                                            {{ $value->impressions ? round( $value->installed/$value->impressions,2)*100 : 0  }}%
                                         </td>
                                         <td>
                                             {{ getAppAdsCount($value->id) }}
@@ -97,12 +98,12 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    @else
-                        <p>
-                            {{ trans( 'admin.no_apps' ) }}
-                        </p>
-                    @endif
-                </div>
+                    </div>
+                @else
+                    <p>
+                        {{ trans( 'admin.no_apps' ) }}
+                    </p>
+                @endif
             </div>
         </div>
         <div class="modal modal-danger" id="deactivate-app-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

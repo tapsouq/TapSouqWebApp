@@ -22,8 +22,9 @@
                 @endif
             </div>
             <div class="box-body">
-                <div id="chart-container"></div>
+                @include('admin.partial.filterTimePeriod')
                 @if( sizeof( $ads ) > 0 )
+                    <div id="chart-container"></div>
                     <div class="box-group" id="apps_zones">
                         <?php $formats = config('consts.all_formats'); $types = config('consts.ads_types'); ?>
                         <?php  $states = config('consts.camp_status'); ?>
@@ -36,6 +37,7 @@
                                         <th>{{ trans( 'lang.name' ) }}</th>
                                         <th>{{ trans( 'admin.impressions' ) }}</th>
                                         <th>{{ trans( 'admin.clicks' ) }}</th>
+                                        <th>{{ trans( 'admin.ctr' ) }}</th>
                                         <th>{{ trans( 'admin.convs' ) }}</th>
                                         <th>{{ trans( 'lang.status' ) }}</th>
                                         <th>{{ trans( 'lang.actions' ) }}</th>
@@ -50,13 +52,16 @@
                                                 </a>
                                             </td>
                                             <td>
-                                                {{ $ad->impressions }}
+                                                {{ $ad->impressions ?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $ad->clicks }}
+                                                {{ $ad->clicks ?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $ad->clicks ? round($ad->installed / $ad->clicks , 2) : 0 }}
+                                                {{ $ad->impressions ? round($ad->clicks / $ad->impressions , 2) * 100 : 0 }}%
+                                            </td>
+                                            <td>
+                                                {{ $ad->clicks ? round($ad->installed / $ad->clicks , 2) * 100 : 0 }}%
                                             </td>
                                             <td>
                                                 <div class="label {{ $css[ $ad->status ] }}">

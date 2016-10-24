@@ -49,34 +49,38 @@ class ZoneCtrl extends Controller
     /**
      * index. To show all zones page ( placement ads)
      *
+     * @param Request $request
      * @param int $app_id
      * @return \Illuminate\Http\Response
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function index ( $app_id = null ){
+    public function index ( Request $request, $app_id = null ){
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.placement_ads' );
-        $zones  = PlacementLog::join('ad_placement', 'ad_placement.id', '=', 'placement_log.ads_id')
-                                ->join( 'applications', 'applications.id', '=', 'ad_placement.app_id' )
-                                ->select( 
-                                            'ad_placement.*',
-                                            'placement_log.created_at as time',
-                                            DB::raw('DATE(placement_log.created_at) as date'), 
-                                            DB::raw('SUM(placement_log.requests) AS requests'), 
-                                            DB::raw('SUM(placement_log.impressions) AS impressions'), 
-                                            DB::raw('SUM(placement_log.clicks) AS clicks'),
-                                            DB::raw('SUM(placement_log.installed) AS installed')
-                                        );
+        $zones  = Zone::leftJoin('placement_log', 'placement_log.ads_id', '=', 'ad_placement.id')
+                        ->join( 'applications', 'applications.id', '=', 'ad_placement.app_id' )
+                        ->select( 
+                                    'ad_placement.*',
+                                    'placement_log.created_at as time',
+                                    DB::raw('DATE(placement_log.created_at) as date'), 
+                                    DB::raw('SUM(placement_log.requests) AS requests'), 
+                                    DB::raw('SUM(placement_log.impressions) AS impressions'), 
+                                    DB::raw('SUM(placement_log.clicks) AS clicks'),
+                                    DB::raw('SUM(placement_log.installed) AS installed')
+                                );
+
+        $zones       = filterByTimeperiod($zones, $request, 'placement_log');
                         
-        if( $this->_user->role != ADMIN_PRIV ){
+        if( $this->_user->role != ADMIN_PRIV ){ // If user isn't admin.
             $zones = $zones->where( 'applications.status', '!=', DELETED_APP  )
                             ->where( 'ad_placement.status', '!=', DELETED_ZONE )
                             ->where( 'applications.user_id', '=', $this->_user->id );
+
         }
 
-        // Zones for the clicked application
-        if( ! is_null( $app_id ) ){
+        if( ! is_null( $app_id ) ){ // Zones for the clicked application
+            
             $zones = $zones->where( 'applications.id', '=', $app_id );
             $application = Application::find($app_id);
             $title = trans('admin.ads_of') . $application->name;  
@@ -84,7 +88,7 @@ class ZoneCtrl extends Controller
 
         $chartData = adaptChartData( clone($zones), 'placement_log' );
         $ads = $zones->groupBy('ad_placement.id')
-                        ->orderBy('created_at', 'ASC')
+                        ->orderBy('ad_placement.created_at', 'ASC')
                         ->get();
 
         $data   = [ 'mTitle', 'title', 'ads', 'application', 'chartData' ];
@@ -176,8 +180,8 @@ class ZoneCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $this->_store( $request );
-            return redirect()->back()
-                            ->with( 'success', trans( 'lang.compeleted_msg' ) );
+            return redirect('zone/all')
+                            ->with( 'success', trans( 'admin.created_zone_msg' ) );
         }
     }
 
@@ -236,7 +240,7 @@ class ZoneCtrl extends Controller
         }else{
             $this->_store( $request );
             return redirect()->back()
-                            ->with( 'success', trans( 'lang.compeleted_msg' ) );
+                            ->with( 'success', trans( 'admin.updated_zone_msg' ) );
         }
     }
     
@@ -268,7 +272,7 @@ class ZoneCtrl extends Controller
                 $zone->save();
 
                 return redirect()->back()
-                                ->with( 'success', trans( 'lang.compeleted_msg' ) );
+                                ->with( 'success', trans( 'admin.deleted_zone_msg' ) );
             }
         }
         return redirect()->back()

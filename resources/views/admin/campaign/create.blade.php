@@ -131,7 +131,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'target_platformat' ) ? 'has-error' : '' }}">
+                                    <div class="form-group has-feedback {{ $errors->has( 'target_platform' ) ? 'has-error' : '' }}">
                                         <label>
                                             {{ trans( 'admin.target_platformat' ) }}
                                         </label>

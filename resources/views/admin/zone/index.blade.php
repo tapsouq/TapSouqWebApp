@@ -21,13 +21,14 @@
                 @endif
             </div>
             <div class="box-body">
-                <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                 <?php $formats = config('consts.zone_formats'); $devices = config('consts.zone_devices'); ?>
                 <?php  $states = config('consts.zone_status'); $layouts = config('consts.zone_layouts'); ?>
                 <?php $css = [ ACTIVE_ZONE => 'label-info', DELETED_ZONE => 'label-warning' ]; ?>
                 <?php $appCss = [ PENDING_APP => 'label-info', ACTIVE_APP => 'label-success', DELETED_APP => 'label-warning' ]; ?>
-                @if( sizeof( $ads ) > 0 )
-                    <div class="table">
+                <div class="table">
+                    @include('admin.partial.filterTimePeriod')
+                    @if( sizeof( $ads ) > 0 )
+                        <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                         <table class="table table-hover table-striped">
                             <thead>
                                 <tr>
@@ -60,13 +61,13 @@
                                             {{ $ad->clicks ?: 0 }}
                                         </td>
                                         <td>
-                                            {{ $ad->impressions ? round($ad->clicks / $ad->impressions, 2): 0 }}
+                                            {{ $ad->impressions ? round($ad->clicks / $ad->impressions, 2) * 100 : 0 }}%
                                         </td>
                                         <td>
-                                            {{ $ad->requests ? round($ad->impressions/$ad->requests, 2) : 0 }}
+                                            {{ $ad->requests ? round($ad->impressions/$ad->requests, 2) * 100 : 0 }}%
                                         </td>
                                         <td>
-                                            {{ $ad->impressions ? round($ad->installed / $ad->impressions, 2) : 0 }}
+                                            {{ $ad->impressions ? round($ad->installed / $ad->impressions, 2) * 100 : 0 }}%
                                         </td>
                                         <td>
                                             <div class="label {{ $css[ $ad->status ] }}">
@@ -95,12 +96,12 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
-                @else
-                    <p>
-                        {{ trans( 'admin.no_ads' ) }}
-                    </p>
-                @endif
+                    @else
+                        <p>
+                            {{ trans( 'admin.no_ads' ) }}
+                        </p>
+                    @endif
+                </div>
             </div>
         </div>
         <div class="modal modal-danger" id="deactivate-zone-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

@@ -42,35 +42,39 @@ class UserCtrl extends Controller
         
         if( $request->has('adv') ){
             $title  = trans( 'admin.all_users' ) . ' > ' . trans('admin.advertisers');
-            $camps  = CreativeLog::join( 'ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id' )
-                                   ->join( 'campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
-                                   ->join( 'users', 'users.id', '=', 'campaigns.user_id' )
-                                   ->select(
-                                        "campaigns.*",
-                                        "users.*",
-                                        "creative_log.created_at AS time",
-                                        DB::raw('DATE( `creative_log`.`created_at` ) AS date'),
-                                        DB::raw('SUM(`creative_log`.`requests`) AS requests '),
-                                        DB::raw('SUM(`creative_log`.`impressions`) AS impressions '),
-                                        DB::raw('SUM(`creative_log`.`clicks`) AS clicks '),
-                                        DB::raw('SUM(`creative_log`.`installed`) AS installed ')
-                                    )
-                                   ->where( 'campaigns.status', '!=', DELETED_CAMP )
-                                   ->where('ad_creative.status', '!=', DELETED_AD)
-                                   ->where( 'users.role', '=', DEV_PRIV );
-            $chartData = adaptChartData( clone($camps), 'creative_log' );
+            $camps  =   User::leftJoin( 'campaigns', 'campaigns.user_id', '=', 'users.id')
+                            ->leftJoin( 'ad_creative', 'ad_creative.camp_id', '=', 'campaigns.id' )
+                            ->leftJoin('creative_log', 'creative_log.ads_id', '=', 'ad_creative.id')
+                            ->select(
+                                "users.*",
+                                "campaigns.user_id",
+                                "creative_log.created_at AS time",
+                                DB::raw('DATE( `creative_log`.`created_at` ) AS date'),
+                                DB::raw('SUM(`creative_log`.`requests`) AS requests '),
+                                DB::raw('SUM(`creative_log`.`impressions`) AS impressions '),
+                                DB::raw('SUM(`creative_log`.`clicks`) AS clicks '),
+                                DB::raw('SUM(`creative_log`.`installed`) AS installed ')
+                            )
+                           ->where( 'users.role', '=', DEV_PRIV );
+            if( $request->has('from') && $request->has('to') ){
+                $from       = $request->input("from");
+                $to         = $request->input("to");
+                $camps      = filterByTimeperiod($camps, $from, $to, 'creative_log');
+            }
+            $chartData  = adaptChartData( clone($camps), 'creative_log' );
+            
             $tableItems = $camps->groupBy('campaigns.user_id')
                         ->orderBy('creative_log.created_at', 'ASC')
                         ->get();
         }else{
             $title  = trans( 'admin.all_users' ) . ' > ' . trans('admin.publishers');
-            $apps  = PlacementLog::join('ad_placement', 'ad_placement.id', '=', 'placement_log.ads_id')
-                                ->join('applications', 'applications.id', '=', 'ad_placement.app_id')
-                                ->join( 'users', 'users.id', '=', 'applications.user_id' )
+            $apps   = User::leftJoin( 'applications', 'applications.user_id', '=', 'users.id' )
+                            ->leftJoin( 'ad_placement', 'ad_placement.app_id', '=', 'applications.id' )
+                                ->leftJoin( 'placement_log', 'placement_log.ads_id', '=', 'ad_placement.id' )
                                 ->leftJoin( 'countries', 'countries.id', '=', 'users.country' )
                                 ->select( 
                                     'users.*',
-                                    'applications.*',
+                                    'applications.user_id',
                                     'countries.name as country_name',
                                     'placement_log.created_at as time',
                                     DB::raw('DATE(placement_log.created_at) AS date'),
@@ -79,11 +83,11 @@ class UserCtrl extends Controller
                                     DB::raw('SUM(`placement_log`.`clicks`) AS clicks'),
                                     DB::raw('SUM(`placement_log`.`installed`) AS installed')
                                 )
-                                ->where( 'applications.status', '!=', DELETED_APP )
-                                ->where('ad_placement.status', '!=', DELETED_ZONE)
                                 ->where( 'users.role', '=', DEV_PRIV );
+
+            $apps       = filterByTimeperiod($apps, $request, 'placement_log');
             
-            $chartData       = adaptChartData( clone($apps), 'placement_log' );
+            $chartData  = adaptChartData( clone($apps), 'placement_log' );
             $tableItems = $apps->groupBy('applications.user_id')
                         ->orderBy('placement_log.created_at', 'ASC')
                         ->get();
@@ -165,7 +169,7 @@ class UserCtrl extends Controller
     public function editProfile ( ){
         $mTitle = $this->_mTitle;
         $title = trans( 'admin.profile' );
-        $user = $this->user;
+        $user = $this->_user;
 
         $data = [ 'mTitle', 'title', 'user' ];
         return view( 'admin.user.profile' )

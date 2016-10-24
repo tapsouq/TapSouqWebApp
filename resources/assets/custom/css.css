@@ -1,6 +1,4 @@
-.login-box, .register-box{
-	width: 600px;
-}
+
 .icon-container::after{
     content: " ";
     clear: both;
@@ -80,4 +78,11 @@ a[data-action] span{
 }
 #chart-container{
     overflow: hidden;
+}
+.all-users-section .filter-group{
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+#daterange-btn .fa {
+    margin: 0 5px;
 }

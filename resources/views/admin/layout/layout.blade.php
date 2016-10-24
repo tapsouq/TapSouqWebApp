@@ -12,6 +12,10 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
         <!-- Ionicons -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+        <!-- daterange picker -->
+        <link rel="stylesheet" href="{{ url('resources/assets') }}/plugins/daterangepicker/daterangepicker.css">
+        <!-- bootstrap datepicker -->
+        <link rel="stylesheet" href="{{ url('resources/assets') }}/plugins/datepicker/datepicker3.css">
         <!-- iCheck for checkboxes and radio inputs -->
         <link rel="stylesheet" href="{{ url('resources/assets') }}/plugins/iCheck/all.css">
         <!-- Select2 -->
@@ -74,6 +78,9 @@
         <script src="{{ url( 'resources/assets' ) }}/bootstrap/js/bootstrap.min.js"></script>
         <!-- date-range-picker -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
+        <script src="{{ url( 'resources/assets' ) }}/plugins/daterangepicker/daterangepicker.js"></script>
+        <!-- bootstrap datepicker -->
+        <script src="{{ url( 'resources/assets' ) }}/plugins/datepicker/bootstrap-datepicker.js"></script>
         <!-- Select2 -->
         <script src="{{ url( 'resources/assets' ) }}/plugins/select2/select2.full.min.js"></script>
         <!-- iCheck 1.0.1 -->
@@ -100,6 +107,28 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         }
                 });
+
+                // Date range
+                //Date range as a button
+                $('#daterange-btn').daterangepicker(
+                    {
+                      ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                      },
+                      startDate: moment().subtract(29, 'days'),
+                      endDate: moment()
+                    },
+                    function (start, end) {
+                        $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                        $('#daterange-btn').find('input[name=from]').val(start.format('YYYY-MM-DD'));
+                        $('#daterange-btn').find('input[name=to]').val(end.format('YYYY-MM-DD'));
+                    }
+                );
             });
         </script>
         @if( isset( $chartData) )
@@ -108,6 +137,7 @@
                 // Yellow, aqua, green, purple, red
                 Highcharts.setOptions().colors= [ "#f39c12", "#00c0ef", "#00a65a", "#605ca8", "#dd4b39" ];
                 data = JSON.parse('{!! json_encode($chartData) !!}');
+                var count = 0;
                 var chartOptions = {
                         renderTo : 'chart-container',
                         type: 'spline'
@@ -151,6 +181,7 @@
                     };
 
                 var yAxes = [
+                        @if( isset($chartData['requests']) )
                         { // Primary yAxis
                             labels: {
                                 format: '{value}',
@@ -166,7 +197,9 @@
                             },
                             min: 0
 
-                        }, { // Secondary yAxis
+                        }, 
+                        @endif
+                        { // Secondary yAxis
                             title: {
                                 text: '{{ trans( 'admin.impressions' ) }}',
                                 style: {
@@ -196,7 +229,9 @@
                             },
                             opposite: true,
                             min: 0
-                        }, { // Tertiary yAxis
+                        },
+                        @if( isset($chartData['fill_rate']) )
+                        { // Tertiary yAxis
                             title: {
                                 text: '{{ trans( 'admin.fill_rate' ) }}',
                                 style: {
@@ -211,7 +246,9 @@
                             },
                             opposite: true,
                             min : 0
-                        }, { // Tertiary yAxis
+                        }, 
+                        @endif
+                        { // Tertiary yAxis
                             title: {
                                 text: '{{ trans( 'admin.ctr' ) }}',
                                 style: {
@@ -229,28 +266,41 @@
                         }
                     ];
                 var series = [
+                        @if( isset($chartData['requests']) )
                         {
                             name: '{{ trans( 'admin.requests' ) }}',
-                            yAxis:0,
+                            yAxis:count ++,
                             data: data.requests
-                        }, {
+                        },
+                        @endif
+                        {
                             name: '{{ trans( 'admin.impressions' ) }}',
-                            yAxis:1,
+                            yAxis:count++,
                             data: data.impressions
                         }, {
                             name: '{{ trans( 'admin.clicks' ) }}',
-                            yAxis:2,
+                            yAxis:count++,
                             data: data.clicks
-                        }, {
+                        },
+                        @if( isset($chartData['fill_rate']) )
+                        {
                             name: '{{ trans( 'admin.fill_rate' ) }}',
-                            yAxis:3,
+                            yAxis:count++,
                             data: data.fill_rate,
-                            visible: false
-                        }, {
+                            visible: false,
+                            tooltip: {
+                                valueSuffix: '%'
+                            }
+                        },
+                        @endif
+                        {
                             name: '{{ trans( 'admin.ctr' ) }}',
-                            yAxis:4,
+                            yAxis: count++,
                             data: data.ctr,
-                            visible: false
+                            visible: false,
+                            tooltip: {
+                                valueSuffix: '%'
+                            }
                         }
                     ];
                  var chart = new Highcharts.chart({
@@ -265,12 +315,17 @@
                 });
                 function getOtherValues(x){
                     var array = [];
+
                     for (var i = 0; i < chart.series.length; i++) {
                         if(chart.series[i].visible){
                             var points = chart.series[i].points;
                             for (var j =0; j < points.length; j++) {
                                 if( points[j].x == x){
-                                    y = points[j].y;
+                                    var suffix = chart.series[i].tooltipOptions.valueSuffix
+                                    if( suffix == undefined ){
+                                        suffix = "";
+                                    }
+                                    y = points[j].y + suffix;
                                     break;
                                 }
                             } 

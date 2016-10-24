@@ -53,21 +53,23 @@ class AdsCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function index ($camp_id = null ){
+    public function index ( Request $request, $camp_id = null ){
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.all_ads' );
         
-        $ads    = CreativeLog::join('ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id')
-                                ->join( 'campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
-                                ->select( 
-                                            'ad_creative.*',
-                                            'creative_log.created_at as time',
-                                            DB::raw('DATE(creative_log.created_at) as date'), 
-                                            DB::raw('SUM(creative_log.requests) AS requests'), 
-                                            DB::raw('SUM(creative_log.impressions) AS impressions'), 
-                                            DB::raw('SUM(creative_log.clicks) AS clicks'),
-                                            DB::raw('SUM(creative_log.installed) AS installed')
-                                        );
+        $ads    = Ads::leftJoin('creative_log', 'creative_log.ads_id', '=', 'ad_creative.id')
+                        ->leftJoin( 'campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
+                        ->select( 
+                                    'ad_creative.*',
+                                    'creative_log.created_at as time',
+                                    DB::raw('DATE(creative_log.created_at) as date'), 
+                                    DB::raw('SUM(creative_log.requests) AS requests'), 
+                                    DB::raw('SUM(creative_log.impressions) AS impressions'), 
+                                    DB::raw('SUM(creative_log.clicks) AS clicks'),
+                                    DB::raw('SUM(creative_log.installed) AS installed')
+                                );
+
+        $ads    = filterByTimeperiod($ads, $request, 'creative_log');
 
         if( $this->_user->role != ADMIN_PRIV ){
             $ads = $ads->where( 'campaigns.status', '!=', DELETED_CAMP  )
@@ -82,7 +84,7 @@ class AdsCtrl extends Controller
             $title  = trans('admin.ads_of') . $camp->name; 
         }
 
-        $chartData = adaptChartData( clone($ads), 'creative_log' );
+        $chartData = adaptChartData( clone($ads), 'creative_log', false );
         $ads = $ads->groupBy('ad_creative.id')
                         ->orderBy('created_at', 'ASC')
                         ->get();
@@ -121,7 +123,7 @@ class AdsCtrl extends Controller
                         ->with('warning', trans('lang.spam'));
         }
 
-        $chartData      = adaptChartData( clone($items), 'creative_log' );
+        $chartData      = adaptChartData( clone($items), 'creative_log', false );
         $adsDetails    = $items->groupBy('ad_creative.id')
                             ->first();
 
@@ -175,8 +177,8 @@ class AdsCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $this->_store( $request );
-            return redirect()->back()
-                            ->with( 'success', trans( 'lang.compeleted_msg' ) );
+            return redirect('ads/all')
+                            ->with( 'success', trans( 'admin.created_ads_msg' ) );
         }
     }
 
@@ -234,7 +236,7 @@ class AdsCtrl extends Controller
         }else{
             $this->_store( $request );
             return redirect()->back()
-                            ->with( 'success', trans( 'lang.compeleted_msg' ) );
+                            ->with( 'success', trans( 'admin.updated_ads_msg' ) );
         }
     }
 

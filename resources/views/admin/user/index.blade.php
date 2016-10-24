@@ -15,15 +15,16 @@
 							{{ trans( 'admin.advertisers' ) }}
 						</a>
 						<a  href="{{ url('user/all') }}" class="btn btn-success {{ Request::input('adv') ? '' : 'disabled' }}" >
-							{{ trans( 'admin.publishers' ) }}
+							{{ trans('admin.publishers') }}
 						</a>
 					</div>
 				</span>
 			</div>
 			<div class="box-body">
-				<div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+				@include('admin.partial.filterTimePeriod')
 				<div class="table">
 					@if( sizeof( $tableItems ) > 0 )
+					<div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 					<table class="table table-bordred table-hover table-striped">
 						<thead>
 							<tr>
@@ -48,11 +49,11 @@
 											{{ $item->fname . " " . $item->lname }}
 										</a>
 									</td>
-									<td>{{ $item->requests }}</td>
-									<td>{{ $item->impressions }}</td>
-									<td>{{ $item->clicks }}</td>
-									<td>{{ ($item->requests != 0 ) ? round( $item->clicks / $item->requests, 2) : 0 }}</td>
-									<td>{{ ($item->clicks != 0 ) ? round( $item->installed / $item->clicks, 2) : 0 }}</td>
+									<td>{{ $item->requests ?: 0 }}</td>
+									<td>{{ $item->impressions ?: 0 }}</td>
+									<td>{{ $item->clicks ?: 0 }}</td>
+									<td>{{ ($item->requests != 0 ) ? round( $item->clicks / $item->requests, 2) * 100 : 0 }}%</td>
+									<td>{{ ($item->clicks != 0 ) ? round( $item->installed / $item->clicks, 2) * 100 : 0 }}%</td>
 									<td>
 										<div class="label {{ $css[ $item->status ] }}">
 											{{ config( 'consts.user_status' )[ $item->status ] }}

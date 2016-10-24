@@ -197,25 +197,55 @@ if( ! function_exists('adaptChartData') ){
      *
      * @param array $items
      * @param string $tableName
+     * @param boolean $notCamp
      * @return array
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    function adaptChartData ( $items, $tableName ){
+    function adaptChartData ( $items, $tableName, $notCamp = true ){
         $items = $items->groupBy('date')
                         ->orderBy( "{$tableName}.created_at", 'ASC')
                         ->get();
 
         $array = [];
         foreach ($items as $key => $item) {
-            $fillRate   = $item->requests != 0 ? round( $item->impressions/$item->requests, 2 ) : 0;
-            $ctr        = $item->impressions != 0 ? round( $item->clicks/$item->impressions, 2) : 0;
-            $array['requests'][] = [ strtotime($item->time) * 1000, (int)$item->requests ];
-            $array['impressions'][] = [ strtotime($item->time) * 1000, (int)$item->impressions ];
-            $array['clicks'][] = [ strtotime($item->time) * 1000, (int)$item->clicks ];
-            $array['fill_rate'][] = [ strtotime($item->time) * 1000, (float)round($fillRate, 2) ];
-            $array['ctr'][] = [ strtotime($item->time) * 1000, (float)round($ctr, 2) ];
+            if( $item->time ){
+                if( $notCamp ){
+                    $fillRate   = $item->requests != 0 ? round( $item->impressions/$item->requests, 2 ) * 100 : 0;
+                    $array['requests'][] = [ strtotime($item->time) * 1000, (int)$item->requests ];
+                    $array['fill_rate'][] = [ strtotime($item->time) * 1000, $fillRate ];
+                }
+                
+                $ctr        = $item->impressions != 0 ? round( $item->clicks/$item->impressions, 2) * 100 : 0;
+                $array['impressions'][] = [ strtotime($item->time) * 1000, (int)$item->impressions ];
+                $array['clicks'][] = [ strtotime($item->time) * 1000, (int)$item->clicks ];
+                $array['ctr'][] = [ strtotime($item->time) * 1000, $ctr ];
+            }
         }
         return $array;
+    }
+}
+
+if( ! function_exists('filterByTimeperiod')){
+
+    /**
+     * filterByTimeperiod. To filter the results within time period
+     *
+     * @param \Illuminate\Database\Query\Builder $object
+     * @param \Illuminate\Http\Request $request
+     * @param string $table
+     * @return \Illuminate\Database\Query\Builder
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    function filterByTimeperiod($object, $request, $table){
+        
+        if( $request->has('from') && $request->has('to') ){
+                $from       = $request->input("from");
+                $to         = $request->input("to");
+                $object     = $object->whereDate("{$table}.created_at", ">=", $from)
+                                     ->whereDate("{$table}.created_at", "<=", $to);
+        }
+        return $object;
     }
 }

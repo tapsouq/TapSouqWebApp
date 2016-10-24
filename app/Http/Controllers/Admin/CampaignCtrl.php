@@ -66,19 +66,15 @@ class CampaignCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function index ( $user_id = null ){
+    public function index ( Request $request, $user_id = null ){
 
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.all_campaigns' );
         
-        $adsCount = Ads::leftJoin('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id')
-                        ->where('campaigns.user_id', '=', $this->_user->id )
-                        ->where('campaigns.status', '!=', DELETED_CAMP)
-                        ->where('ad_creative.status', '!=', DELETED_AD)
-                        ->count();
+        $adsCount = Ads::leftJoin('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id');
 
-        $camps  = CreativeLog::join( 'ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id' )
-                               ->join( 'campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
+        $camps  = Campaign::leftJoin( 'ad_creative', 'ad_creative.camp_id', '=', 'campaigns.id' )
+                               ->leftJoin( 'creative_log', 'creative_log.ads_id', '=', 'ad_creative.id' )
                                ->join( 'users', 'users.id', '=', 'campaigns.user_id' )
                                ->select(
                                     "campaigns.*",
@@ -90,21 +86,33 @@ class CampaignCtrl extends Controller
                                     DB::raw('SUM(`creative_log`.`installed`) AS installed ')
                                 );
 
+        $camps       = filterByTimeperiod($camps, $request, 'creative_log');
+
         if( $this->_user->role != ADMIN_PRIV ){
+
             $camps = $camps->where( 'campaigns.user_id', '=', $this->_user->id )
                             ->where( 'campaigns.status', '!=', DELETED_CAMP )
-                            ->where('ad_creative.status', '!=', DELETED_AD);
-        }
+                            ->where( function ($query){
+                                $query->whereNull('ad_creative.status')
+                                        ->orWhere('ad_creative.status', '!=', DELETED_AD);
+                            });
 
-        if( $user_id != null ){
+            $adsCount = $adsCount->where('campaigns.user_id', '=', $this->_user->id )
+                                ->where('campaigns.status', '!=', DELETED_CAMP)
+                                ->where('ad_creative.status', '!=', DELETED_AD);
+        } else if( $user_id != null ){
+
             $camps = $camps->where('campaigns.user_id', '=', $user_id);
+            $adsCount = $adsCount->where('campaigns.user_id', '=', $user_id);
         }
         
-        $chartData = adaptChartData( clone($camps), 'creative_log' );
+        $chartData = adaptChartData( clone($camps), 'creative_log', false);
         
-        $camps  = $camps->groupBy('ad_creative.camp_id')
-                        ->orderBy('creative_log.created_at', 'ASC')
+        $camps  = $camps->groupBy('campaigns.id')
+                        ->orderBy('campaigns.created_at', 'ASC')
                         ->get();
+
+        $adsCount = $adsCount->count();
 
         $data = [ 'mTitle', 'title', 'camps', 'adsCount', 'chartData' ];
         return view( 'admin.campaign.index' )
@@ -150,8 +158,8 @@ class CampaignCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $this->_store( $request );
-            return redirect()->back()
-                            ->with( 'success', trans( 'lang.compeleted_msg' ) );
+            return redirect('campaign/all')
+                            ->with( 'success', trans( 'admin.created_camp_msg' ) );
         }
     }
 
@@ -222,7 +230,7 @@ class CampaignCtrl extends Controller
         }else{
             $this->_store( $request );
             return redirect()->back()
-                            ->with( 'success', trans( 'lang.compeleted_msg' ) );
+                            ->with( 'success', trans( 'admin.updated_camp_msg' ) );
         }
     }
 
@@ -340,6 +348,7 @@ class CampaignCtrl extends Controller
     private function _saveCampKeywords ( Request $request, $camp_id ){
 
         $keywords = [];
+        $new_keywords = [];
         
         // To save selected keywords that match this application.
         if( $request->has( 'keyword' ) ){
@@ -354,8 +363,8 @@ class CampaignCtrl extends Controller
                 $keyword->save();
                 $new_keywords[] = $keyword->id;
             }
-            $keywords = array_merge($keywords, $new_keywords);
-            syncPivot( 'campaign_keywords', 'camp_id', $camp_id, 'keyword_id', $keywords );
         }
+        $keywords = array_merge($keywords, $new_keywords);
+        syncPivot( 'campaign_keywords', 'camp_id', $camp_id, 'keyword_id', $keywords );
     }
 }

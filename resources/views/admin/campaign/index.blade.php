@@ -25,10 +25,11 @@
                 </div>
             </div>
             <div class="box-body">
-                <div id="chart-container" style="min-width: 310px; max-width: 100%; height: 400px; margin: 0 auto"></div>
                 <div class="table">
+                    @include('admin.partial.filterTimePeriod')
                     @if( sizeof( $camps ) > 0 )
                         <?php $css = [ RUNNING_CAMP => 'label-success', PAUSED_CAMP => 'label-warning', COMPLETED_CAMP => 'label-info', DELETED_CAMP=> 'label-danger' ]; ?>
+                        <div id="chart-container" style="min-width: 310px; max-width: 100%; height: 400px; margin: 0 auto"></div>
                         <table class="table table-hover table-responsive table-striped table-bordered">
                             <thead>
                                 <tr>
@@ -52,13 +53,13 @@
                                             </a>
                                         </td>
                                         <td>
-                                            {{ $camp->impressions }}
+                                            {{ $camp->impressions?: 0 }}
                                         </td>
                                         <td>
-                                            {{ $camp->clicks }}
+                                            {{ $camp->clicks?: 0 }}
                                         </td>
                                         <td>
-                                            {{ $camp->clicks ? round($camp->installed / $camp->clicks , 2) : 0 }}
+                                            {{ $camp->clicks ? round($camp->installed / $camp->clicks , 2) * 100 : 0 }}%
                                         </td>
                                         <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->start_date )->format('m/d/Y g:i A') }}</td>
                                         <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->end_date )->format('m/d/Y g:i A') }}</td>
