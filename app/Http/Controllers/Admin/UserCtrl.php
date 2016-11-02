@@ -56,11 +56,8 @@ class UserCtrl extends Controller
                                 DB::raw('SUM(`creative_log`.`installed`) AS installed ')
                             )
                            ->where( 'users.role', '=', DEV_PRIV );
-            if( $request->has('from') && $request->has('to') ){
-                $from       = $request->input("from");
-                $to         = $request->input("to");
-                $camps      = filterByTimeperiod($camps, $from, $to, 'creative_log');
-            }
+                           
+            $camps      = filterByTimeperiod($camps, $request, 'creative_log');
             $chartData  = adaptChartData( clone($camps), 'creative_log' );
             
             $tableItems = $camps->groupBy('campaigns.user_id')

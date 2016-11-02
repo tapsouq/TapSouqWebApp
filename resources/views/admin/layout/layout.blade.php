@@ -57,7 +57,7 @@
                         <small>{{ isset($title) ? $title : trans( 'admin.dashboard' ) }}</small>
                     </h1>
                     <ol class="breadcrumb">
-                        <li><a href="#"><i class="fa fa-dashboard"></i> {{ trans( 'admin.dashboard' ) }}</a></li>
+                        <li><a href="#"><i class="fa fa-dashboard"></i> {{ trans( 'admin.admin' ) }}</a></li>
                         <li><a href="#">{{ isset($mTitle) ? $mTitle : trans( 'admin.dashboard' ) }}</a></li>
                         <li class="active">{{ isset($title) ? $title : trans( 'admin.dashboard' ) }}</li>
                     </ol>
@@ -135,8 +135,8 @@
             <script type="text/javascript" src="{{ url( 'resources/assets/plugins/highcharts/highcharts.js' ) }}"></script>
             <script type="text/javascript">
                 // Yellow, aqua, green, purple, red
-                Highcharts.setOptions().colors= [ "#f39c12", "#00c0ef", "#00a65a", "#605ca8", "#dd4b39" ];
-                data = JSON.parse('{!! json_encode($chartData) !!}');
+                Highcharts.setOptions().colors = [ "#f39c12", "#00c0ef", "#00a65a", "#605ca8", "#dd4b39", '#792e86' ];
+                data = JSON.parse( '{!! json_encode($chartData) !!}' );
                 var count = 0;
                 var chartOptions = {
                         renderTo : 'chart-container',
@@ -157,7 +157,7 @@
                             var html = "<div id='custom-tooltip'> " + day + "<br>";
                             for( i=0; i< values.length; i++ ){
                                 var name = (values[i][0]).replace(/\s/g, '').toLowerCase();
-                                html += "<span class='span-" + name + "'><i class='fa fa-circle'></i>" + values[i][0] + " : </span->" + values[i][1] + "<br>"
+                                html += "<span class='span-" + name + "'><i class='fa fa-circle'></i>" + values[i][0] + " : </span>" + values[i][1] + "<br>"
                             }
                             html += "</div>"
                             return html;
@@ -239,7 +239,7 @@
                                 }
                             },
                             labels: {
-                                format: '{value}',
+                                format: '{value}%',
                                 style: {
                                     color: Highcharts.getOptions().colors[3]
                                 }
@@ -256,7 +256,7 @@
                                 }
                             },
                             labels: {
-                                format: '{value}',
+                                format: '{value}%',
                                 style: {
                                     color: Highcharts.getOptions().colors[4]
                                 }
@@ -264,23 +264,44 @@
                             opposite: true,
                             min: 0
                         }
+                        @if(isset($chartData['credit']))
+                        ,{ // Tertiary yAxis
+                            title: {
+                                text: '{{ isset($chartData['requests']) ? trans( 'admin.gained_credits' ) : trans( 'admin.spent_credits' ) }}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[5]
+                                }
+                            },
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[5]
+                                }
+                            },
+                            opposite: true,
+                            min: 0
+                        }
+                        @endif
                     ];
                 var series = [
                         @if( isset($chartData['requests']) )
                         {
                             name: '{{ trans( 'admin.requests' ) }}',
                             yAxis:count ++,
-                            data: data.requests
+                            data: data.requests,
+                            color : Highcharts.getOptions().colors[0]
                         },
                         @endif
                         {
                             name: '{{ trans( 'admin.impressions' ) }}',
                             yAxis:count++,
-                            data: data.impressions
+                            data: data.impressions,
+                            color: Highcharts.getOptions().colors[1]
                         }, {
                             name: '{{ trans( 'admin.clicks' ) }}',
                             yAxis:count++,
-                            data: data.clicks
+                            data: data.clicks,
+                            color: Highcharts.getOptions().colors[2]
                         },
                         @if( isset($chartData['fill_rate']) )
                         {
@@ -290,7 +311,8 @@
                             visible: false,
                             tooltip: {
                                 valueSuffix: '%'
-                            }
+                            },
+                            color: Highcharts.getOptions().colors[3]
                         },
                         @endif
                         {
@@ -300,8 +322,20 @@
                             visible: false,
                             tooltip: {
                                 valueSuffix: '%'
-                            }
+                            },
+                            color: Highcharts.getOptions().colors[4]
                         }
+                        @if(isset($chartData['credit']))
+                        ,{
+                            name: '{{ isset($chartData['requests']) ? trans( 'admin.gained_credits' ) : trans( 'admin.spent_credits' ) }}',
+                            yAxis: count++,
+                            data: data.credit,
+                            tooltip: {
+                                valueSuffix: '$'
+                            },
+                            color: Highcharts.getOptions().colors[5]
+                        }
+                        @endif
                     ];
                  var chart = new Highcharts.chart({
                     chart: chartOptions,

@@ -50,5 +50,6 @@ return [
 	'type'						=> "Type",
 	'loading'					=> " Loading ...",
 	'increase'					=> 'Increment',
-	'decrease'					=> "Decrement"
+	'decrease'					=> "Decrement",
+	'dashboard'					=> "Dashboard",
 ];

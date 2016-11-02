@@ -104,7 +104,7 @@ class ZoneCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function show ( $zone_id ){
+    public function show ( Request $request, $zone_id ){
         $mTitle = $this->_mTitle;
         $zone   = Zone::find($zone_id);
 
@@ -119,6 +119,8 @@ class ZoneCtrl extends Controller
                                             DB::raw('SUM(placement_log.installed) AS installed')
                                         )
                                 ->where('ad_placement.id', '=', $zone_id);
+
+        $items      = filterByTimeperiod($items, $request, 'placement_log');
 
         if( is_null($zone) ){
             return redirect('admin')

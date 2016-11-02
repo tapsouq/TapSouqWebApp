@@ -76,6 +76,10 @@ a[data-action] span{
 #custom-tooltip .span-ctr{
     color: #dd4b39;
 }
+#custom-tooltip .span-gainedcredits,
+#custom-tooltip .span-spentcredits{
+    color: #792e86;
+}
 #chart-container{
     overflow: hidden;
 }
@@ -85,4 +89,8 @@ a[data-action] span{
 }
 #daterange-btn .fa {
     margin: 0 5px;
+}
+.bg-move{
+    background: #792e86;
+    color: #fff;
 }

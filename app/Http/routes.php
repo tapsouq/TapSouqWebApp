@@ -11,50 +11,18 @@
 |
 */
 
-Route::get('test/{after}/{before}', function($after, $before){
-	
-	set_time_limit(10000);
-	$rows  	= [];
-	$sdks   = [];
-	$request_id = $after + 1;
+Route::get('test', function(){
+$test = 	DB::statement(
+				"UPDATE `users` INNER JOIN `applications` ON `applications`.`user_id` = `users`.`id`
+								INNER JOIN `ad_placement` ON `ad_placement`.`app_id` = `applications`.`id`
+								INNER JOIN `sdk_requests` ON `sdk_requests`.`placement_id` = `ad_placement`.`id`
+								SET `users`.`credit` = `users`.`credit` + 0.9 , `users`.`dept` = `users`.`dept` + 0.1 
+							WHERE
+								`sdk_requests`.`id` = 213374
+								");
 
-	$result = DB::table('sdk_action')->where('id', '<=', $before)->where('id', '>', $after)->get();
-	foreach ($result as $key => $value) {
-		if($key == 0){
-			$lastValue = $value;
-			continue;
-		}
+dd($test);
 
-		if( !( $value->placement_id == $lastValue->placement_id && $value->creative_id == $lastValue->creative_id && $value->device_id == $lastValue->device_id ) ){
-			$rows[] = [
-					'id'			=> $request_id,
-					'placement_id'	=> $value->placement_id,
-					'creative_id'	=> $value->creative_id,
-					'device_id'		=> $value->device_id,
-					'created_at'	=> $value->created_at,
-					'updated_at'	=> $value->updated_at
-				];
-			$sdks[] = [
-				'request_id'	=> $request_id,
-				'action'		=> 1,
-				'created_at'	=> $value->created_at,
-				'updated_at'	=> $value->updated_at
-			];
-			$request_id = $value->id;
-		}else{
-			$sdks[] = [
-				'request_id'	=> $request_id,
-				'action'		=> $value->action,
-				'created_at'	=> $value->created_at,
-				'updated_at'	=> $value->updated_at
-			];		
-		}
-
-		$lastValue = $value;
-	}
-
-	DB::table('sdk_requests')->insert($rows);
-	DB::table('sdk_actions')->insert($sdks);
 
 });
 
@@ -71,11 +39,13 @@ Route::get( 'verify-email', 'Auth\AuthController@verifyEmail' );
 // Home Module
 Route::get('/', 'HomeCtrl@index');
 
+
 // Middlware fo authinticated active users
 Route::group(['middleware' => 'auth'], function () {
 	// Name space not to repeate admin per controller for every route
 	Route::group(['namespace' => 'Admin'], function()
 	{
+		// Dashboard
 		Route::get( 'admin', 'DashboardCtrl@index' );
 	
 		/** For User Module **/

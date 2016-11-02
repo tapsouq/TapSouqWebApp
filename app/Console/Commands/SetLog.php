@@ -44,7 +44,6 @@ class SetLog extends Command
         
         // Ads types
         $adsTypes   = [ 'placement_id' =>'placement_log' , 'creative_id' => 'creative_log' ];
-            
         foreach ($adsTypes as $adsType => $logTable) {
             foreach ($actions as $key => $action) {
                 // get action count for specific day
@@ -72,7 +71,7 @@ class SetLog extends Command
                         $impressions    = isset($actionsResult[SHOW_ACTION][$adsId]) ? $actionsResult[SHOW_ACTION][$adsId] : 0;
                         $clicks         = isset($actionsResult[CLICK_ACTION][$adsId]) ? $actionsResult[CLICK_ACTION][$adsId] : 0;
                         $installed      = isset($actionsResult[INSTALL_ACTION][$adsId]) ? $actionsResult[INSTALL_ACTION][$adsId] : 0;
-                        $time           = time() - ( 24 * 60 * 60 );
+                        $time           = time() + ( 24 * 60 * 60 * 1);
                        
                         $insertArray[] = [
                                 'ads_id'        => $adsId,

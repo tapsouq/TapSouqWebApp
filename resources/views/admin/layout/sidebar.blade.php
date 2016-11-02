@@ -13,17 +13,11 @@
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu">
             <li class="header">{{ trans( 'admin.main_nav' ) }}</li>
-            <li class="treeview">
-              	<a href="#">
-                	<i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                	<span class="pull-right-container">
-                  		<i class="fa fa-angle-left pull-right"></i>
-                	</span>
-              	</a>
-              	<ul class="treeview-menu">
-                	<li><a href="../../index.html"><i class="fa fa-circle-o"></i> Dashboard v1</a></li>
-                	<li><a href="../../index2.html"><i class="fa fa-circle-o"></i> Dashboard v2</a></li>
-              	</ul>
+            <li class="{{ Request::segment(1) == 'admin' ? 'active' : '' }}">
+                <a href="{{ url('admin') }}">
+                    <i class="fa fa-dashboard"></i>
+                    <span>{{ trans("lang.dashboard") }}</span>
+                </a>
             </li>
             @if( Auth::user()->role == ADMIN_PRIV )
             <li class="{{ Request::segment(1) == 'user' ? 'active' : '' }}">

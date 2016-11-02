@@ -106,7 +106,7 @@ class CampaignCtrl extends Controller
             $adsCount = $adsCount->where('campaigns.user_id', '=', $user_id);
         }
         
-        $chartData = adaptChartData( clone($camps), 'creative_log', false);
+        $chartData = adaptChartData( clone($camps), 'creative_log', IS_CAMPAIGN);
         
         $camps  = $camps->groupBy('campaigns.id')
                         ->orderBy('campaigns.created_at', 'ASC')

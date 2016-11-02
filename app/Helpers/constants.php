@@ -78,3 +78,9 @@ define('ACTION_NAME', 2);
 define('REQUEST_ID', 3);
 define('PLACEMENT_ID', 4);
 define('CREATIVE_ID', 5);
+
+// For Charts module
+define('IS_CAMPAIGN', false);
+define('NOT_CAMPAIGN', true);
+define('IN_DASHBOARD', true);
+// For Dashboard module

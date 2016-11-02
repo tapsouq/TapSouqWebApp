@@ -196,7 +196,6 @@ class SdkCtrl extends Controller
         // to insert request action into database
         $requestId = SdkRequest::insertRequest($placementId, 0, $deviceId);
         if( $requestId ){
-            SdkAction::insertAction(REQUEST_ACTION, $requestId);
 
             // To get creative ads from database.
             $result = SdkAction::getCreativeAds($placementId, $deviceId);

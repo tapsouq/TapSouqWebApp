@@ -84,7 +84,7 @@ class AdsCtrl extends Controller
             $title  = trans('admin.ads_of') . $camp->name; 
         }
 
-        $chartData = adaptChartData( clone($ads), 'creative_log', false );
+        $chartData = adaptChartData( clone($ads), 'creative_log', IS_CAMPAIGN );
         $ads = $ads->groupBy('ad_creative.id')
                         ->orderBy('created_at', 'ASC')
                         ->get();
@@ -118,12 +118,14 @@ class AdsCtrl extends Controller
                                         )
                                 ->where('ad_creative.id', '=', $ads_id);
 
+        $ads    = filterByTimeperiod($ads, $request, 'creative_log');
+
         if( is_null($ads) ){
             return redirect('admin')
                         ->with('warning', trans('lang.spam'));
         }
 
-        $chartData      = adaptChartData( clone($items), 'creative_log', false );
+        $chartData      = adaptChartData( clone($items), 'creative_log', IS_CAMPAIGN );
         $adsDetails    = $items->groupBy('ad_creative.id')
                             ->first();
 

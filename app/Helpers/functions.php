@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set ( "Africa/Cairo" );
+
 if( ! function_exists( 'getToken' ) ){
 	/**
 	 * getToken
@@ -198,28 +200,32 @@ if( ! function_exists('adaptChartData') ){
      * @param array $items
      * @param string $tableName
      * @param boolean $notCamp
+     * @param boolean $dashboard
      * @return array
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    function adaptChartData ( $items, $tableName, $notCamp = true ){
+    function adaptChartData ( $items, $tableName, $notCamp = true, $dashboard = false ){
         $items = $items->groupBy('date')
                         ->orderBy( "{$tableName}.created_at", 'ASC')
                         ->get();
 
         $array = [];
         foreach ($items as $key => $item) {
-            if( $item->time ){
+            if( $item->date ){
                 if( $notCamp ){
                     $fillRate   = $item->requests != 0 ? round( $item->impressions/$item->requests, 2 ) * 100 : 0;
-                    $array['requests'][] = [ strtotime($item->time) * 1000, (int)$item->requests ];
-                    $array['fill_rate'][] = [ strtotime($item->time) * 1000, $fillRate ];
+                    $array['requests'][] = [ strtotime($item->date) * 1000, (int)$item->requests ];
+                    $array['fill_rate'][] = [ strtotime($item->date) * 1000, $fillRate ];
                 }
-                
+                if($dashboard){
+                    $array['credit'][]    = [ strtotime($item->date) * 1000, (int)$item->credit ];
+                }
+
                 $ctr        = $item->impressions != 0 ? round( $item->clicks/$item->impressions, 2) * 100 : 0;
-                $array['impressions'][] = [ strtotime($item->time) * 1000, (int)$item->impressions ];
-                $array['clicks'][] = [ strtotime($item->time) * 1000, (int)$item->clicks ];
-                $array['ctr'][] = [ strtotime($item->time) * 1000, $ctr ];
+                $array['impressions'][] = [ strtotime($item->date) * 1000, (int)$item->impressions ];
+                $array['clicks'][] = [ strtotime($item->date) * 1000, (int)$item->clicks ];
+                $array['ctr'][] = [ strtotime($item->date) * 1000, $ctr ];
             }
         }
         return $array;
