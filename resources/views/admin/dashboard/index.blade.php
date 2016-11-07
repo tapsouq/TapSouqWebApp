@@ -127,7 +127,7 @@
                                             </span>
 
                                             <div class="progress">
-                                                <div class="progress-bar" style="width: {{ $ctr * 100 }}%"></div>
+                                                <div class="progress-bar" style="width: {{ $ctr }}%"></div>
                                             </div>
                                             <span class="progress-description">
                                             </span>

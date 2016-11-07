@@ -71,7 +71,7 @@ class SetLog extends Command
                         $impressions    = isset($actionsResult[SHOW_ACTION][$adsId]) ? $actionsResult[SHOW_ACTION][$adsId] : 0;
                         $clicks         = isset($actionsResult[CLICK_ACTION][$adsId]) ? $actionsResult[CLICK_ACTION][$adsId] : 0;
                         $installed      = isset($actionsResult[INSTALL_ACTION][$adsId]) ? $actionsResult[INSTALL_ACTION][$adsId] : 0;
-                        $time           = time() + ( 24 * 60 * 60 * 1);
+                        $time           = time() - ( 24 * 60 * 60 * 1);
                        
                         $insertArray[] = [
                                 'ads_id'        => $adsId,

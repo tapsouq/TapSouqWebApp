@@ -10,18 +10,11 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-
 Route::get('test', function(){
-$test = 	DB::statement(
-				"UPDATE `users` INNER JOIN `applications` ON `applications`.`user_id` = `users`.`id`
-								INNER JOIN `ad_placement` ON `ad_placement`.`app_id` = `applications`.`id`
-								INNER JOIN `sdk_requests` ON `sdk_requests`.`placement_id` = `ad_placement`.`id`
-								SET `users`.`credit` = `users`.`credit` + 0.9 , `users`.`dept` = `users`.`dept` + 0.1 
-							WHERE
-								`sdk_requests`.`id` = 213374
-								");
-
-dd($test);
+	$test = DB::statement(
+			"select * from `creative_log`"
+		);
+	dd($test);
 
 
 });

@@ -93,14 +93,18 @@ class SdkAction extends Model
                         `campaigns`.`language` = `devices`.`language`
                     AND
                         (
-                                `camp_users`.`role` != {$admin} AND `camp_users`.`credit` >= 1
+                                (
+                                        `camp_users`.`role` != {$admin} 
+                                    AND 
+                                        `camp_users`.`credit` >  ROUND( ( `camp_users`.`debit` * 10 / 9 ) + 1 )
+                                )
                             OR
                                 (
                                         `camp_users`.`role`     = {$admin} 
                                     AND
-                                        `camp_users`.`credit`   >= 1
+                                        ROUND(`camp_users`.`credit`)   >= 1
                                     AND
-                                        `app_users`.`debit`     >= 0.9 
+                                        ROUND(`app_users`.`debit`, 1)     >= 0.9 
                                 )
                         )
                         ";

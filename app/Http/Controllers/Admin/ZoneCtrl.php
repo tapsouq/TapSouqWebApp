@@ -181,8 +181,10 @@ class ZoneCtrl extends Controller
                             ->withErrors( $validator )
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
-            $this->_store( $request );
+            $zone = $this->_store( $request );
             return redirect('zone/all')
+                            ->with( 'notification', trans( 'admin.placement_id_is' ))
+                            ->with('notificationData', $zone->id)
                             ->with( 'success', trans( 'admin.created_zone_msg' ) );
         }
     }
@@ -315,6 +317,7 @@ class ZoneCtrl extends Controller
         }
          
         $zone->save(); 
+        return $zone;
     }
 
     /**

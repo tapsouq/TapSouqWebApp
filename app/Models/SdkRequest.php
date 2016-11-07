@@ -19,7 +19,6 @@ class SdkRequest extends Model
 	 * @copyright Smart Applications Co. <www.smartapps-ye.com>
 	 */
 	public static function insertRequest ( $placementId, $creativeId, $deviceId ){
-	    date_default_timezone_set ( "Africa/Cairo" );
 	    
 	    $request = new SdkRequest;
 	    $request->placement_id  = $placementId;
@@ -27,7 +26,6 @@ class SdkRequest extends Model
 	    $request->device_id     = $deviceId;
 	    $request->created_at    = date('Y-m-d H:i:s', time());
 	    $request->updated_at    = date('Y-m-d H:i:s', time());
-	   
 	    if( $request->save() ){
 	    	return $request->id;
 	    }

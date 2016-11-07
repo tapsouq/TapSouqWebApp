@@ -1,7 +1,4 @@
 <?php
-
-date_default_timezone_set ( "Africa/Cairo" );
-
 if( ! function_exists( 'getToken' ) ){
 	/**
 	 * getToken

@@ -152,5 +152,10 @@ return [
 	"credit"					=> "Credit",
 	"gained_credits"			=> "Gained Credits",
 	"spent_credits"				=> "Spent Credits",
-
+	"ur_credit"					=> "Your Credit: ",
+	"admin_credit"				=> "Admin Credit: ",
+	"actions"					=> "Actions",
+	"ratio"						=> "Ratio",
+	"admin_credits"				=> "Admin Credits",
+	"placement_id_is"			=> "Placement id for mobile application is "
 ];

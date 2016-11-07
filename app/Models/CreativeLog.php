@@ -8,4 +8,5 @@ class CreativeLog extends Model
 {
     //
     protected $table = "creative_log";
+
 }

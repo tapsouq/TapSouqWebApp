@@ -6,14 +6,14 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use DB;
-use App\Models\CreativeLog, App\Models\PLacementLog;
+use DB, Auth;
+use App\Models\CreativeLog, App\Models\PlacementLog;
 
 class DashboardCtrl extends Controller
 {
 	// Main title for all views for that controller
 	private $_mTitle ;
-
+	private $_user;
 	/**
 	 * __construct
 	 *
@@ -23,7 +23,8 @@ class DashboardCtrl extends Controller
 	 * @copyright Sapps Company <>
 	 */
 	public function __construct (  ){
-		$this->_mTitle = trans( 'admin.dashboard' );
+		$this->_mTitle 	= trans( 'admin.dashboard' );
+		$this->_user   	= Auth::user();
 	}
 
      /**
@@ -41,24 +42,26 @@ class DashboardCtrl extends Controller
 	     	$title 	= 	trans( "admin.all_camps_7days" );
 	     	$items  =   CreativeLog::join( 'ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id' )
 			     	                ->join( 'campaigns', 'campaigns.id', '=', 'ad_creative.camp_id')
-			     	                ->join('users', 'users.id', '=', 'campaigns.user_id')
+			     	                ->join('users as camp_users', 'camp_users.id', '=', 'campaigns.user_id')
 			     	                ->select(
 			     	                    "campaigns.user_id",
 			     	                    "creative_log.created_at AS time",
-			     	                    DB::raw('SUM(`users`.`credit`)')
 			     	                    DB::raw('DATE( `creative_log`.`created_at` ) AS date'),
 			     	                    DB::raw('SUM(`creative_log`.`requests`) AS requests '),
 			     	                    DB::raw('SUM(`creative_log`.`impressions`) AS impressions '),
 			     	                    DB::raw('SUM(`creative_log`.`clicks`) AS clicks '),
-			     	                    DB::raw('( SUM(`users`.`credit`) - SUM(`users`.`debit`)) AS credit '),
-			     	                    DB::raw('SUM(`creative_log`.`installed`) AS installed ')
+			     	                    DB::raw('SUM(`creative_log`.`installed`) AS installed '),
+			     	                    DB::raw('SUM(`creative_log`.`clicks` ) AS credit')
 			     	                )
-	     	               			->where( 'users.role', '=', DEV_PRIV )
 	     	               			->where( 'creative_log.created_at', '<=', date('Y-m-d') . " 23:59:59")
 	     	               			->where( 'creative_log.created_at', '>=', date_create()->sub(date_interval_create_from_date_string('7 days'))->format("Y-m-d 00:00:00") );
-     		
+	     	
+	     	if( $this->_user->role = DEV_PRIV ){
+	     		$items = $items->where('camp_users.id', '=', $this->_user->id);
+	     	}
+
  		    $items      = filterByTimeperiod($items, $request, 'creative_log');
-     		
+
      		$cloneItems = clone($items);
      		$total		= $cloneItems->first();
      		$chartData 	= adaptChartData ( $items, 'creative_log', IS_CAMPAIGN, IN_DASHBOARD );
@@ -78,19 +81,73 @@ class DashboardCtrl extends Controller
 			     	                    DB::raw('SUM(`placement_log`.`clicks`) AS credit '),
 			     	                    DB::raw('SUM(`placement_log`.`installed`) AS installed ')
 			     	                )
-	     	               			->where( 'users.role', '=', DEV_PRIV )
 	     	               			->where( 'placement_log.created_at', '<=', date('Y-m-d') . " 23:59:59")
 	     	               			->where( 'placement_log.created_at', '>=', date_create()->sub(date_interval_create_from_date_string('7 days'))->format("Y-m-d 00:00:00") );
-     		
+			if( $this->_user->role = DEV_PRIV ){
+	     		$items = $items->where('users.id', '=', $this->_user->id);
+	     	}
+
  		    $items      = filterByTimeperiod($items, $request, 'placement_log');
-     		
+
      		$cloneItems = clone($items);
      		$total		= $cloneItems->first();
      		$chartData 	= adaptChartData ( $items, 'placement_log', NOT_CAMPAIGN, IN_DASHBOARD);
+
+     		$chartData 	= $this->_addAdminCreditToCharts($chartData, $request);
      	}
 
      	$data = [ 'mTitle', 'title', 'chartData', 'total' ];
      	return view( 'admin.dashboard.index' )
      				->with( compact( $data ) );
-     }
+    }
+
+    /**
+     * _addAdminCreditToCharts. To add admin credits to chartdata.
+     *
+     * @param array $chartData
+     * @param \Illuminate\Http\Request $request.
+     * @return array.
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _addAdminCreditToCharts ( $chartData, $request ){
+    	
+		$adminData  = DB::table('sdk_requests')
+							->join('sdk_actions', 'sdk_actions.request_id', '=', 'sdk_requests.id')
+							->join('ad_placement', 'ad_placement.id', '=', 'sdk_requests.placement_id')
+							->join('applications', 'applications.id', '=', 'ad_placement.app_id')
+							->join('users as app_users', 'app_users.id', '=', 'applications.user_id')
+							->join('ad_creative', 'sdk_requests.creative_id', '=', 'ad_creative.id')
+							->join('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id')
+							->join('users as camp_users', 'camp_users.id', '=', 'campaigns.user_id')
+							->select(
+								DB::raw('count(*) as credit'),
+								DB::raw('date(sdk_requests.created_at) as date')
+							)
+							->where('camp_users.role', '=', ADMIN_PRIV)
+							->where('sdk_actions.action', '=', CLICK_ACTION)
+							->where( 'sdk_requests.created_at', '<=', date('Y-m-d') . " 23:59:59")
+							->where( 'sdk_requests.created_at', '>=', date_create()->sub(date_interval_create_from_date_string('7 days'))->format("Y-m-d 00:00:00") );
+		
+		if( $this->_user->role = DEV_PRIV ){
+			$adminData = $adminData->where('app_users.id', '=', $this->_user->id);
+		}
+
+		if( $request->has('from') && $request->has('to') ){
+                $from       = $request->input("from");
+                $to         = $request->input("to");
+                $adminData  = $adminData->whereDate("sdk_requests.created_at", ">=", $from)
+                                     ->whereDate("sdk_requests.created_at", "<=", $to);
+        }
+    	
+    	$adminData 	= $adminData->groupBy('date')
+                        		->orderBy( "sdk_requests.created_at", 'ASC')
+                        		->get();
+
+        foreach ($adminData as $key => $value) {
+        	$chartData['adminCredit'][$key] = [ strtotime($value->date) * 1000, (int)$value->credit ];
+        	$chartData['credit'][$key] = [ strtotime($value->date) * 1000, ( $chartData['credit'][$key][1] - $value->credit) ];
+        }
+        return $chartData;
+    }
 }

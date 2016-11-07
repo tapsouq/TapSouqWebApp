@@ -135,7 +135,7 @@
             <script type="text/javascript" src="{{ url( 'resources/assets/plugins/highcharts/highcharts.js' ) }}"></script>
             <script type="text/javascript">
                 // Yellow, aqua, green, purple, red
-                Highcharts.setOptions().colors = [ "#f39c12", "#00c0ef", "#00a65a", "#605ca8", "#dd4b39", '#792e86' ];
+                Highcharts.setOptions().colors = [ "#f39c12", "#00c0ef", "#00a65a", "#605ca8", "#dd4b39", '#792e86', '#333' ];
                 data = JSON.parse( '{!! json_encode($chartData) !!}' );
                 var count = 0;
                 var chartOptions = {
@@ -181,24 +181,23 @@
                     };
 
                 var yAxes = [
-                        @if( isset($chartData['requests']) )
                         { // Primary yAxis
                             labels: {
                                 format: '{value}',
                                 style: {
-                                    color: Highcharts.getOptions().colors[0]
+                                    color: '#000'
                                 }
                             },
                             title: {
-                                text: '{{ trans( 'admin.requests' ) }}',
+                                text: '{{ trans( 'admin.actions' ) }}',
                                 style: {
-                                    color: Highcharts.getOptions().colors[0]
+                                    color: '#000'
                                 }
                             },
                             min: 0
 
                         }, 
-                        @endif
+/*
                         { // Secondary yAxis
                             title: {
                                 text: '{{ trans( 'admin.impressions' ) }}',
@@ -230,6 +229,7 @@
                             opposite: true,
                             min: 0
                         },
+
                         @if( isset($chartData['fill_rate']) )
                         { // Tertiary yAxis
                             title: {
@@ -248,17 +248,18 @@
                             min : 0
                         }, 
                         @endif
+*/
                         { // Tertiary yAxis
                             title: {
-                                text: '{{ trans( 'admin.ctr' ) }}',
+                                text: '{{ trans( 'admin.ratio' ) }}',
                                 style: {
-                                    color: Highcharts.getOptions().colors[4]
+                                    color: '#000'
                                 }
                             },
                             labels: {
                                 format: '{value}%',
                                 style: {
-                                    color: Highcharts.getOptions().colors[4]
+                                    color: '#000'
                                 }
                             },
                             opposite: true,
@@ -287,26 +288,26 @@
                         @if( isset($chartData['requests']) )
                         {
                             name: '{{ trans( 'admin.requests' ) }}',
-                            yAxis:count ++,
+                            yAxis:0,
                             data: data.requests,
                             color : Highcharts.getOptions().colors[0]
                         },
                         @endif
                         {
                             name: '{{ trans( 'admin.impressions' ) }}',
-                            yAxis:count++,
+                            yAxis:0,
                             data: data.impressions,
                             color: Highcharts.getOptions().colors[1]
                         }, {
                             name: '{{ trans( 'admin.clicks' ) }}',
-                            yAxis:count++,
+                            yAxis:0,
                             data: data.clicks,
                             color: Highcharts.getOptions().colors[2]
                         },
                         @if( isset($chartData['fill_rate']) )
                         {
                             name: '{{ trans( 'admin.fill_rate' ) }}',
-                            yAxis:count++,
+                            yAxis:1,
                             data: data.fill_rate,
                             visible: false,
                             tooltip: {
@@ -317,7 +318,7 @@
                         @endif
                         {
                             name: '{{ trans( 'admin.ctr' ) }}',
-                            yAxis: count++,
+                            yAxis: 1,
                             data: data.ctr,
                             visible: false,
                             tooltip: {
@@ -328,12 +329,17 @@
                         @if(isset($chartData['credit']))
                         ,{
                             name: '{{ isset($chartData['requests']) ? trans( 'admin.gained_credits' ) : trans( 'admin.spent_credits' ) }}',
-                            yAxis: count++,
+                            yAxis: 2,
                             data: data.credit,
-                            tooltip: {
-                                valueSuffix: '$'
-                            },
                             color: Highcharts.getOptions().colors[5]
+                        }
+                        @endif
+                        @if(isset($chartData['adminCredit']))
+                        ,{
+                            name: '{{  trans( 'admin.admin_credits' ) }}',
+                            yAxis: 2,
+                            data: data.adminCredit,
+                            color: Highcharts.getOptions().colors[6]
                         }
                         @endif
                     ];
