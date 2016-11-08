@@ -18,7 +18,7 @@
 
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
-        	<?php $userCredit = round(Auth::user()->credit - ( Auth::user()->debit * 10 / 9), 1 ); ?>
+        	<?php $userCredit = Auth::user()->credit; ?>
         	<?php $adminCredit = round(Auth::user()->debit * 10 / 9, 1 ); ?>
             <!-- Messages: style can be found in dropdown.less-->
             <li class="">

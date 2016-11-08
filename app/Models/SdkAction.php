@@ -96,7 +96,7 @@ class SdkAction extends Model
                                 (
                                         `camp_users`.`role` != {$admin} 
                                     AND 
-                                        `camp_users`.`credit` >  ROUND( ( `camp_users`.`debit` * 10 / 9 ) + 1 )
+                                        `camp_users`.`credit` >   1
                                 )
                             OR
                                 (
