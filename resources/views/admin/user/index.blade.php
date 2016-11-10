@@ -45,7 +45,7 @@
 							@foreach( $tableItems as $key => $item )
 								<tr>
 									<td>
-										<a href="{{ ( Request::input('adv') ? url('campaign/all/' . $item->user_id)  : url('app/all/' . $item->user_id) )}}">
+										<a href="{{ ( Request::input('adv') ? url('campaign/all/' . $item->id)  : url('app/all/' . $item->id) )}}">
 											{{ $item->fname . " " . $item->lname }}
 										</a>
 									</td>

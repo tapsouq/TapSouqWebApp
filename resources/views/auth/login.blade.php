@@ -26,6 +26,13 @@
                     <h4><i class="icon fa fa-ban"></i> {{ trans( 'lang.alert' ) }}</h4>
                     {{ session( 'danger' ) }}
                 </div>
+              @endif
+              @if( session( 'success' ) )
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h4><i class="icon fa fa-check"></i> {{ trans( 'lang.alert' ) }}</h4>
+                    {{ session( 'success' ) }}
+                </div>
               @endif  
               <div class="form-group has-feedback {{ $errors->has( 'email' ) ? 'has-error' : '' }}">
                 <input type="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="{{ trans( 'lang.email' ) }}">

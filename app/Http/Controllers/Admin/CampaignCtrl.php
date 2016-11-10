@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Country, App\Models\Category, App\Models\Campaign;
 use App\Models\Ads, App\Models\CreativeLog;
 use App\Models\Keyword, App\Models\Language;
-use Validator, DB, Auth;
+use Validator, DB, Auth, App\User;
 
 use Raulr\GooglePlayScraper\Scraper;
 
@@ -102,8 +102,10 @@ class CampaignCtrl extends Controller
                                 ->where('ad_creative.status', '!=', DELETED_AD);
         } else if( $user_id != null ){
 
-            $camps = $camps->where('campaigns.user_id', '=', $user_id);
-            $adsCount = $adsCount->where('campaigns.user_id', '=', $user_id);
+            $user       = User::find($user_id);
+            $title      = $title . trans("admin.belongs_to") . "{$user->fname} {$user->lname}"; 
+            $camps      = $camps->where('campaigns.user_id', '=', $user_id);
+            $adsCount   = $adsCount->where('campaigns.user_id', '=', $user_id);
         }
         
         $chartData = adaptChartData( clone($camps), 'creative_log', IS_CAMPAIGN);
@@ -157,8 +159,8 @@ class CampaignCtrl extends Controller
                             ->withErrors( $validator )
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
-            $this->_store( $request );
-            return redirect('campaign/all')
+            $camp = $this->_store( $request );
+            return redirect('ads/all/' . $camp->id )
                             ->with( 'success', trans( 'admin.created_camp_msg' ) );
         }
     }
@@ -334,6 +336,8 @@ class CampaignCtrl extends Controller
 
         // save application keywords
         $this->_saveCampKeywords( $request, $camp->id );
+
+        return $camp;
     }
 
     /**

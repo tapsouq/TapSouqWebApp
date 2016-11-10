@@ -19,7 +19,6 @@
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
         	<?php $userCredit = Auth::user()->credit; ?>
-        	<?php $adminCredit = round(Auth::user()->debit * 10 / 9, 1 ); ?>
             <!-- Messages: style can be found in dropdown.less-->
             <li class="">
             	<a href="#"  title="{{ trans("admin.ur_credit") . $userCredit }}">
@@ -27,14 +26,6 @@
               		<span class="label label-success">{{ $userCredit }}</span>
                 </a>
             </li>
-            <!-- Messages: style can be found in dropdown.less-->
-            <li class="">
-            	<a href="#" title="{{ trans("admin.admin_credit") . $adminCredit }}">
-             		<i class="fa fa-shopping-cart"></i>
-              		<span class="label label-danger">{{ $adminCredit }}</span>
-                </a>
-            </li>
-
             @if( 1 == 0 )
             <!-- Notifications: style can be found in dropdown.less -->
             <li class="dropdown notifications-menu">

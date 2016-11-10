@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use Validator, Auth, DB;
 use App\Models\Category, App\Models\Application;
 use App\Models\Zone, App\Models\PlacementLog;
-
+use App\User;
 class AppCtrl extends Controller
 {
     /**
@@ -91,9 +91,9 @@ class AppCtrl extends Controller
                                     ->where('ad_placement.status', '!=', DELETED_ZONE);
 
         }else if( $user_id != null ){ // if the user is an admin and check user apps
-            
+            $user = User::find($user_id);
+            $title = $title . trans('admin.belongs_to') . "{$user->fname}  {$user->lname}"; 
             $apps = $apps->where( 'applications.user_id', '=', $user_id );
-            
             $adsCount = $adsCount->where( 'applications.user_id', '=', $user_id );
         }
 

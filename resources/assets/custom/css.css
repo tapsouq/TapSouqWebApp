@@ -94,3 +94,16 @@ a[data-action] span{
     background: #792e86;
     color: #fff;
 }
+input[required]:before {
+    content: ' ';
+    display: table;
+}
+.create-ads-blade .popover{
+    width: auto !important;
+    max-width: initial;
+}
+.create-ads-blade .popover .popover-content img{
+    width: auto !important;
+    max-width: 400px;
+    height: auto !important;
+}

@@ -39,7 +39,7 @@ return [
 	"daily_freq_cap"			=> "Daily Frequency Capping",
 	"daily_freq"				=> "Daily Freq.",
 	"format"					=> "Format",
-	"refresh_interval"			=> "Refresh Interval",
+	"refresh_interval"			=> "Refresh Interval <em>( in seconds )</em>",
 	"create_place_ad"			=> "Create placement ad",
 	"placement_ads"				=> "Placement Ads", 
 	"ad_placement"				=> "Placement Ad", 
@@ -65,7 +65,10 @@ return [
 	"end_date"					=> "End date",
 	"normal"					=> "Normal",
 	"all_countries"				=> "All Countries",
-	"select_country"			=> "Select Country",
+	"select_country"			=> "Select Targeted Countries",
+	"select_keyword"			=> "Select Targeted Keywords",
+	"targeted_country"			=> "Targeted Countries <em>(Default : All Countries) </em>",
+	"targeted_keywords"			=> "Targeted Keywords <em>(Default : No Specific Keywords)</em>",
 	"are_u_sure_run"			=> "Are you sure you want to run the campaign.",
 	"are_u_sure_pause"			=> "Are you sure you want to pause the campaign.",
 	"are_u_sure_run_ads"		=> "Are you sure you want to run the creative Ads.",
@@ -144,7 +147,7 @@ return [
 	"deleted_zone_msg"			=> "The ad placement is deleted successfully.",
 	"deleted_ads_msg"			=> "The ad creative is deleted successfully.",
 	"filter"					=> "Filter",
-	"select_time_period"		=> "Select time period",
+	"select_time_period"		=> "Select time period <em>(Default: last 30 days)</em>",
 	"main"						=> "Main",
 	"admin"						=> "Admin",
 	"all_apps_7days"			=> "All Applications - Last 7 Days",
@@ -157,5 +160,6 @@ return [
 	"actions"					=> "Actions",
 	"ratio"						=> "Ratio",
 	"admin_credits"				=> "Admin Credits",
-	"placement_id_is"			=> "Placement id for mobile application is "
+	"placement_id_is"			=> "Placement id for mobile application is ",
+	"belongs_to"				=> " by "
 ];

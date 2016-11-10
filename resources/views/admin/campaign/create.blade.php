@@ -33,21 +33,21 @@
                                     </div>        
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'country' ) ? 'has-error' : '' }}">
+                                    <div class="form-group has-feedback {{ $errors->has( 'target_platform' ) ? 'has-error' : '' }}">
                                         <label>
-                                            {{ trans( 'lang.country' ) }}
+                                            {{ trans( 'admin.target_platformat' ) }}
                                         </label>
-                                        @if( sizeof( $countries ) > 0 )
-                                            <select class="form-control country-select" name="country[]" multiple="">
-                                                <option value="">{{ trans('admin.all_countries') }}</option>
-                                                @foreach( $countries as $key => $country )
-                                                    <option value="{{ $country->id }}" {{ isset($camp) ? ( in_array($country->id, $selected_countries) ? 'selected' : '' ) : ( old('country') ? ( in_array($country->id, old('country')) ? 'selected' :'' ) : '' ) }} >
-                                                        {{ $country->name }}
-                                                    </option>
+                                        @if( sizeof( $platforms = config('consts.app_platforms') ) > 0 )
+                                            <div class="radio-list">
+                                                @foreach( $platforms as $key => $value )
+                                                    <input type="radio" name="target_platform" class="minimal-blue" value="{{ $key }}" {{ isset($camp) ? ( $camp->target_platform == $key ? 'checked' : '' ) : ( old('target_platform') == $key ? 'checked' :'' ) }}>
+                                                    <span class="radio-label">
+                                                        {{ $value }}
+                                                    </span>
                                                 @endforeach
-                                            </select>
+                                            </div>
                                             <span class="help-block">
-                                                {{ $errors->has( 'country' ) ? $errors->first( 'country' ) : '' }}
+                                                {{ $errors->has( 'target_platform' ) ? $errors->first( 'target_platform' ) : '' }}
                                             </span>
                                         @endif
                                     </div>
@@ -131,21 +131,21 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'target_platform' ) ? 'has-error' : '' }}">
+                                    <div class="form-group has-feedback {{ $errors->has( 'country' ) ? 'has-error' : '' }}">
                                         <label>
-                                            {{ trans( 'admin.target_platformat' ) }}
+                                            {!! trans( 'admin.targeted_country' ) !!}
                                         </label>
-                                        @if( sizeof( $platforms = config('consts.app_platforms') ) > 0 )
-                                            <div class="radio-list">
-                                                @foreach( $platforms as $key => $value )
-                                                    <input type="radio" name="target_platform" class="minimal-blue" value="{{ $key }}" {{ isset($camp) ? ( $camp->target_platform == $key ? 'checked' : '' ) : ( old('target_platform') == $key ? 'checked' :'' ) }}>
-                                                    <span class="radio-label">
-                                                        {{ $value }}
-                                                    </span>
+                                        @if( sizeof( $countries ) > 0 )
+                                            <select class="form-control country-select" name="country[]" multiple="">
+                                                <option value="">{{ trans('admin.all_countries') }}</option>
+                                                @foreach( $countries as $key => $country )
+                                                    <option value="{{ $country->id }}" {{ isset($camp) ? ( in_array($country->id, $selected_countries) ? 'selected' : '' ) : ( old('country') ? ( in_array($country->id, old('country')) ? 'selected' :'' ) : '' ) }} >
+                                                        {{ $country->name }}
+                                                    </option>
                                                 @endforeach
-                                            </div>
+                                            </select>
                                             <span class="help-block">
-                                                {{ $errors->has( 'target_platform' ) ? $errors->first( 'target_platform' ) : '' }}
+                                                {{ $errors->has( 'country' ) ? $errors->first( 'country' ) : '' }}
                                             </span>
                                         @endif
                                     </div>
@@ -175,10 +175,10 @@
                                 <div class="col-md-6">
                                     <div class="form-group has-feedback {{ $errors->has( 'keyword' ) ? 'has-error' : '' }}">
                                         <label>
-                                            {{ trans( 'admin.keywords' ) }}
+                                            {!! trans( 'admin.targeted_keywords' ) !!}
                                         </label>
                                         @if( sizeof( $keywords ) > 0 )
-                                            <select class="form-control" name="keyword[]" multiple="">
+                                            <select class="form-control keyword-select" name="keyword[]" multiple="">
                                                 @foreach( $keywords as $value  )
                                                     <option value="{{ $value->id }}" {{ isset($camp) ? ( in_array($value->id, $selectedKeys) ? 'selected' : '' ) : ( old('keyword') ?  ( in_array($value->id, old('keyword')) ? 'selected' : '' ) :'' ) }}>
                                                         {{ $value->name }}
@@ -196,27 +196,6 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'language' ) ? 'has-error' : '' }}">
-                                        <label>
-                                            {{ trans( 'admin.language' ) }}
-                                        </label>
-                                        @if( sizeof( $languages ) > 0 )
-                                            <select class="form-control" name="language">
-                                                @foreach( $languages as $key => $lang )
-                                                    <option value="{{ $lang->id }}" {{ isset($camp) ? ( $camp->language == $lang->id ? 'selected' : '' ) : ( old('language') == $lang->id ? 'selected' :'' ) }} >
-                                                        {{ $lang->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <span class="help-block">
-                                                {{ $errors->has( 'language' ) ? $errors->first( 'language' ) : '' }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
                                     <div class="form-group has-feedback {{ $errors->has( 'description' ) ? 'has-error' : '' }}">
                                         <label>
                                             {{ trans( 'admin.description' ) }}
@@ -227,6 +206,8 @@
                                         </span>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-6">
                                     @if( Auth::user()->role == ADMIN_PRIV && isset($camp) )
                                         <div class="form-group has-feedback {{ $errors->has( 'status' ) ? 'has-error' : '' }}">
@@ -269,6 +250,9 @@
         $(function () {
             $('.country-select').select2({
                 placeholder : "{{ trans( 'admin.select_country' ) }}"
+            });
+            $('.keyword-select').select2({
+                placeholder : "{{ trans( 'admin.select_keyword' ) }}"
             });
 
             $('input[name=start_date]').datetimepicker({
@@ -379,7 +363,7 @@
                 });
             */
 
-            $("select.category, select[name='keyword[]']").select2();
+            $("select.category']").select2();
 
             $("select.category").on('change', function(){
                 var catVal  = $(this).val();

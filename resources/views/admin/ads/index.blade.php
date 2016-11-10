@@ -1,7 +1,7 @@
 @extends( 'admin.layout.layout' )
 
 @section( 'head' )
-
+    <link rel="stylesheet" type="text/css" href="{{url()}}/resources/assets/plugins/tooltipster-master/dist/css/tooltipster.bundle.min.css" />
 @stop
 
 @section( 'content' )
@@ -47,7 +47,8 @@
                                     @foreach( $ads as $_key => $ad )
                                         <tr>
                                             <td>
-                                                <a href="{{ url( 'ads/' . $ad->id ) }}">
+                                                <?php $imgSrc = url('public/uploads/ad-images') . '/' . $ad->image_file;?>
+                                                <a class="ads-tooltip" title="<img src='{{$imgSrc}}' />" href="{{ url( 'ads/' . $ad->id ) }}">
                                                     {{ $ad->name }}
                                                 </a>
                                             </td>
@@ -124,8 +125,14 @@
 @stop
 
 @section( 'script' )
+    <script type="text/javascript" src="{{url()}}/resources/assets/plugins/tooltipster-master/dist/js/tooltipster.bundle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
+            $('.ads-tooltip').tooltipster({
+                contentAsHTML : true,
+                delay         : 600
+            });
+
             $('.deactivate-ad').on('click', function(){
                 var id = $(this).attr('data-id');
                 $('#change-status-modal').removeClass('modal-warning modal-success')

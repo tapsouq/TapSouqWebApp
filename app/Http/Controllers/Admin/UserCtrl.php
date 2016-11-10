@@ -47,7 +47,6 @@ class UserCtrl extends Controller
                             ->leftJoin('creative_log', 'creative_log.ads_id', '=', 'ad_creative.id')
                             ->select(
                                 "users.*",
-                                "campaigns.user_id",
                                 "creative_log.created_at AS time",
                                 DB::raw('DATE( `creative_log`.`created_at` ) AS date'),
                                 DB::raw('SUM(`creative_log`.`requests`) AS requests '),

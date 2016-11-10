@@ -102,7 +102,7 @@ class AdsCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function show ( $ads_id ){
+    public function show ( Request $request, $ads_id ){
         $mTitle = $this->_mTitle;
         $ads    = Ads::find($ads_id);
 

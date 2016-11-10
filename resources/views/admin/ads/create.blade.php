@@ -5,7 +5,7 @@
 @stop
 
 @section( 'content' )
-    <section class="create-blade">
+    <section class="create-ads-blade">
         <div class="form">
             <form role="form" action="{{ isset($ad) ? url('save-ads') : url('store-ads') }}" method="post" enctype="multipart/form-data">
                 <div class="box box-info">
@@ -111,7 +111,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <div class="form-group has-feedback {{ $errors->has( 'image_file' ) ? 'has-error' : '' }}">
                                             <label>
                                                 {{ trans( 'admin.image_file' ) }}

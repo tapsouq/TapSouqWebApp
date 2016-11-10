@@ -93,9 +93,9 @@
                                     </div>
                                     <div class="form-group banner-refresh has-feedback {{ $errors->has( 'refresh_interval' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->device_type != BANNER ? 'hidden' : '' ) : ( old('device_type') != BANNER ? 'hidden' : '' ) }} ">
                                         <label>
-                                              {{ trans( 'admin.refresh_interval' ) }}
+                                              {!! trans( 'admin.refresh_interval' ) !!}
                                         </label>
-                                        <input type="number" class="form-control" name="refresh_interval" min="1" value="{{ isset($zone) ? $zone->refresh_interval : old('refresh_interval') }}">
+                                        <input type="number" class="form-control" name="refresh_interval" min="1" value="{{ isset($zone) ? $zone->refresh_interval : (old('refresh_interval') ?: 60 ) }}">
                                         <span class="help-block">
                                             {{ $errors->has( 'refresh_interval' ) ? $errors->first( 'refresh_interval' ) : '' }}
                                         </span>

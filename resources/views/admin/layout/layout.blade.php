@@ -93,8 +93,12 @@
         <!-- AdminLTE for demo purposes -->
         <script src="{{ url( 'resources/assets' ) }}/dist/js/demo.js"></script>
         <script>
+            function adaptRange(start, end){
+                $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                $('#daterange-btn').find('input[name=from]').val(start.format('YYYY-MM-DD'));
+                $('#daterange-btn').find('input[name=to]').val(end.format('YYYY-MM-DD'));
+            }
             $(function () {
-                
                 //Initialize Select2 Elements
                 $(".select2").select2();
 
@@ -110,6 +114,12 @@
                 });
 
                 // Date range
+                var startDate = moment().subtract(29, 'days');
+                var endDate   = moment();
+                @if( Request::has('to') &&  Request::has('from'))
+                    startDate = moment("{{Request::input('from')}}");
+                    endDate = moment("{{Request::input('to')}}");
+                @endif
                 //Date range as a button
                 $('#daterange-btn').daterangepicker(
                     {
@@ -121,13 +131,12 @@
                         'This Month': [moment().startOf('month'), moment().endOf('month')],
                         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                       },
-                      startDate: moment().subtract(29, 'days'),
-                      endDate: moment()
+                      startDate: startDate,
+                      endDate: endDate
                     },
                     function (start, end) {
-                        $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-                        $('#daterange-btn').find('input[name=from]').val(start.format('YYYY-MM-DD'));
-                        $('#daterange-btn').find('input[name=to]').val(end.format('YYYY-MM-DD'));
+                        adaptRange(start, end);
+                        $('form.time-period-form').trigger('submit');
                     }
                 );
             });
@@ -375,6 +384,11 @@
                     }
                     return array;
                 } 
+            </script>
+        @endif
+        @if( Request::has('to') && Request::has('from') )
+            <script type="text/javascript">
+                adaptRange( moment("{{Request::input('from') }}"), moment("{{Request::input('to') }}") );
             </script>
         @endif
         @yield( 'script' )
