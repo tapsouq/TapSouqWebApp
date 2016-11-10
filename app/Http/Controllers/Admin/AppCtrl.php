@@ -302,6 +302,10 @@ class AppCtrl extends Controller
                 }
                 $app->status =$request->status; 
             }
+            // To change updated value to pending(0) state. 
+            if( $app->package_id    != $request->package_id ){
+                $app->updated = PENDING_UPDATED;
+            }
         }else{
             $app = new Application;
             $app->user_id  = Auth::user()->id; 
@@ -309,6 +313,7 @@ class AppCtrl extends Controller
 
         $app->name          = $request->name;
         $app->platform      = $request->platform;
+
         $app->package_id    = $request->package_id;
 
         if( $request->hasFile( 'icon' ) ){

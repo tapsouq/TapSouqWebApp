@@ -84,3 +84,8 @@ define('IS_CAMPAIGN', false);
 define('NOT_CAMPAIGN', true);
 define('IN_DASHBOARD', true);
 // For Dashboard module
+
+// For Cron Jobs
+define("PENDING_UPDATED", 0);
+define("SUCCESS_UPDATED", 1);
+define("ERROR_UPDATED", 2);

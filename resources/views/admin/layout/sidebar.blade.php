@@ -1,3 +1,4 @@
+    
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
         <!-- Sidebar user panel -->
@@ -19,6 +20,7 @@
                     <span>{{ trans("lang.dashboard") }}</span>
                 </a>
             </li>
+
             @if( Auth::user()->role == ADMIN_PRIV )
             <li class="{{ Request::segment(1) == 'user' ? 'active' : '' }}">
                 <a href="{{ url( 'user/all' ) }}">

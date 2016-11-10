@@ -11,10 +11,10 @@
 |
 */
 Route::get('test', function(){
-	$test = DB::statement(
-			"select * from `creative_log`"
-		);
-	dd($test);
+	$apps = App\Models\AppDetails::where('updated', '=', 0)->get();
+	$ids = array_pluck($apps, 'id');
+	$result = App\Models\AppDetails::whereIn('id', $ids)->update([ 'updated' => 1] );
+	dd($result);
 
 
 });

@@ -90,8 +90,6 @@ class SdkAction extends Model
                     AND
                         CURDATE() BETWEEN `campaigns`.`start_date` AND `campaigns`.`end_date`
                     AND
-                        `campaigns`.`language` = `devices`.`language`
-                    AND
                         (
                                 (
                                         `camp_users`.`role` != {$admin} 

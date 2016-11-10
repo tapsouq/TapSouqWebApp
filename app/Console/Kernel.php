@@ -27,27 +27,27 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('inspire')
-                 ->hourly();
         
         /** 
          * To run curl to get the information of the new added application, that        
          * is been added in last day
          */
-        $schedule->command('application:getifo')
-                 ->dailyAt('00:10');                 
+        $schedule->command('application:getinfo')
+                 ->everyMinute()
+                 ->withoutOverlapping();                 
         
         /**
          * To match between keywords that user entered in the last days with all application, 
          * the same for new application to be matched with all keywords
          */
-        $schedule->command('matchKewords')
-                 ->dailyAt('02:00');
+        $schedule->command('matchKeywords')
+                 ->everyMinute()
+                 ->withoutOverlapping();                 
 
         /**
          * To get the placement, creative logs from the sdk actions and requests
          */
-         $schedule->command('setlog')
-                  ->dailyAt('7:52');                 
+        $schedule->command('setlog')
+                  ->dailyAt('01:00');                 
     }
 }

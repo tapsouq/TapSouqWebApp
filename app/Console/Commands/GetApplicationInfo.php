@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Application;
 use App\Models\AppDetails;
 use Raulr\GooglePlayScraper\Scraper;
+use Raulr\GooglePlayScraper\Exception\NotFoundException;
 
 class GetApplicationInfo extends Command
 {
@@ -14,7 +15,7 @@ class GetApplicationInfo extends Command
      *
      * @var string
      */
-    protected $signature = 'application:getifo';
+    protected $signature = 'application:getinfo';
 
     /**
      * The console command description.
@@ -41,29 +42,31 @@ class GetApplicationInfo extends Command
     public function handle()
     {
         $scraper = new scraper;
-        $apps = Application::where( 'updated', '=', 0 )
+        $apps = Application::where( 'updated', '=', PENDING_UPDATED )
                             ->get();
         if( sizeof( $apps ) > 0 ){
             foreach ($apps as $key => $app) {
                 $id = $app->package_id;
-                $data = $scraper->getApp( $id );
-                
-                if( sizeof( $data ) >0 ){
-                    $app->updated = 1;
-                    
-                    // get a new instance of AppDetails .
-                    $appDetails = AppDetails::find( $app->id );
-                    if( is_null($appDetails) ){
-                        $appDetails = new AppDetails;
+                try{
+                    $data = $scraper->getApp( $id );
+                    if( sizeof( $data ) >0 ){
+                        $app->updated = SUCCESS_UPDATED;
+                        
+                        // get a new instance of AppDetails .
+                        $appDetails = AppDetails::find( $app->id );
+                        if( is_null($appDetails) ){
+                            $appDetails = new AppDetails;
+                        }
+
+                        $appDetails->id = $app->id;
+                        $appDetails->title = isset($data['title']) ? $data['title'] : '';
+                        $appDetails->description = isset($data['description']) ? $data['description'] : '';
+                        $appDetails->save();
+
                     }
-
-                    $appDetails->id = $app->id;
-                    $appDetails->title = isset($data['title']) ? $data['title'] : '';
-                    $appDetails->description = isset($data['description']) ? $data['description'] : '';
-                    $appDetails->save();
-
-                }else{
-                    $app->updated = 2;
+                }catch(NotFoundException $e){
+                    echo $e->getMessage();
+                    $app->updated = ERROR_UPDATED;
                 }
                 $app->save();
             }

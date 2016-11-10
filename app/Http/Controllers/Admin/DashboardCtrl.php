@@ -129,7 +129,7 @@ class DashboardCtrl extends Controller
 							->where( 'sdk_requests.created_at', '<=', date('Y-m-d') . " 23:59:59")
 							->where( 'sdk_requests.created_at', '>=', date_create()->sub(date_interval_create_from_date_string('7 days'))->format("Y-m-d 00:00:00") );
 		
-		if( $this->_user->role = DEV_PRIV ){
+		if( $this->_user->role == DEV_PRIV ){
 			$adminData = $adminData->where('app_users.id', '=', $this->_user->id);
 		}
 

@@ -37,6 +37,7 @@
         @yield( 'head' )
     </head>
     <body class="skin-blue sidebar-mini sidebar-collapse" >
+    
         <div class="wrapper">
             <!-- Header section -->
             @include( 'admin.layout.header' )
