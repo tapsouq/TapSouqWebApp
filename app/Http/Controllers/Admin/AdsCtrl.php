@@ -82,6 +82,10 @@ class AdsCtrl extends Controller
             $ads    = $ads->where('ad_creative.camp_id', '=', $camp_id);
             $camp   = Campaign::find($camp_id);
             $title  = trans('admin.ads_of') . $camp->name; 
+        }else{
+            if($request->has('user')){
+                $ads    = $ads->where('campaigns.user_id', '=', $request->input('user'));
+            }
         }
 
         $chartData = adaptChartData( clone($ads), 'creative_log', IS_CAMPAIGN );

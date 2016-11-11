@@ -84,6 +84,10 @@ class ZoneCtrl extends Controller
             $zones = $zones->where( 'applications.id', '=', $app_id );
             $application = Application::find($app_id);
             $title = trans('admin.ads_of') . $application->name;  
+        }else{
+            if($request->has('user')){
+                $zones    = $zones->where('applications.user_id', '=', $request->input('user'));
+            }
         }
 
         $chartData = adaptChartData( clone($zones), 'placement_log' );
@@ -91,7 +95,7 @@ class ZoneCtrl extends Controller
                         ->orderBy('ad_placement.created_at', 'ASC')
                         ->get();
 
-        $data   = [ 'mTitle', 'title', 'ads', 'application', 'chartData' ];
+        $data   = [ 'mTitle', 'title', 'ads', 'application', 'chartData', 'user_id' ];
         return view( 'admin.zone.index' )
                     ->with( compact( $data ) );
     }

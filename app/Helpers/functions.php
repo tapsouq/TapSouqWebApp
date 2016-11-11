@@ -244,13 +244,13 @@ if( ! function_exists('filterByTimeperiod')){
     function filterByTimeperiod($object, $request, $table){
         
         if( $request->has('from') && $request->has('to') ){
-                $from       = $request->input("from");
-                $to         = $request->input("to");
-                $object->whereDate("{$table}.created_at", ">=", $from)
-                                     ->whereDate("{$table}.created_at", "<=", $to);
+            $from       = $request->input("from");
+            $to         = $request->input("to");
+            $object->whereDate("{$table}.created_at", ">=", $from)
+                    ->whereDate("{$table}.created_at", "<=", $to);
         }else{
-            $object->where("{$table}.created_at", ">=", date_create()->sub(date_interval_create_from_date_string('30 days'))->format("Y-m-d 00:00:00"))
-                    ->where("{$table}.created_at", "<=", date('Y-m-d'). " 23:59:59");
+            $object->where( "{$table}.created_at", '<=', date('Y-m-d') . " 23:59:59")
+                    ->where( "{$table}.created_at", '>=', date_create()->sub(date_interval_create_from_date_string('30 days'))->format("Y-m-d 00:00:00") );
         }
         return $object;
     }

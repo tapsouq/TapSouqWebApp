@@ -59,8 +59,8 @@ class UserCtrl extends Controller
             $camps      = filterByTimeperiod($camps, $request, 'creative_log');
             $chartData  = adaptChartData( clone($camps), 'creative_log' );
             
-            $tableItems = $camps->groupBy('campaigns.user_id')
-                        ->orderBy('creative_log.created_at', 'ASC')
+            $tableItems = $camps->groupBy('users.id')
+                        ->orderBy('users.created_at', 'ASC')
                         ->get();
         }else{
             $title  = trans( 'admin.all_users' ) . ' > ' . trans('admin.publishers');
@@ -84,7 +84,7 @@ class UserCtrl extends Controller
             $apps       = filterByTimeperiod($apps, $request, 'placement_log');
             
             $chartData  = adaptChartData( clone($apps), 'placement_log' );
-            $tableItems = $apps->groupBy('applications.user_id')
+            $tableItems = $apps->groupBy('users.id')
                         ->orderBy('placement_log.created_at', 'ASC')
                         ->get();
         }

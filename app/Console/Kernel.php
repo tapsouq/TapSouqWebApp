@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel
          * To run curl to get the information of the new added application, that        
          * is been added in last day
          */
-        $schedule->command('application:getinfo')
+        $schedule->command('getAppsInfo')
                  ->everyMinute()
                  ->withoutOverlapping();                 
         
@@ -47,7 +47,8 @@ class Kernel extends ConsoleKernel
         /**
          * To get the placement, creative logs from the sdk actions and requests
          */
-        $schedule->command('setlog')
-                  ->dailyAt('01:00');                 
+        $schedule->command('setLog')
+                  ->everyFiveMinutes()
+                  ->withoutOverlapping();                 
     }
 }

@@ -13,7 +13,7 @@ class SetLog extends Command
      *
      * @var string
      */
-    protected $signature = 'setlog';
+    protected $signature = 'setLog';
 
     /**
      * The console command description.
@@ -54,7 +54,10 @@ class SetLog extends Command
                                     WHERE 
                                         `action` = $action
                                     AND
-                                        DATE( `sdk_actions`.`created_at` ) = DATE_SUB( CURRENT_DATE(), INTERVAL 1 DAY )
+                                        `sdk_requests`.`created_at` < SUBTIME( NOW(), '00:05:00' )
+                                    AND
+                                        `sdk_requests`.`created_at` >= SUBTIME( NOW(), '00:10:00' )
+
                                 GROUP BY {$adsType}
                         ");
                 // To create an array of ids as key andcounts as it's value. 
@@ -71,7 +74,7 @@ class SetLog extends Command
                         $impressions    = isset($actionsResult[SHOW_ACTION][$adsId]) ? $actionsResult[SHOW_ACTION][$adsId] : 0;
                         $clicks         = isset($actionsResult[CLICK_ACTION][$adsId]) ? $actionsResult[CLICK_ACTION][$adsId] : 0;
                         $installed      = isset($actionsResult[INSTALL_ACTION][$adsId]) ? $actionsResult[INSTALL_ACTION][$adsId] : 0;
-                        $time           = time() - ( 24 * 60 * 60 * 1);
+                        $time           = time() - ( 5 * 60 );
                        
                         $insertArray[] = [
                                 'ads_id'        => $adsId,

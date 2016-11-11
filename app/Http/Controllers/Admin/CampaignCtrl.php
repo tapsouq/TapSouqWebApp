@@ -116,7 +116,7 @@ class CampaignCtrl extends Controller
 
         $adsCount = $adsCount->count();
 
-        $data = [ 'mTitle', 'title', 'camps', 'adsCount', 'chartData' ];
+        $data = [ 'mTitle', 'title', 'camps', 'adsCount', 'chartData', 'user_id' ];
         return view( 'admin.campaign.index' )
                     ->with( compact( $data ) );
     }

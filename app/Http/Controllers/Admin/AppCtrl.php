@@ -106,7 +106,7 @@ class AppCtrl extends Controller
         $adsCount = $adsCount->count();
 
             
-        $data = [ 'title', 'mTitle', 'apps', 'adsCount', 'chartData' ];
+        $data = [ 'title', 'mTitle', 'apps', 'adsCount', 'chartData', 'user_id' ];
         return view( 'admin.app.index' )
                     ->with( compact( $data ) );
     }

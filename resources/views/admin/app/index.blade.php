@@ -12,7 +12,7 @@
                     {{ $title }}
                     ({{ count($apps) }})
                      | 
-                    <a href="{{ url('zone/all') }}">
+                    <a href="{{ url('zone/all') . ( $user_id ? ('?user=' . $user_id ) : '')}}">
                         {{ trans('admin.all_placement_ads') }}
                         ({{ $adsCount }})
                     </a>

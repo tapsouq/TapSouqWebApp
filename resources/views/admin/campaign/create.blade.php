@@ -363,7 +363,7 @@
                 });
             */
 
-            $("select.category']").select2();
+            $("select.category").select2();
 
             $("select.category").on('change', function(){
                 var catVal  = $(this).val();

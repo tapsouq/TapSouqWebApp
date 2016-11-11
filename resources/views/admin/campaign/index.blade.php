@@ -12,7 +12,7 @@
                     {{ $title }}
                     ({{ count($camps) }})
                     |
-                    <a href="{{ url( 'ads/all' ) }}">
+                    <a href="{{ url( 'ads/all') . ( $user_id ? ('?user=' . $user_id ) : '') }} ">
                         {{ trans( 'admin.ads' ) }}
                         ({{ $adsCount }})
                     </a>

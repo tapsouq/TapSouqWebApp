@@ -15,7 +15,7 @@ class GetApplicationInfo extends Command
      *
      * @var string
      */
-    protected $signature = 'application:getinfo';
+    protected $signature = 'getAppsInfo';
 
     /**
      * The console command description.
