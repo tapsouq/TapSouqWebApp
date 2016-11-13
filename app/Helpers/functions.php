@@ -237,18 +237,19 @@ if( ! function_exists('filterByTimeperiod')){
      * @param \Illuminate\Database\Query\Builder $object
      * @param \Illuminate\Http\Request $request
      * @param string $table
+     * @param boolean $sevenDays. To make sure that the default value isn't 7 days.
      * @return \Illuminate\Database\Query\Builder
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    function filterByTimeperiod($object, $request, $table){
+    function filterByTimeperiod($object, $request, $table, $sevenDays = false ){
         
         if( $request->has('from') && $request->has('to') ){
             $from       = $request->input("from");
             $to         = $request->input("to");
             $object->whereDate("{$table}.created_at", ">=", $from)
                     ->whereDate("{$table}.created_at", "<=", $to);
-        }else{
+        }else if( ! $sevenDays) {
             $object->where( "{$table}.created_at", '<=', date('Y-m-d') . " 23:59:59")
                     ->where( "{$table}.created_at", '>=', date_create()->sub(date_interval_create_from_date_string('30 days'))->format("Y-m-d 00:00:00") );
         }

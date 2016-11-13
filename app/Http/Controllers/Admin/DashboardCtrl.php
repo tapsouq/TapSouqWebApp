@@ -84,14 +84,13 @@ class DashboardCtrl extends Controller
 	     	               			->where( 'placement_log.created_at', '<=', date('Y-m-d') . " 23:59:59")
 	     	               			->where( 'placement_log.created_at', '>=', date_create()->sub(date_interval_create_from_date_string('7 days'))->format("Y-m-d 00:00:00") );
 			if( $this->_user->role == DEV_PRIV ){
-	     		$items = $items->where('users.id', '=', $this->_user->id);
+	     		$items->where('applications.user_id', '=', $this->_user->id);
 	     	}
- 		    $items      = filterByTimeperiod($items, $request, 'placement_log');
+ 		    $items      = filterByTimeperiod($items, $request, 'placement_log', true);
 
      		$cloneItems = clone($items);
      		$total		= $cloneItems->first();
      		$chartData 	= adaptChartData ( $items, 'placement_log', NOT_CAMPAIGN, IN_DASHBOARD);
-
      		$chartData 	= $this->_addAdminCreditToCharts($chartData, $request);
      	}
 
@@ -141,17 +140,18 @@ class DashboardCtrl extends Controller
     	$adminData 	= $adminData->groupBy('date')
                         		->orderBy( "sdk_requests.created_at", 'ASC')
                         		->get();
-
-        foreach ($chartData['credit'] as $key => $chartCredit) {
-        	if(!isset($adminData[$key])){
-	        	$chartData['adminCredit'][$key] = [$chartCredit[0], 0];
-        		continue;
-        	}
-        	$adminCreditDay = $adminData[$key];
-        	if( strtotime($adminCreditDay->date) * 1000 == $chartCredit[0] ){
-	        	$chartData['credit'][$key] = [ $chartCredit[0], (int)( $chartCredit[1] - $adminCreditDay->credit) ];
-	        	$chartData['adminCredit'][$key] = [$chartCredit[0], (int)$adminCreditDay->credit];
-        	}
+        if(sizeof($chartData) > 0){
+	        foreach ($chartData['credit'] as $key => $chartCredit) {
+	        	if(!isset($adminData[$key])){
+		        	$chartData['adminCredit'][$key] = [$chartCredit[0], 0];
+	        		continue;
+	        	}
+	        	$adminCreditDay = $adminData[$key];
+	        	if( strtotime($adminCreditDay->date) * 1000 == $chartCredit[0] ){
+		        	$chartData['credit'][$key] = [ $chartCredit[0], (int)( $chartCredit[1] - $adminCreditDay->credit) ];
+		        	$chartData['adminCredit'][$key] = [$chartCredit[0], (int)$adminCreditDay->credit];
+	        	}
+	        }
         }
         return $chartData;
     }

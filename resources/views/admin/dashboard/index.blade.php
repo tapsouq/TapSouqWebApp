@@ -159,7 +159,7 @@
                             </div>
                         </div>
                     @else
-
+                        {{ Request::input('camps') ? trans('admin.there_is_no_camps') : trans('admin.there_is_no_apps') }}
                     @endif
                 </div> 
             </div>

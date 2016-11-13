@@ -161,5 +161,9 @@ return [
 	"ratio"						=> "Ratio",
 	"admin_credits"				=> "Admin Credits",
 	"placement_id_is"			=> "Placement id for mobile application is ",
-	"belongs_to"				=> " by "
+	"belongs_to"				=> " by ",
+	"there_is_no_zones"			=> "There is no placement ads.",
+	"there_is_no_ads"			=> "There is no creative ads.",
+	"there_is_no_camps"			=> "There is no campaigns.",
+	"there_is_no_apps"			=> "There is no applications.",
 ];
