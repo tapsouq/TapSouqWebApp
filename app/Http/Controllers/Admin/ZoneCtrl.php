@@ -124,7 +124,7 @@ class ZoneCtrl extends Controller
                                         )
                                 ->where('ad_placement.id', '=', $zone_id);
 
-        $items      = filterByTimeperiod($items, $request, 'placement_log');
+        filterByTimeperiod($items, $request, 'placement_log');
 
         if( is_null($zone) ){
             return redirect('admin')

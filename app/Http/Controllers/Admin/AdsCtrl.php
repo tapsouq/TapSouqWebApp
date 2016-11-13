@@ -122,14 +122,14 @@ class AdsCtrl extends Controller
                                         )
                                 ->where('ad_creative.id', '=', $ads_id);
 
-        $ads    = filterByTimeperiod($ads, $request, 'creative_log');
+        filterByTimeperiod($items, $request, 'creative_log');
 
         if( is_null($ads) ){
             return redirect('admin')
                         ->with('warning', trans('lang.spam'));
         }
 
-        $chartData      = adaptChartData( clone($items), 'creative_log', IS_CAMPAIGN );
+        $chartData     = adaptChartData( clone($items), 'creative_log', IS_CAMPAIGN );
         $adsDetails    = $items->groupBy('ad_creative.id')
                             ->first();
 
