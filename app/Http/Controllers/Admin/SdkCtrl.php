@@ -204,7 +204,7 @@ class SdkCtrl extends Controller
                 $response = [
                         'status'        => true,
                         'requestId'     => $requestId,
-                        'adsObject'     => (array) $result[0]
+                        'adsObject'     => (array) $result[mt_rand(0, count($result) - 1 )]
                     ];
             }else{
                 $response = [

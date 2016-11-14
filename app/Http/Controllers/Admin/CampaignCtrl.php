@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Country, App\Models\Category, App\Models\Campaign;
 use App\Models\Ads, App\Models\CreativeLog;
-use App\Models\Keyword, App\Models\Language;
+use App\Models\Keyword;
 use Validator, DB, Auth, App\User;
 
 use Raulr\GooglePlayScraper\Scraper;
@@ -26,8 +26,6 @@ class CampaignCtrl extends Controller
     private $_categories;
     // all Keywords
     private $_keywords;
-    // all languages
-    private $_languages;
 
     /**
      * __construct. To init the class
@@ -43,14 +41,12 @@ class CampaignCtrl extends Controller
         $this->_categories  = Category::all();
         $this->_countries   = Country::all();
         $this->_keywords    = Keyword::all();
-        $this->_languages   = Language::all();
         $this->_initRules   = [
                 'name'              => 'required|max:255',
                 'fcategory'         => 'exists:categories,id',
                 'target_platform'   => 'required|in:' . implode(',' , array_keys( config( 'consts.app_platforms' ) )),
                 'ad_serving_pace'   => 'in:' . implode(',' , array_keys( config( 'consts.camp_serving' ) )),
                 'country'           => 'array|exists:countries,id',
-                'language'          => 'required|exists:languages,id',     
                 'status'            => 'in:' . implode(',' , array_keys( config( 'consts.camp_status' ) )),
                 'start_date'        => 'required|date_format:m/d/Y g:i A',
                 'end_date'          => 'required|date_format:m/d/Y g:i A',
@@ -86,37 +82,45 @@ class CampaignCtrl extends Controller
                                     DB::raw('SUM(`creative_log`.`installed`) AS installed ')
                                 );
 
-        $camps       = filterByTimeperiod($camps, $request, 'creative_log');
+        filterByTimeperiod($camps, $request, 'creative_log');
 
         if( $this->_user->role != ADMIN_PRIV ){
 
-            $camps = $camps->where( 'campaigns.user_id', '=', $this->_user->id )
-                            ->where( 'campaigns.status', '!=', DELETED_CAMP )
-                            ->where( function ($query){
-                                $query->whereNull('ad_creative.status')
-                                        ->orWhere('ad_creative.status', '!=', DELETED_AD);
-                            });
+            $allCamps = Campaign::where('campaigns.user_id', '=', $this->_user->id)
+                                    ->where('campaigns.status', '!=', DELETED_CAMP);
 
-            $adsCount = $adsCount->where('campaigns.user_id', '=', $this->_user->id )
-                                ->where('campaigns.status', '!=', DELETED_CAMP)
-                                ->where('ad_creative.status', '!=', DELETED_AD);
-        } else if( $user_id != null ){
+            $camps->where( 'campaigns.user_id', '=', $this->_user->id )
+                    ->where( 'campaigns.status', '!=', DELETED_CAMP )
+                    ->where( function ($query){
+                        $query->whereNull('ad_creative.status')
+                            ->orWhere('ad_creative.status', '!=', DELETED_AD);
+                    });
+
+            $adsCount->where('campaigns.user_id', '=', $this->_user->id )
+                        ->where('campaigns.status', '!=', DELETED_CAMP)
+                        ->where('ad_creative.status', '!=', DELETED_AD);
+
+        } else if( $user_id != null ){ // If the user is admin and get all campaigns for the user has id ($user_id).
 
             $user       = User::find($user_id);
             $title      = $title . trans("admin.belongs_to") . "{$user->fname} {$user->lname}"; 
             $camps      = $camps->where('campaigns.user_id', '=', $user_id);
             $adsCount   = $adsCount->where('campaigns.user_id', '=', $user_id);
+            $allCamps   = Campaign::where('campaigns.user_id', '=', $user_id);
+        }else{
+            $allCamps = new Campaign;
         }
         
         $chartData = adaptChartData( clone($camps), 'creative_log', IS_CAMPAIGN);
         
+        $allCamps = $allCamps->get();
         $camps  = $camps->groupBy('campaigns.id')
                         ->orderBy('campaigns.created_at', 'ASC')
                         ->get();
 
         $adsCount = $adsCount->count();
 
-        $data = [ 'mTitle', 'title', 'camps', 'adsCount', 'chartData', 'user_id' ];
+        $data = [ 'mTitle', 'title', 'camps', 'adsCount', 'chartData', 'user_id', 'allCamps' ];
         return view( 'admin.campaign.index' )
                     ->with( compact( $data ) );
     }
@@ -134,9 +138,8 @@ class CampaignCtrl extends Controller
         $countries  = $this->_countries;
         $categories = $this->_categories;
         $keywords   = $this->_keywords;
-        $languages  = $this->_languages;
 
-        $data = [ 'mTitle', 'title', 'countries', 'categories', 'keywords', 'languages' ];
+        $data = [ 'mTitle', 'title', 'countries', 'categories', 'keywords' ];
         return view( 'admin.campaign.create' )
                     ->with( compact( $data ) );
     }
@@ -179,7 +182,6 @@ class CampaignCtrl extends Controller
         $categories = $this->_categories;
         $countries  = $this->_countries;
         $keywords   = $this->_keywords;
-        $languages  = $this->_languages;
         
         $selected_cats      = DB::table( 'campaign_categories' )
                                 ->where( 'camp_id', '=', $camp_id )
@@ -203,7 +205,7 @@ class CampaignCtrl extends Controller
                             ->with( 'warning', trans('lang.spam_msg') );
         }
 
-        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'keywords', 'selected_cats', 'selected_countries', 'selectedKeys', 'languages' ];
+        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'keywords', 'selected_cats', 'selected_countries', 'selectedKeys' ];
         return view( 'admin.campaign.create' )
                     ->with( compact( $data ) );
     }
@@ -298,7 +300,6 @@ class CampaignCtrl extends Controller
 
         $camp->name             = $request->name;
         $camp->description      = $request->input('description');
-        $camp->language         = $request->language;
 
         $camp->start_date       = date_create_from_format( 'm/d/Y g:i A', $request->start_date )->format( 'Y-m-d H:i:s' );
         $camp->end_date         = date_create_from_format( 'm/d/Y g:i A', $request->end_date )->format( 'Y-m-d H:i:s' );

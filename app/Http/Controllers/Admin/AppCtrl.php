@@ -71,42 +71,47 @@ class AppCtrl extends Controller
                                 DB::raw('SUM(`placement_log`.`installed`) AS installed')
                             );
 
-        $apps       = filterByTimeperiod($apps, $request, 'placement_log');
+        filterByTimeperiod($apps, $request, 'placement_log');
 
         // get the count of all placement ads
         $adsCount = Zone::leftJoin('applications', 'applications.id', '=', 'ad_placement.app_id');
 
-
         if( $this->_user->role != ADMIN_PRIV ){ // if the user isn't an admin
+            $allApps = Application::where('user_id', '=', $this->_user->id)
+                    ->where('status', '!=', DELETED_APP);
+                
+            $apps ->where( 'applications.user_id', '=', $this->_user->id )
+                  ->where( 'applications.status', '!=', DELETED_APP )
+                  ->where(function($query){
+                        $query  ->whereNull('ad_placement.status')
+                                ->orWhere('ad_placement.status', '!=', DELETED_ZONE);
+                });
             
-            $apps       = $apps ->where( 'applications.user_id', '=', $this->_user->id )
-                                ->where( 'applications.status', '!=', DELETED_APP )
-                                ->where(function($query){
-                                    $query  ->whereNull('ad_placement.status')
-                                            ->orWhere('ad_placement.status', '!=', DELETED_ZONE);
-                                });
-            
-            $adsCount   = $adsCount ->where('applications.user_id', '=', $this->_user->id )
-                                    ->where('applications.status', '!=', DELETED_APP)
-                                    ->where('ad_placement.status', '!=', DELETED_ZONE);
+            $adsCount ->where('applications.user_id', '=', $this->_user->id )
+                      ->where('applications.status', '!=', DELETED_APP)
+                      ->where('ad_placement.status', '!=', DELETED_ZONE);
 
         }else if( $user_id != null ){ // if the user is an admin and check user apps
+            $allApps = Application::where('applications.user_id', '=', $user_id);
+
             $user = User::find($user_id);
             $title = $title . trans('admin.belongs_to') . "{$user->fname}  {$user->lname}"; 
-            $apps = $apps->where( 'applications.user_id', '=', $user_id );
-            $adsCount = $adsCount->where( 'applications.user_id', '=', $user_id );
+            $apps->where( 'applications.user_id', '=', $user_id );
+            $adsCount->where( 'applications.user_id', '=', $user_id );
+        }else{
+            $allApps = new Application;
         }
 
         $chartData = adaptChartData( clone($apps), 'placement_log' );
         
-        $apps   = $apps->groupBy('applications.id')
-                        ->orderBy('applications.created_at', 'ASC')
-                        ->get();
+        $apps = $apps->groupBy('applications.id')
+                    ->orderBy('applications.created_at', 'ASC')
+                    ->get();
         
         $adsCount = $adsCount->count();
-
+        $allApps  = $allApps->get();
             
-        $data = [ 'title', 'mTitle', 'apps', 'adsCount', 'chartData', 'user_id' ];
+        $data = [ 'title', 'mTitle', 'apps', 'adsCount', 'chartData', 'user_id', 'allApps' ];
         return view( 'admin.app.index' )
                     ->with( compact( $data ) );
     }

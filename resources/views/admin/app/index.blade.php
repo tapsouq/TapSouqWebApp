@@ -10,7 +10,7 @@
             <div class="box-header with-border">
                 <h3 class="box-title">
                     {{ $title }}
-                    ({{ count($apps) }})
+                    ({{ count($allApps) }})
                      | 
                     <a href="{{ url('zone/all') . ( $user_id ? ('?user=' . $user_id ) : '')}}">
                         {{ trans('admin.all_placement_ads') }}
@@ -27,7 +27,7 @@
             <div class="box-body">
                 <div class="table">
                     @include('admin.partial.filterTimePeriod')
-                    @if( sizeof( $apps ) > 0 )
+                    @if( sizeof( $allApps ) > 0 )
                         <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                         <table class="table table-striped table-hover">
                             <thead>
@@ -46,55 +46,99 @@
                             </thead>
                             <tbody>
                                 <?php $css = [ PENDING_APP => 'label-info', ACTIVE_APP => 'label-success', DELETED_APP => 'label-warning' ]; ?>
-                                @foreach( $apps as $key => $value )
-                                    <tr>
-                                        <td>
-                                            <span class="app-icon">
-                                                <img height="50px" width="50px" src="{{ url('public/uploads/app-icons/' . $value->icon) }}" alt="{{ $value->name }}">
-                                            </span>
-                                            <a href="{{ url( 'zone/all/' . $value->id ) }}" title="{{ trans('admin.show_app_ads') }}" >
-                                                {{ $value->name }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            {{ $value->requests ?: 0 }}
-                                        </td>
-                                        <td>
-                                            {{ $value->impressions ?: 0 }}
-                                        </td>
-                                        <td>
-                                            {{ $value->clicks ?: 0 }}
-                                        </td>
-                                        <td>
-                                            {{ $value->impressions ? round($value->clicks/$value->impressions,2)*100 : 0 }}%
-                                        </td>
-                                        <td>
-                                            {{ $value->requests ? round($value->impressions / $value->requests,2)*100: 0 }}%
-                                        </td>
-                                        <td>
-                                            {{ $value->impressions ? round( $value->installed/$value->impressions,2)*100 : 0  }}%
-                                        </td>
-                                        <td>
-                                            {{ getAppAdsCount($value->id) }}
-                                        </td>
-                                        <td>
-                                            <div class="label {{ $css[$value->status] }}">
-                                                {{ config('consts.app_status')[$value->status] }}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="{{ url('app/edit/' . $value->id ) }}" class="btn btn-sm btn-info">
-                                                    <i class="fa fa-edit"></i>
+                                <?php $ids = [];?>
+                                @if( sizeof( $apps ) > 0 )
+                                    @foreach( $apps as $key => $value )
+                                        <?php $ids[] = $value->id;?>
+                                        <tr>
+                                            <td>
+                                                <span class="app-icon">
+                                                    <img height="50px" width="50px" src="{{ url('public/uploads/app-icons/' . $value->icon) }}" alt="{{ $value->name }}">
+                                                </span>
+                                                <a href="{{ url( 'zone/all/' . $value->id ) }}" title="{{ trans('admin.show_app_ads') }}" >
+                                                    {{ $value->name }}
                                                 </a>
-                                                @if( $value->status != DELETED_APP )
-                                                <a data-toggle="modal" data-target="#deactivate-app-modal" data-id="{{ $value->id }}" class="btn btn-sm btn-danger deactivate-app">
-                                                    <i class="fa fa-trash"></i>
+                                            </td>
+                                            <td>
+                                                {{ $value->requests ?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $value->impressions ?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $value->clicks ?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $value->impressions ? round($value->clicks/$value->impressions,2)*100 : 0 }}%
+                                            </td>
+                                            <td>
+                                                {{ $value->requests ? round($value->impressions / $value->requests,2)*100: 0 }}%
+                                            </td>
+                                            <td>
+                                                {{ $value->impressions ? round( $value->installed/$value->impressions,2)*100 : 0  }}%
+                                            </td>
+                                            <td>
+                                                {{ getAppAdsCount($value->id) }}
+                                            </td>
+                                            <td>
+                                                <div class="label {{ $css[$value->status] }}">
+                                                    {{ config('consts.app_status')[$value->status] }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url('app/edit/' . $value->id ) }}" class="btn btn-sm btn-info">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+                                                    @if( $value->status != DELETED_APP )
+                                                    <a data-toggle="modal" data-target="#deactivate-app-modal" data-id="{{ $value->id }}" class="btn btn-sm btn-danger deactivate-app">
+                                                        <i class="fa fa-trash"></i>
+                                                    </a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                                @foreach( $allApps as $_key => $_value )
+                                    @if( ! in_array($_value->id, $ids) )
+                                        <tr>
+                                            <td>
+                                                <span class="app-icon">
+                                                    <img height="50px" width="50px" src="{{ url('public/uploads/app-icons/' . $_value->icon) }}" alt="{{ $_value->name }}">
+                                                </span>
+                                                <a href="{{ url( 'zone/all/' . $_value->id ) }}" title="{{ trans('admin.show_app_ads') }}" >
+                                                    {{ $_value->name }}
                                                 </a>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td> 0 </td>
+                                            <td> 0 </td>
+                                            <td> 0 </td>
+                                            <td> 0% </td>
+                                            <td> 0% </td>
+                                            <td> 0% </td>
+                                            <td>
+                                                {{ getAppAdsCount($_value->id) }}
+                                            </td>
+                                            <td>
+                                                <div class="label {{ $css[$_value->status] }}">
+                                                    {{ config('consts.app_status')[$_value->status] }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url('app/edit/' . $_value->id ) }}" class="btn btn-sm btn-info">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+                                                    @if( $_value->status != DELETED_APP )
+                                                    <a data-toggle="modal" data-target="#deactivate-app-modal" data-id="{{ $_value->id }}" class="btn btn-sm btn-danger deactivate-app">
+                                                        <i class="fa fa-trash"></i>
+                                                    </a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
                                 @endforeach
                             </tbody>
                         </table>

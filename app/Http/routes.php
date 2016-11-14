@@ -11,12 +11,23 @@
 |
 */
 Route::get('test', function(){
-	$apps = App\Models\AppDetails::where('updated', '=', 0)->get();
-	$ids = array_pluck($apps, 'id');
-	$result = App\Models\AppDetails::whereIn('id', $ids)->update([ 'updated' => 1] );
-	dd($result);
+
+	$modelIds   = DB::table('ad_placement')->select(DB::raw("DISTINCT(app_id) AS `id`"))->lists('id');
+	$logIds   	= DB::table('placement_log')->select(DB::raw("DISTINCT(ads_id) AS `id`"))->lists('id');
+    $rows       = DB::table('applications')
+    					->whereNotIn('id', $modelIds)
+    					->select('applications.*')
+                        ->union(
+                        	DB::table('applications')
+                        		->join('ad_placement', 'ad_placement.app_id', '=', 'applications.id')
+                        		->select('applications.*')
+                        		->whereNotIn('ad_placement.id', $logIds)
+                        		->whereNotIn('applications.id', $modelIds)
+                        )->get();
+	dd($rows);
 
 
+	dd($array[mt_rand(0, $max - 1 )] );
 });
 
 // Authentication routes...

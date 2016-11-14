@@ -57,10 +57,10 @@ class DashboardCtrl extends Controller
 	     	               			->where( 'creative_log.created_at', '>=', date_create()->sub(date_interval_create_from_date_string('7 days'))->format("Y-m-d 00:00:00") );
 	     	
 	     	if( $this->_user->role == DEV_PRIV ){
-	     		$items = $items->where('camp_users.id', '=', $this->_user->id);
+	     		$items->where('camp_users.id', '=', $this->_user->id);
 	     	}
 
- 		    $items      = filterByTimeperiod($items, $request, 'creative_log');
+ 		    filterByTimeperiod($items, $request, 'creative_log');
 
      		$cloneItems = clone($items);
      		$total		= $cloneItems->first();
@@ -86,7 +86,7 @@ class DashboardCtrl extends Controller
 			if( $this->_user->role == DEV_PRIV ){
 	     		$items->where('applications.user_id', '=', $this->_user->id);
 	     	}
- 		    $items      = filterByTimeperiod($items, $request, 'placement_log', true);
+ 		    filterByTimeperiod($items, $request, 'placement_log', true);
 
      		$cloneItems = clone($items);
      		$total		= $cloneItems->first();

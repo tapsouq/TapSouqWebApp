@@ -27,7 +27,7 @@
                 <?php $appCss = [ PENDING_APP => 'label-info', ACTIVE_APP => 'label-success', DELETED_APP => 'label-warning' ]; ?>
                 <div class="table">
                     @include('admin.partial.filterTimePeriod')
-                    @if( sizeof( $ads ) > 0 )
+                    @if( sizeof( $allZones ) > 0 )
                         <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                         <table class="table table-hover table-striped">
                             <thead>
@@ -44,55 +44,99 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach( $ads as $key => $ad )
-                                    <tr>
-                                        <td>
-                                            <a href="{{ url( 'zone/' . $ad->id ) }}">
-                                                {{ $ad->name }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            {{ $ad->requests ?: 0 }}
-                                        </td>
-                                        <td>
-                                            {{ $ad->impressions ?: 0 }}
-                                        </td>
-                                        <td>
-                                            {{ $ad->clicks ?: 0 }}
-                                        </td>
-                                        <td>
-                                            {{ $ad->impressions ? round($ad->clicks / $ad->impressions, 2) * 100 : 0 }}%
-                                        </td>
-                                        <td>
-                                            {{ $ad->requests ? round($ad->impressions/$ad->requests, 2) * 100 : 0 }}%
-                                        </td>
-                                        <td>
-                                            {{ $ad->impressions ? round($ad->installed / $ad->impressions, 2) * 100 : 0 }}%
-                                        </td>
-                                        <td>
-                                            <div class="label {{ $css[ $ad->status ] }}">
-                                                {{ $states[ $ad->status ] }}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            @if( $ad->status != DELETED_APP )
-                                                <div class="btn-group">
-                                                    <a href="{{ url('zone/edit/' . $ad->id ) }}" class="btn btn-sm btn-info">
-                                                        <i class="fa fa-edit"></i>
-                                                    </a>
-                                                    @if( $ad->status != DELETED_ZONE )
-                                                        <a data-toggle="modal" data-target="#deactivate-zone-modal" data-id="{{ $ad->id }}" class="btn btn-sm btn-danger deactivate-zone">
-                                                            <i class="fa fa-trash"></i>
-                                                        </a>
-                                                    @endif
+                                <?php $ids = [];?>
+                                @if(sizeof($ads) > 0 )
+                                    @foreach( $ads as $key => $ad )
+                                        <?php $ids[] = $ad->id;?>
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url( 'zone/' . $ad->id ) }}">
+                                                    {{ $ad->name }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{ $ad->requests ?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $ad->impressions ?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $ad->clicks ?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $ad->impressions ? round($ad->clicks / $ad->impressions, 2) * 100 : 0 }}%
+                                            </td>
+                                            <td>
+                                                {{ $ad->requests ? round($ad->impressions/$ad->requests, 2) * 100 : 0 }}%
+                                            </td>
+                                            <td>
+                                                {{ $ad->impressions ? round($ad->installed / $ad->impressions, 2) * 100 : 0 }}%
+                                            </td>
+                                            <td>
+                                                <div class="label {{ $css[ $ad->status ] }}">
+                                                    {{ $states[ $ad->status ] }}
                                                 </div>
-                                            @else
-                                                <p>
-                                                    {{ trans( 'admin.app_is_deleted' ) }}
-                                                </p>
-                                            @endif
-                                        </td>
-                                    </tr>     
+                                            </td>
+                                            <td>
+                                                @if( $ad->status != DELETED_APP )
+                                                    <div class="btn-group">
+                                                        <a href="{{ url('zone/edit/' . $ad->id ) }}" class="btn btn-sm btn-info">
+                                                            <i class="fa fa-edit"></i>
+                                                        </a>
+                                                        @if( $ad->status != DELETED_ZONE )
+                                                            <a data-toggle="modal" data-target="#deactivate-zone-modal" data-id="{{ $ad->id }}" class="btn btn-sm btn-danger deactivate-zone">
+                                                                <i class="fa fa-trash"></i>
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <p>
+                                                        {{ trans( 'admin.app_is_deleted' ) }}
+                                                    </p>
+                                                @endif
+                                            </td>
+                                        </tr>     
+                                    @endforeach
+                                @endif
+                                @foreach( $allZones as $_key => $_value )
+                                    @if( ! in_array($_value->id, $ids) )
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url( 'zone/' . $_value->id ) }}">
+                                                    {{ $_value->name }}
+                                                </a>
+                                            </td>
+                                            <td> 0 </td>
+                                            <td> 0 </td>
+                                            <td> 0 </td>
+                                            <td> 0% </td>
+                                            <td> 0% </td>
+                                            <td> 0% </td>
+                                            <td>
+                                                <div class="label {{ $css[ $_value->status ] }}">
+                                                    {{ $states[ $_value->status ] }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if( $_value->status != DELETED_APP )
+                                                    <div class="btn-group">
+                                                        <a href="{{ url('zone/edit/' . $_value->id ) }}" class="btn btn-sm btn-info">
+                                                            <i class="fa fa-edit"></i>
+                                                        </a>
+                                                        @if( $_value->status != DELETED_ZONE )
+                                                            <a data-toggle="modal" data-target="#deactivate-zone-modal" data-id="{{ $_value->id }}" class="btn btn-sm btn-danger deactivate-zone">
+                                                                <i class="fa fa-trash"></i>
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <p>
+                                                        {{ trans( 'admin.app_is_deleted' ) }}
+                                                    </p>
+                                                @endif
+                                            </td>
+                                        </tr> 
+                                    @endif    
                                 @endforeach
                             </tbody>
                         </table>

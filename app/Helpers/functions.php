@@ -172,7 +172,13 @@ if( ! function_exists('getAppAdsCount') ){
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
      function getAppAdsCount ( $app_id ){
-        return \App\Models\Zone::where('app_id', '=', $app_id)->count();
+        $zones =  \App\Models\Zone::where('app_id', '=', $app_id);
+        $user  = \Auth::user();
+
+        if($user->role != ADMIN_PRIV ){
+            $zones->where('ad_placement.status', '!=', DELETED_ZONE);
+        }
+        return $zones->count();
     }
 }
 
@@ -186,7 +192,13 @@ if( ! function_exists('getCampAdsCount') ){
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
      function getCampAdsCount ( $camp_id ){
-        return \App\Models\Ads::where('camp_id', '=', $camp_id)->count();
+        $ads =  \App\Models\Ads::where('camp_id', '=', $camp_id);
+        $user  = \Auth::user();
+
+        if($user->role != ADMIN_PRIV ){
+            $ads->where('ad_creative.status', '!=', DELETED_AD);
+        }
+        return $ads->count();
     }
 }
 
@@ -230,13 +242,13 @@ if( ! function_exists('adaptChartData') ){
 }
 
 if( ! function_exists('filterByTimeperiod')){
-
     /**
      * filterByTimeperiod. To filter the results within time period
      *
      * @param \Illuminate\Database\Query\Builder $object
      * @param \Illuminate\Http\Request $request
      * @param string $table
+     * @param array $forNewRows
      * @param boolean $sevenDays. To make sure that the default value isn't 7 days.
      * @return \Illuminate\Database\Query\Builder
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
@@ -253,6 +265,60 @@ if( ! function_exists('filterByTimeperiod')){
             $object->where( "{$table}.created_at", '<=', date('Y-m-d') . " 23:59:59")
                     ->where( "{$table}.created_at", '>=', date_create()->sub(date_interval_create_from_date_string('30 days'))->format("Y-m-d 00:00:00") );
         }
-        return $object;
+    }
+}
+
+if( ! function_exists('newRows') ){
+    /**
+     * newRows. To get the rows.
+     *
+     * @param string $table.
+     * @param string $table.
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+     function newRows ( $table ){
+        $array = [
+                'applications'  => [
+                        'status'    => true,
+                        'model'     => 'applications',
+                        'ad'        => 'ad_placement',
+                        'log'       => 'placement_log',
+                        'id'        => 'app_id'
+                    ],
+                'campaigns'     => [
+                        'status'    => true,
+                        'model'     => 'campaigns',
+                        'ad'        => 'ad_creative',
+                        'log'       => 'creative_log',  
+                        'id'        => 'camp_id'
+                    ],
+                'ad_placement'  => [
+                        'status'    => false,
+                        'ad'        => 'ad_placement',
+                        'log'       => 'placement_log'
+                    ],
+                'ad_creative'   => [
+                        'status'    => false,
+                        'ad'        => 'ad_creative',
+                        'log'       => 'creative_log'
+                    ]
+            ];
+
+        $object = (object) $array[ $table ];
+        if( $object->status ){
+
+            $modelIds   = DB::table('ad_placement')->select(DB::raw("DISTINCT(app_id) AS `id`"))->lists('id');
+            $rows       = DB::table('applications')->whereNotIn('id', $modelIds)
+                                      ->get();
+            $modelIds   = DB::table($object->ad)->select(DB::raw("DISTINCT({$object->id}) AS `id`"))->lists('id');
+            $rows       = DB::table($object->model)
+                                ->select('*')
+                                ->whereNotIn('id', $modelIds)
+                                ->union(
+                                        
+                                    );
+        }
     }
 }

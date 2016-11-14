@@ -10,7 +10,7 @@
             <div class="box-header with-border">
                 <h3 class="box-title">
                     {{ $title }}
-                    ({{ count($camps) }})
+                    ({{ count($allCamps) }})
                     |
                     <a href="{{ url( 'ads/all') . ( $user_id ? ('?user=' . $user_id ) : '') }} ">
                         {{ trans( 'admin.ads' ) }}
@@ -27,7 +27,7 @@
             <div class="box-body">
                 <div class="table">
                     @include('admin.partial.filterTimePeriod')
-                    @if( sizeof( $camps ) > 0 )
+                    @if( sizeof( $allCamps ) > 0 )
                         <?php $css = [ RUNNING_CAMP => 'label-success', PAUSED_CAMP => 'label-warning', COMPLETED_CAMP => 'label-info', DELETED_CAMP=> 'label-danger' ]; ?>
                         <div id="chart-container" style="min-width: 310px; max-width: 100%; height: 400px; margin: 0 auto"></div>
                         <table class="table table-hover table-responsive table-striped table-bordered">
@@ -45,51 +45,97 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach( $camps as $key => $camp )
-                                    <tr>
-                                        <td>
-                                            <a href="{{ url( 'ads/all/' . $camp->id ) }}" title="{{ trans('admin.show_camp_ads') }}">
-                                                {{ $camp->name }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            {{ $camp->impressions?: 0 }}
-                                        </td>
-                                        <td>
-                                            {{ $camp->clicks?: 0 }}
-                                        </td>
-                                        <td>
-                                            {{ $camp->clicks ? round($camp->installed / $camp->clicks , 2) * 100 : 0 }}%
-                                        </td>
-                                        <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->start_date )->format('m/d/Y g:i A') }}</td>
-                                        <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->end_date )->format('m/d/Y g:i A') }}</td>
-                                        <td>
-                                            {{ getCampAdsCount( $camp->id ) }}
-                                        </td>
-                                        <td>
-                                            <div class="label {{ $css[ $camp->status ] }}">
-                                                {{ config('consts.camp_status')[ $camp->status ] }}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="{{ url('campaign/edit/' . $camp->id ) }}" class="btn btn-sm btn-info">
-                                                    <i class="fa fa-edit"></i>
+                                <?php $ids = []; ?>
+                                @if( sizeof( $camps )> 0 )
+                                    @foreach( $camps as $key => $camp )
+                                        <?php $ids[] = $camp->id; ?>
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url( 'ads/all/' . $camp->id ) }}" title="{{ trans('admin.show_camp_ads') }}">
+                                                    {{ $camp->name }}
                                                 </a>
-                                                @if( in_array( $camp->status, [ RUNNING_CAMP, PAUSED_CAMP ] ) )
-                                                    <?php $href = url( 'camp/change-status?id=' . $camp->id . '&token=' . csrf_token() . '&s=' ); ?>
-                                                    <a data-href="{{ $href . ( $camp->status == RUNNING_CAMP ? PAUSED_CAMP : RUNNING_CAMP ) }}" data-toggle="modal" data-target="#change-status-modal" class="btn btn-sm change-status {{ $camp->status == RUNNING_CAMP ? 'btn-warning pause' : 'btn-success run' }}">
-                                                        {!! $camp->status == RUNNING_CAMP ? '<i class="fa fa-pause"></i>' : '<i class="fa fa-play"></i>' !!}
+                                            </td>
+                                            <td>
+                                                {{ $camp->impressions?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $camp->clicks?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $camp->clicks ? round($camp->installed / $camp->clicks , 2) * 100 : 0 }}%
+                                            </td>
+                                            <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->start_date )->format('m/d/Y g:i A') }}</td>
+                                            <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->end_date )->format('m/d/Y g:i A') }}</td>
+                                            <td>
+                                                {{ getCampAdsCount( $camp->id ) }}
+                                            </td>
+                                            <td>
+                                                <div class="label {{ $css[ $camp->status ] }}">
+                                                    {{ config('consts.camp_status')[ $camp->status ] }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url('campaign/edit/' . $camp->id ) }}" class="btn btn-sm btn-info">
+                                                        <i class="fa fa-edit"></i>
                                                     </a>
-                                                @endif
-                                                @if( $camp->status != DELETED_CAMP )
-                                                <a data-toggle="modal" data-target="#change-status-modal" data-id="{{ $camp->id }}" class="btn btn-sm btn-danger deactivate-camp">
-                                                    <i class="fa fa-trash"></i>
+                                                    @if( in_array( $camp->status, [ RUNNING_CAMP, PAUSED_CAMP ] ) )
+                                                        <?php $href = url( 'camp/change-status?id=' . $camp->id . '&token=' . csrf_token() . '&s=' ); ?>
+                                                        <a data-href="{{ $href . ( $camp->status == RUNNING_CAMP ? PAUSED_CAMP : RUNNING_CAMP ) }}" data-toggle="modal" data-target="#change-status-modal" class="btn btn-sm change-status {{ $camp->status == RUNNING_CAMP ? 'btn-warning pause' : 'btn-success run' }}">
+                                                            {!! $camp->status == RUNNING_CAMP ? '<i class="fa fa-pause"></i>' : '<i class="fa fa-play"></i>' !!}
+                                                        </a>
+                                                    @endif
+                                                    @if( $camp->status != DELETED_CAMP )
+                                                    <a data-toggle="modal" data-target="#change-status-modal" data-id="{{ $camp->id }}" class="btn btn-sm btn-danger deactivate-camp">
+                                                        <i class="fa fa-trash"></i>
+                                                    </a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                                @foreach( $allCamps as $_key => $_value )
+                                    @if( ! in_array($_value->id, $ids) )
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url( 'ads/all/' . $_value->id ) }}" title="{{ trans('admin.show_camp_ads') }}">
+                                                    {{ $_value->name }}
                                                 </a>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td> 0 </td>
+                                            <td> 0 </td>
+                                            <td> 0% </td>
+                                            <td>{{ date_create_from_format( "Y-m-d H:i:s", $_value->start_date )->format('m/d/Y g:i A') }}</td>
+                                            <td>{{ date_create_from_format( "Y-m-d H:i:s", $_value->end_date )->format('m/d/Y g:i A') }}</td>
+                                            <td>
+                                                {{ getCampAdsCount( $_value->id ) }}
+                                            </td>
+                                            <td>
+                                                <div class="label {{ $css[ $_value->status ] }}">
+                                                    {{ config('consts.camp_status')[ $_value->status ] }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url('campaign/edit/' . $_value->id ) }}" class="btn btn-sm btn-info">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+                                                    @if( in_array( $_value->status, [ RUNNING_CAMP, PAUSED_CAMP ] ) )
+                                                        <?php $href = url( 'camp/change-status?id=' . $_value->id . '&token=' . csrf_token() . '&s=' ); ?>
+                                                        <a data-href="{{ $href . ( $_value->status == RUNNING_CAMP ? PAUSED_CAMP : RUNNING_CAMP ) }}" data-toggle="modal" data-target="#change-status-modal" class="btn btn-sm change-status {{ $_value->status == RUNNING_CAMP ? 'btn-warning pause' : 'btn-success run' }}">
+                                                            {!! $_value->status == RUNNING_CAMP ? '<i class="fa fa-pause"></i>' : '<i class="fa fa-play"></i>' !!}
+                                                        </a>
+                                                    @endif
+                                                    @if( $_value->status != DELETED_CAMP )
+                                                    <a data-toggle="modal" data-target="#change-status-modal" data-id="{{ $_value->id }}" class="btn btn-sm btn-danger deactivate-camp">
+                                                        <i class="fa fa-trash"></i>
+                                                    </a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
                                 @endforeach
                             </tbody>
                         </table>

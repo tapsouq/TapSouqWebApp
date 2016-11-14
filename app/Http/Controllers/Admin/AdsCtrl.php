@@ -69,12 +69,17 @@ class AdsCtrl extends Controller
                                     DB::raw('SUM(creative_log.installed) AS installed')
                                 );
 
-        $ads    = filterByTimeperiod($ads, $request, 'creative_log');
-
+        filterByTimeperiod($ads, $request, 'creative_log');
+        
+        $allAds = Ads::leftJoin('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id')->select('ad_creative.*');
         if( $this->_user->role != ADMIN_PRIV ){
-            $ads = $ads->where( 'campaigns.status', '!=', DELETED_CAMP  )
-                            ->where( 'ad_creative.status', '!=', DELETED_AD )
-                            ->where( 'campaigns.user_id', '=', $this->_user->id );
+            $ads->where( 'campaigns.status', '!=', DELETED_CAMP  )
+                    ->where( 'ad_creative.status', '!=', DELETED_AD )
+                    ->where( 'campaigns.user_id', '=', $this->_user->id );
+
+            $allAds->where('campaigns.user_id', '=', $this->_user->id)
+                    ->where( 'ad_creative.status', '!=', DELETED_AD )
+                    ->where( 'campaigns.status', '!=', DELETED_CAMP  );
         }
 
         // to get the ads that within that campaign
@@ -82,18 +87,22 @@ class AdsCtrl extends Controller
             $ads    = $ads->where('ad_creative.camp_id', '=', $camp_id);
             $camp   = Campaign::find($camp_id);
             $title  = trans('admin.ads_of') . $camp->name; 
+
+            $allAds->where('campaigns.id', '=', $camp_id);
         }else{
             if($request->has('user')){
-                $ads    = $ads->where('campaigns.user_id', '=', $request->input('user'));
+                $ads->where('campaigns.user_id', '=', $request->input('user'));
+                $allAds->where('campaigns.user_id', '=', $request->input('user') );
             }
         }
 
-        $chartData = adaptChartData( clone($ads), 'creative_log', IS_CAMPAIGN );
-        $ads = $ads->groupBy('ad_creative.id')
-                        ->orderBy('created_at', 'ASC')
-                        ->get();
+        $chartData  = adaptChartData( clone($ads), 'creative_log', IS_CAMPAIGN );
+        $ads        = $ads->groupBy('ad_creative.id')
+                            ->orderBy('created_at', 'ASC')
+                            ->get();
+        $allAds     = $allAds->get();
 
-        $data   = [ 'mTitle', 'title', 'ads', 'camp', 'chartData' ];
+        $data   = [ 'mTitle', 'title', 'ads', 'camp', 'chartData', 'allAds' ];
         return view( 'admin.ads.index' )
                     ->with( compact( $data ) );
     }
@@ -182,8 +191,8 @@ class AdsCtrl extends Controller
                             ->withErrors( $validator )
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
-            $this->_store( $request );
-            return redirect('ads/all')
+            $ad = $this->_store( $request );
+            return redirect('ads/all/' . $ad->id)
                             ->with( 'success', trans( 'admin.created_ads_msg' ) );
         }
     }
@@ -323,6 +332,7 @@ class AdsCtrl extends Controller
         }
 
         $ad->save();
+        return $ad;
     }
 
     /**

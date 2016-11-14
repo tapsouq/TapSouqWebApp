@@ -70,23 +70,31 @@ class ZoneCtrl extends Controller
                                     DB::raw('SUM(placement_log.installed) AS installed')
                                 );
 
-        $zones       = filterByTimeperiod($zones, $request, 'placement_log');
+        filterByTimeperiod($zones, $request, 'placement_log');
                         
-        if( $this->_user->role != ADMIN_PRIV ){ // If user isn't admin.
-            $zones = $zones->where( 'applications.status', '!=', DELETED_APP  )
-                            ->where( 'ad_placement.status', '!=', DELETED_ZONE )
-                            ->where( 'applications.user_id', '=', $this->_user->id );
+        $allZones = Zone::leftJoin('applications', 'applications.id', '=', 'ad_placement.app_id')->select('ad_placement.*');
 
+        if( $this->_user->role != ADMIN_PRIV ){ // If user isn't admin.
+            $zones->where( 'applications.status', '!=', DELETED_APP  )
+                    ->where( 'ad_placement.status', '!=', DELETED_ZONE )
+                    ->where( 'applications.user_id', '=', $this->_user->id );
+
+            $allZones->where('applications.user_id', '=', $this->_user->id)
+                    ->where( 'ad_placement.status', '!=', DELETED_ZONE )
+                    ->where( 'applications.status', '!=', DELETED_APP  );
         }
 
         if( ! is_null( $app_id ) ){ // Zones for the clicked application
             
-            $zones = $zones->where( 'applications.id', '=', $app_id );
+            $zones->where( 'applications.id', '=', $app_id );
             $application = Application::find($app_id);
-            $title = trans('admin.ads_of') . $application->name;  
+            $title = trans('admin.ads_of') . $application->name;
+
+            $allZones->where('applications.id', '=', $app_id);
         }else{
             if($request->has('user')){
-                $zones    = $zones->where('applications.user_id', '=', $request->input('user'));
+                $zones->where('applications.user_id', '=', $request->input('user'));
+                $allZones->where('applications.user_id', '=', $request->input('user') );
             }
         }
 
@@ -94,8 +102,9 @@ class ZoneCtrl extends Controller
         $ads = $zones->groupBy('ad_placement.id')
                         ->orderBy('ad_placement.created_at', 'ASC')
                         ->get();
+        $allZones = $allZones->get();
 
-        $data   = [ 'mTitle', 'title', 'ads', 'application', 'chartData', 'user_id' ];
+        $data   = [ 'mTitle', 'title', 'ads', 'application', 'chartData', 'user_id', 'allZones' ];
         return view( 'admin.zone.index' )
                     ->with( compact( $data ) );
     }
@@ -186,7 +195,7 @@ class ZoneCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $zone = $this->_store( $request );
-            return redirect('zone/all')
+            return redirect('zone/all/' . $zone->id)
                             ->with( 'notification', trans( 'admin.placement_id_is' ))
                             ->with('notificationData', $zone->id)
                             ->with( 'success', trans( 'admin.created_zone_msg' ) );

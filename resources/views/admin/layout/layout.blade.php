@@ -99,6 +99,12 @@
                 $('#daterange-btn').find('input[name=to]').val(end.format('YYYY-MM-DD'));
             }
             $(function () {
+                
+                $('form button[type=submit], form input[type=submit], .submit-btns').not('.ajax-submit').on('click', function(){
+                    var loading = "{{ trans('lang.loading') }}  <i class='fa fa-spinner fa-pulse'></i>";
+                    //$(this).html( loading ).addClass('disabled').css('pointer-events', 'none');
+                });
+                
                 //Initialize Select2 Elements
                 $(".select2").select2();
 

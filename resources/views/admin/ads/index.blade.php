@@ -10,7 +10,7 @@
             <div class="box-header with-border">
                 <h3 class="box-title">
                     {{ $title }}
-                    ({{ count($ads) }})
+                    ({{ count($allAds) }})
                 </h3>
                 @if( isset( $camp ) )
                     <div class="pull-right">
@@ -23,7 +23,7 @@
             </div>
             <div class="box-body">
                 @include('admin.partial.filterTimePeriod')
-                @if( sizeof( $ads ) > 0 )
+                @if( sizeof( $allAds ) > 0 )
                     <div id="chart-container"></div>
                     <div class="box-group" id="apps_zones">
                         <?php $formats = config('consts.all_formats'); $types = config('consts.ads_types'); ?>
@@ -44,50 +44,94 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach( $ads as $_key => $ad )
-                                        <tr>
-                                            <td>
-                                                <?php $imgSrc = url('public/uploads/ad-images') . '/' . $ad->image_file;?>
-                                                <a class="ads-tooltip" title="<img src='{{$imgSrc}}' />" href="{{ url( 'ads/' . $ad->id ) }}">
-                                                    {{ $ad->name }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                {{ $ad->impressions ?: 0 }}
-                                            </td>
-                                            <td>
-                                                {{ $ad->clicks ?: 0 }}
-                                            </td>
-                                            <td>
-                                                {{ $ad->impressions ? round($ad->clicks / $ad->impressions , 2) * 100 : 0 }}%
-                                            </td>
-                                            <td>
-                                                {{ $ad->clicks ? round($ad->installed / $ad->clicks , 2) * 100 : 0 }}%
-                                            </td>
-                                            <td>
-                                                <div class="label {{ $css[ $ad->status ] }}">
-                                                    {{ $states[ $ad->status ] }}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{{ url('ads/edit/' . $ad->id ) }}" class="btn btn-sm btn-info">
-                                                        <i class="fa fa-edit"></i>
+                                    <?php $ids = [];?>
+                                    @if(sizeof($ads) > 0)
+                                        @foreach( $ads as $_key => $ad )
+                                            <?php $ids[] = $ad->id;?>
+                                            <tr>
+                                                <td>
+                                                    <?php $imgSrc = url('public/uploads/ad-images') . '/' . $ad->image_file;?>
+                                                    <a class="ads-tooltip" title="<img src='{{$imgSrc}}' />" href="{{ url( 'ads/' . $ad->id ) }}">
+                                                        {{ $ad->name }}
                                                     </a>
-                                                    @if( in_array( $ad->status, [ RUNNING_AD, PAUSED_AD ] ) )
-                                                        <?php $href = url( 'ads/change-status?id=' . $ad->id . '&token=' . csrf_token() . '&s=' ); ?>
-                                                        <a data-href="{{ $href . ( $ad->status == RUNNING_AD ? PAUSED_AD : RUNNING_AD ) }}" data-toggle="modal" data-target="#change-status-modal" class="btn btn-sm change-status {{ $ad->status == RUNNING_AD ? 'btn-warning pause' : 'btn-success run' }}">
-                                                            {!! $ad->status == RUNNING_AD ? '<i class="fa fa-pause"></i>' : '<i class="fa fa-play"></i>' !!}
+                                                </td>
+                                                <td>
+                                                    {{ $ad->impressions ?: 0 }}
+                                                </td>
+                                                <td>
+                                                    {{ $ad->clicks ?: 0 }}
+                                                </td>
+                                                <td>
+                                                    {{ $ad->impressions ? round($ad->clicks / $ad->impressions , 2) * 100 : 0 }}%
+                                                </td>
+                                                <td>
+                                                    {{ $ad->clicks ? round($ad->installed / $ad->clicks , 2) * 100 : 0 }}%
+                                                </td>
+                                                <td>
+                                                    <div class="label {{ $css[ $ad->status ] }}">
+                                                        {{ $states[ $ad->status ] }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a href="{{ url('ads/edit/' . $ad->id ) }}" class="btn btn-sm btn-info">
+                                                            <i class="fa fa-edit"></i>
                                                         </a>
-                                                    @endif
-                                                    @if( $ad->status != DELETED_AD )
-                                                        <a data-toggle="modal" data-target="#change-status-modal" data-id="{{ $ad->id }}" class="btn btn-sm btn-danger deactivate-ad">
-                                                            <i class="fa fa-trash"></i>
+                                                        @if( in_array( $ad->status, [ RUNNING_AD, PAUSED_AD ] ) )
+                                                            <?php $href = url( 'ads/change-status?id=' . $ad->id . '&token=' . csrf_token() . '&s=' ); ?>
+                                                            <a data-href="{{ $href . ( $ad->status == RUNNING_AD ? PAUSED_AD : RUNNING_AD ) }}" data-toggle="modal" data-target="#change-status-modal" class="btn btn-sm change-status {{ $ad->status == RUNNING_AD ? 'btn-warning pause' : 'btn-success run' }}">
+                                                                {!! $ad->status == RUNNING_AD ? '<i class="fa fa-pause"></i>' : '<i class="fa fa-play"></i>' !!}
+                                                            </a>
+                                                        @endif
+                                                        @if( $ad->status != DELETED_AD )
+                                                            <a data-toggle="modal" data-target="#change-status-modal" data-id="{{ $ad->id }}" class="btn btn-sm btn-danger deactivate-ad">
+                                                                <i class="fa fa-trash"></i>
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            </tr>     
+                                        @endforeach
+                                    @endif
+
+                                    @foreach( $allAds as $index => $_value )
+                                        @if( ! in_array($_value->id, $ids) )
+                                            <tr>
+                                                <td>
+                                                    <?php $imgSrc = url('public/uploads/ad-images') . '/' . $_value->image_file;?>
+                                                    <a class="ads-tooltip" title="<img src='{{$imgSrc}}' />" href="{{ url( 'ads/' . $_value->id ) }}">
+                                                        {{ $_value->name }}
+                                                    </a>
+                                                </td>
+                                                <td> 0 </td>
+                                                <td> 0 </td>
+                                                <td> 0% </td>
+                                                <td> 0% </td>
+                                                <td>
+                                                    <div class="label {{ $css[ $_value->status ] }}">
+                                                        {{ $states[ $_value->status ] }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a href="{{ url('ads/edit/' . $_value->id ) }}" class="btn btn-sm btn-info">
+                                                            <i class="fa fa-edit"></i>
                                                         </a>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>     
+                                                        @if( in_array( $_value->status, [ RUNNING_AD, PAUSED_AD ] ) )
+                                                            <?php $href = url( 'ads/change-status?id=' . $_value->id . '&token=' . csrf_token() . '&s=' ); ?>
+                                                            <a data-href="{{ $href . ( $_value->status == RUNNING_AD ? PAUSED_AD : RUNNING_AD ) }}" data-toggle="modal" data-target="#change-status-modal" class="btn btn-sm change-status {{ $_value->status == RUNNING_AD ? 'btn-warning pause' : 'btn-success run' }}">
+                                                                {!! $_value->status == RUNNING_AD ? '<i class="fa fa-pause"></i>' : '<i class="fa fa-play"></i>' !!}
+                                                            </a>
+                                                        @endif
+                                                        @if( $_value->status != DELETED_AD )
+                                                            <a data-toggle="modal" data-target="#change-status-modal" data-id="{{ $_value->id }}" class="btn btn-sm btn-danger deactivate-ad">
+                                                                <i class="fa fa-trash"></i>
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif     
                                     @endforeach
                                 </tbody>
                             </table>

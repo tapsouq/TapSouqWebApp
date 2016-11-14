@@ -56,7 +56,7 @@ class UserCtrl extends Controller
                             )
                            ->where( 'users.role', '=', DEV_PRIV );
                            
-            $camps      = filterByTimeperiod($camps, $request, 'creative_log');
+            filterByTimeperiod($camps, $request, 'creative_log');
             $chartData  = adaptChartData( clone($camps), 'creative_log' );
             
             $tableItems = $camps->groupBy('users.id')
@@ -81,7 +81,7 @@ class UserCtrl extends Controller
                                 )
                                 ->where( 'users.role', '=', DEV_PRIV );
 
-            $apps       = filterByTimeperiod($apps, $request, 'placement_log');
+            filterByTimeperiod($apps, $request, 'placement_log');
             
             $chartData  = adaptChartData( clone($apps), 'placement_log' );
             $tableItems = $apps->groupBy('users.id')
@@ -89,8 +89,9 @@ class UserCtrl extends Controller
                         ->get();
         }
 
+        $allUsers = User::where('role', '=', DEV_PRIV)->get();
 
-     	$data =[ 'mTitle', 'title', 'tableItems', 'chartData' ];
+     	$data =[ 'mTitle', 'title', 'tableItems', 'chartData', 'allUsers' ];
      	return view( 'admin.user.index' )
      				->with( compact( $data ) );
     }

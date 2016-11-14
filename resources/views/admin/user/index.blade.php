@@ -23,7 +23,7 @@
 			<div class="box-body">
 				@include('admin.partial.filterTimePeriod')
 				<div class="table">
-					@if( sizeof( $tableItems ) > 0 )
+					@if( sizeof( $allUsers ) > 0 )
 					<div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 					<table class="table table-bordred table-hover table-striped">
 						<thead>
@@ -42,36 +42,73 @@
 						</thead>
 						<tbody>
 							<?php $css = [ PENDING_USER => 'label-info', ACTIVE_USER => 'label-success', SUSPEND_USER => 'label-warning' ] ?>
-							@foreach( $tableItems as $key => $item )
-								<tr>
-									<td>
-										<a href="{{ ( Request::input('adv') ? url('campaign/all/' . $item->id)  : url('app/all/' . $item->id) )}}">
-											{{ $item->fname . " " . $item->lname }}
-										</a>
-									</td>
-									<td>{{ $item->requests ?: 0 }}</td>
-									<td>{{ $item->impressions ?: 0 }}</td>
-									<td>{{ $item->clicks ?: 0 }}</td>
-									<td>{{ ($item->requests != 0 ) ? round( $item->clicks / $item->requests, 2) * 100 : 0 }}%</td>
-									<td>{{ ($item->clicks != 0 ) ? round( $item->installed / $item->clicks, 2) * 100 : 0 }}%</td>
-									<td>
-										<div class="label {{ $css[ $item->status ] }}">
-											{{ config( 'consts.user_status' )[ $item->status ] }}
-										</div>
-									</td>
-									<td>
-										<div class="btn-group">
-											<a href="{{ url('user/edit/' . $item->id ) }}" class="btn btn-sm btn-info">
-												<i class="fa fa-edit"></i>
+							<?php $ids = [];?>
+							@if($tableItems)
+								@foreach( $tableItems as $key => $item )
+									<?php $ids[] = $item->id; ?>
+									<tr>
+										<td>
+											<a href="{{ ( Request::input('adv') ? url('campaign/all/' . $item->id)  : url('app/all/' . $item->id) )}}">
+												{{ $item->fname . " " . $item->lname }}
 											</a>
-											@if( $item->status != SUSPEND_USER )
-											<a data-toggle="modal" data-target="#deactivate-user-modal" data-id="{{ $item->id }}" class="btn btn-sm btn-danger deactivate-user">
-												<i class="fa fa-trash"></i>
+										</td>
+										<td>{{ $item->requests ?: 0 }}</td>
+										<td>{{ $item->impressions ?: 0 }}</td>
+										<td>{{ $item->clicks ?: 0 }}</td>
+										<td>{{ ($item->requests != 0 ) ? round( $item->clicks / $item->requests, 2) * 100 : 0 }}%</td>
+										<td>{{ ($item->clicks != 0 ) ? round( $item->installed / $item->clicks, 2) * 100 : 0 }}%</td>
+										<td>
+											<div class="label {{ $css[ $item->status ] }}">
+												{{ config( 'consts.user_status' )[ $item->status ] }}
+											</div>
+										</td>
+										<td>
+											<div class="btn-group">
+												<a href="{{ url('user/edit/' . $item->id ) }}" class="btn btn-sm btn-info">
+													<i class="fa fa-edit"></i>
+												</a>
+												@if( $item->status != SUSPEND_USER )
+												<a data-toggle="modal" data-target="#deactivate-user-modal" data-id="{{ $item->id }}" class="btn btn-sm btn-danger deactivate-user">
+													<i class="fa fa-trash"></i>
+												</a>
+												@endif
+											</div>
+										</td>
+									</tr>
+								@endforeach
+							@endif
+							@foreach($allUsers as $_key => $_value)
+								@if( ! in_array($_value->id, $ids) )
+									<tr>
+										<td>
+											<a href="{{ ( Request::input('adv') ? url('campaign/all/' . $_value->id)  : url('app/all/' . $_value->id) )}}">
+												{{ $_value->fname . " " . $_value->lname }}
 											</a>
-											@endif
-										</div>
-									</td>
-								</tr>
+										</td>
+										<td> 0 </td>
+										<td> 0 </td>
+										<td> 0 </td>
+										<td>0%</td>
+										<td>0%</td>
+										<td>
+											<div class="label {{ $css[ $_value->status ] }}">
+												{{ config( 'consts.user_status' )[ $_value->status ] }}
+											</div>
+										</td>
+										<td>
+											<div class="btn-group">
+												<a href="{{ url('user/edit/' . $_value->id ) }}" class="btn btn-sm btn-info">
+													<i class="fa fa-edit"></i>
+												</a>
+												@if( $_value->status != SUSPEND_USER )
+												<a data-toggle="modal" data-target="#deactivate-user-modal" data-id="{{ $_value->id }}" class="btn btn-sm btn-danger deactivate-user">
+													<i class="fa fa-trash"></i>
+												</a>
+												@endif
+											</div>
+										</td>
+									</tr>
+								@endif
 							@endforeach
 						</tbody>
 					</table>
