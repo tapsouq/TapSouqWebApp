@@ -92,7 +92,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post( 'store-ads', 'AdsCtrl@store' ); // To store the created creative ad's.
 		Route::get( 'ads/edit/{ads}', 'AdsCtrl@edit' ); // To show edit creative ad's page.
 		Route::post( 'save-ads', 'AdsCtrl@save' ); // To save edited creative ad's zone.
-		Route::get( 'delete-ads', 'AdsCtrl@destroy' ); // To deactivate creative ad's zone.
+		//Route::get( 'delete-ads', 'AdsCtrl@destroy' ); // To deactivate creative ad's zone.
 		Route::get( 'ads/change-status', 'AdsCtrl@changeStatus' ); // To change Ads status.
 		Route::get('ads/{ads}', 'AdsCtrl@show');
 		/** End Creative Ad Module  **/

@@ -166,4 +166,6 @@ return [
 	"there_is_no_ads"			=> "There is no creative ads.",
 	"there_is_no_camps"			=> "There is no campaigns.",
 	"there_is_no_apps"			=> "There is no applications.",
+	'there_is_no_records'		=> "There is no records. Zero records.",
+	"status"					=> "Status",
 ];

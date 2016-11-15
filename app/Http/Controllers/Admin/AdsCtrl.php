@@ -143,7 +143,7 @@ class AdsCtrl extends Controller
                             ->first();
 
         $title  = $ads->name;
-        $data = [ 'mTitle', 'title', 'chartData', 'adsDetails' ];
+        $data = [ 'mTitle', 'title', 'chartData', 'adsDetails', 'ads' ];
         return view( 'admin.ads.show' )
                     ->with( compact( $data ) );
     }
@@ -192,7 +192,7 @@ class AdsCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $ad = $this->_store( $request );
-            return redirect('ads/all/' . $ad->id)
+            return redirect('ads/' . $ad->id)
                             ->with( 'success', trans( 'admin.created_ads_msg' ) );
         }
     }

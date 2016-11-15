@@ -65,11 +65,13 @@
                             <i class="fa fa-circle-o"></i> {{ trans( 'admin.all_applications' ) }}
                         </a>
                     </li>
+                    @if( Auth::user()->role != ADMIN_PRIV )
                     <li class="{{ Request::url() == url('app/create') ? 'active' : '' }}" >
                         <a href="{{ url('app/create') }}">
                             <i class="fa fa-plus"></i> {{ trans( 'admin.add_new_app' ) }}
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             <li class="treeview {{ in_array( Request::segment(1), [ 'campaign', 'ads' ] ) ? 'active' : '' }} ">

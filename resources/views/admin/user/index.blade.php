@@ -9,22 +9,24 @@
 		<div class="box box-info">
 			<div class="box-header with-border">
 				{{ $title }}
-				<span class="pull-right">
-					<div class="btn-toolbar">
-						<a href="{{ url('user/all?adv=1') }}" class="btn btn-info {{ Request::input('adv') ? 'disabled' : '' }}">
-							{{ trans( 'admin.advertisers' ) }}
-						</a>
-						<a  href="{{ url('user/all') }}" class="btn btn-success {{ Request::input('adv') ? '' : 'disabled' }}" >
-							{{ trans('admin.publishers') }}
-						</a>
-					</div>
-				</span>
 			</div>
 			<div class="box-body">
 				@include('admin.partial.filterTimePeriod')
 				<div class="table">
 					@if( sizeof( $allUsers ) > 0 )
 					<div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+					<div>
+						<div class="pull-left">
+							<div class="btn-toolbar">
+								<a href="{{ url('user/all?adv=1') }}" class="btn btn-info {{ Request::input('adv') ? 'disabled' : '' }}">
+									{{ trans( 'admin.advertisers' ) }}
+								</a>
+								<a  href="{{ url('user/all') }}" class="btn btn-info {{ Request::input('adv') ? '' : 'disabled' }}" >
+									{{ trans('admin.publishers') }}
+								</a>
+							</div>
+						</div>
+					</div>
 					<table class="table table-bordred table-hover table-striped">
 						<thead>
 							<tr>

@@ -17,12 +17,14 @@
                         ({{ $adsCount }})
                     </a>
                 </h3>
+                @if(Auth::user()->role == DEV_PRIV)
                 <div class="pull-right">
                     <a class="btn btn-sm btn-info" href="{{ url('app/create') }}">
                         <i class="fa fa-plus m5"></i>
                         {{ trans('admin.add_new_app') }}
                     </a>
                 </div>
+                @endif
             </div>
             <div class="box-body">
                 <div class="table">

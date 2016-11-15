@@ -145,7 +145,7 @@ class ZoneCtrl extends Controller
                             ->first();
 
         $title  = $zone->name;
-        $data = [ 'mTitle', 'title', 'chartData', 'zoneDetails' ];
+        $data = [ 'mTitle', 'title', 'chartData', 'zoneDetails', 'zone' ];
         return view( 'admin.zone.show' )
                     ->with( compact( $data ) );
     }
@@ -195,7 +195,7 @@ class ZoneCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $zone = $this->_store( $request );
-            return redirect('zone/all/' . $zone->id)
+            return redirect('zone/' . $zone->id)
                             ->with( 'notification', trans( 'admin.placement_id_is' ))
                             ->with('notificationData', $zone->id)
                             ->with( 'success', trans( 'admin.created_zone_msg' ) );

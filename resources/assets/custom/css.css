@@ -1,4 +1,15 @@
-
+.nav.navbar-nav .credit{
+    padding-top: 15px;
+    padding-bottom: 10px;
+}
+.nav.navbar-nav .credit .balance{
+    font-size: 1.65em;
+}
+.main-header .navbar .nav>li>a.credit>.label{
+    font-size: 1.1em;
+    top: 6px;
+    right: -2px;
+}
 .icon-container::after{
     content: " ";
     clear: both;

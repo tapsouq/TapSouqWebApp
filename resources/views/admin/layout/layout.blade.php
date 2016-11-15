@@ -101,8 +101,31 @@
             $(function () {
                 
                 $('form button[type=submit], form input[type=submit], .submit-btns').not('.ajax-submit').on('click', function(){
-                    var loading = "{{ trans('lang.loading') }}  <i class='fa fa-spinner fa-pulse'></i>";
-                    //$(this).html( loading ).addClass('disabled').css('pointer-events', 'none');
+                    var requiredFlag = false;
+                    $requiredInputs = $('[required]');
+                    $requiredInputs.each(function(index, formControl){
+                        if( $(formControl).attr('type') == 'radio' ){
+                            var checkedFlag = false;
+                            var radioName = $(formControl).attr('name');
+                            var $radioInputs =  $("[required][type=radio][name='" + radioName + "']");
+                            $radioInputs.each(function(index, radioControl){
+                                if( $(radioControl).prop('checked') == true ){
+                                    checkedFlag = true;
+                                }
+                            });
+                            if( ! checkedFlag ){
+                                requiredFlag = true;
+                                return;
+                            }
+                        }
+
+                    });
+                    if( ! requiredFlag ){
+                        var loading = "{{ trans('lang.loading') }}  <i class='fa fa-spinner fa-pulse'></i>";
+                        $(this).html( loading ).addClass('disabled').css('pointer-events', 'none');
+                    }else{
+                        return false;
+                    }
                 });
                 
                 //Initialize Select2 Elements

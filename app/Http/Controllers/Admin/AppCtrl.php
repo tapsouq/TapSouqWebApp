@@ -156,8 +156,8 @@ class AppCtrl extends Controller
                             ->withErrors( $validator )
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
-            $this->_store( $request );
-            return redirect('app/all')
+            $app = $this->_store( $request );
+            return redirect('zone/all/' . $app->id )
                             ->with( 'success', trans( 'admin.created_app_msg' ) );
         }
     }
@@ -330,5 +330,7 @@ class AppCtrl extends Controller
         // To make sure that two categories only be inserted
         $categories = [ $request->fcategory, $request->scategory ];
         syncPivot( 'application_categories', 'app_id', $app->id, 'cat_id', $categories );
+        
+        return $app;
     }
 }
