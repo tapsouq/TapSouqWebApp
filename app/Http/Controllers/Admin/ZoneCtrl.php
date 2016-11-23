@@ -214,9 +214,10 @@ class ZoneCtrl extends Controller
         $mTitle = $this->_mTitle;
         $title  = trans( 'admin.edit_place_ad' );
         
-        $zone   = Zone::where( 'id', '=', $zone_id );
+        $zone   = Zone::where( 'ad_placement.id', '=', $zone_id );
+        
         if( $this->_user->role != ADMIN_PRIV ){
-            $zone = $zone->leftJoin( 'applications', 'applications.id', '=', 'ad_placement.app_id' )
+            $zone->leftJoin( 'applications', 'applications.id', '=', 'ad_placement.app_id' )
                         ->where( 'applications.user_id', '=', $this->_user->id )
                         ->where( 'applications.status', '!=', DELETED_APP )
                         ->where( 'ad_placement.status', '!=', DELETED_ZONE )

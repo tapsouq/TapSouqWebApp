@@ -20,7 +20,7 @@ class SetLog extends Command
      *
      * @var string
      */
-    protected $description = 'To derive the values from sdk_actions table into daily_log table';
+    protected $description = 'To derive the values from sdk_actions table into log tables';
 
     /**
      * Create a new command instance.
@@ -54,9 +54,9 @@ class SetLog extends Command
                                     WHERE 
                                         `action` = $action
                                     AND
-                                        `sdk_requests`.`created_at` < SUBTIME( NOW(), '00:05:00' )
+                                        `sdk_requests`.`created_at` < ADDTIME( NOW(), '07:55:00' )
                                     AND
-                                        `sdk_requests`.`created_at` >= SUBTIME( NOW(), '00:10:00' )
+                                        `sdk_requests`.`created_at` >= ADDTIME( NOW(), '07:50:00' )
 
                                 GROUP BY {$adsType}
                         ");

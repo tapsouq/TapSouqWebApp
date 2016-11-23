@@ -12,22 +12,17 @@
 */
 Route::get('test', function(){
 
-	$modelIds   = DB::table('ad_placement')->select(DB::raw("DISTINCT(app_id) AS `id`"))->lists('id');
-	$logIds   	= DB::table('placement_log')->select(DB::raw("DISTINCT(ads_id) AS `id`"))->lists('id');
-    $rows       = DB::table('applications')
-    					->whereNotIn('id', $modelIds)
-    					->select('applications.*')
-                        ->union(
-                        	DB::table('applications')
-                        		->join('ad_placement', 'ad_placement.app_id', '=', 'applications.id')
-                        		->select('applications.*')
-                        		->whereNotIn('ad_placement.id', $logIds)
-                        		->whereNotIn('applications.id', $modelIds)
-                        )->get();
-	dd($rows);
+	set_time_limit(1000000000);
+	ini_set('memory_limit', '-1');
 
-
-	dd($array[mt_rand(0, $max - 1 )] );
+	// $user = Config::get('database.connections.mysql.username');
+	// $pass = Config::get('database.connections.mysql.password');
+	// $db   = Config::get('database.connections.mysql.database');
+	$sqls = Storage::get('insert.sql');
+	$array = explode(";", $sqls);
+	foreach ($array as $key => $value) {
+		DB::statement($value);
+	}
 });
 
 // Authentication routes...

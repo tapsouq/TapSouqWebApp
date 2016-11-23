@@ -88,7 +88,7 @@ class SdkAction extends Model
                                 `devices`.`country` IN ( SELECT `campaign_countries`.`country_id` FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id` )
                         )
                     AND
-                        CURDATE() BETWEEN `campaigns`.`start_date` AND `campaigns`.`end_date`
+                        ADDTIME(NOW(), '08:00:00') BETWEEN `campaigns`.`start_date` AND `campaigns`.`end_date`
                     AND
                         (
                                 (

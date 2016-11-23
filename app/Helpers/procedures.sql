@@ -75,7 +75,7 @@
 		FOR EACH ROW
 		BEGIN
 		  INSERT INTO `sdk_actions` (`request_id`, `action`, `created_at`, `updated_at`)
-		          VALUES( NEW.`id`, 1, NOW(), NOW() );
+		          VALUES( NEW.`id`, 1, ADDTIME(NOW(), "00:08:00"), ADDTIME(NOW(), "00:08:00") );
 		END//
 	DELIMITER;
 

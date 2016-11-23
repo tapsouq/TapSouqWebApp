@@ -211,7 +211,7 @@ class AdsCtrl extends Controller
         $ad     = Ads::where( 'ad_creative.id', '=', $ad_id );
         
         if( $this->_user->role != ADMIN_PRIV ){
-            $ad = $ad->leftJoin('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
+            $ad->leftJoin('campaigns', 'campaigns.id', '=', 'ad_creative.camp_id' )
                     ->where( 'campaigns.user_id', '=', $this->_user->id )
                     ->where( 'ad_creative.status', '!=', DELETED_AD )
                     ->where( 'campaigns.status', '!=', DELETED_CAMP );
