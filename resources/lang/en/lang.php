@@ -48,8 +48,11 @@ return [
 	'title'						=> "Title",
 	'description'				=> "Description",
 	'type'						=> "Type",
-	'loading'					=> " Loading ...",
+	'loading'					=> "Submitting ...",
 	'increase'					=> 'Increment',
 	'decrease'					=> "Decrement",
 	'dashboard'					=> "Dashboard",
+	'success'					=> "Success",
+	'info'						=> "Information",
+	'error'						=> "Error",
 ];

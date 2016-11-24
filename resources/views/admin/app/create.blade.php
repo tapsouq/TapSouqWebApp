@@ -99,7 +99,7 @@
                                             <select class="form-control select2 category" name="fcategory" required>
                                                 <option value="">{{ trans( 'admin.select_cat' ) }}</option>
                                                 @foreach( $categories as $key => $value )
-                                                    <option value="{{ $value->id }}" {{ isset($app_cats) ? ( $value->id == $app_cats[0] ? 'selected' : '' ) :  ( old( 'fcategory' ) == $value->id ? 'selected' : '' ) }} >
+                                                    <option value="{{ $value->id }}" {{ isset($_app) ? ( $value->id == $_app->fcategory ? 'selected' : '' ) :  ( old( 'fcategory' ) == $value->id ? 'selected' : '' ) }} >
                                                         {{ $value->name }}
                                                     </option>
                                                 @endforeach
@@ -119,7 +119,7 @@
                                             <select class="form-control select2 category" name="scategory" required>
                                                 <option value="" >{{ trans( 'admin.select_cat' ) }}</option>
                                                 @foreach( $categories as $key => $value )
-                                                    <option value="{{ $value->id }}" {{ isset($app_cats) ? ( $value->id == $app_cats[1] ? 'selected' : '' ) :  ( old( 'scategory' ) == $value->id ? 'selected' : '' ) }} >
+                                                    <option value="{{ $value->id }}" {{ isset($_app) ? ( $value->id == $_app->scategory ? 'selected' : '' ) :  ( old( 'scategory' ) == $value->id ? 'selected' : '' ) }} >
                                                         {{ $value->name }}
                                                     </option>
                                                 @endforeach

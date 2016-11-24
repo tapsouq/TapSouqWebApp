@@ -206,18 +206,15 @@
                 switch (format) {
                     case "{{ BANNER }}":
                         $('.banner-refresh').removeClass('hidden');
-                        console.log( 'banner {{ BANNER }}' );
                         break;
                     case "{{ INTERSTITIAL }}":
                         $('.interstitial-layout').removeClass('hidden');
-                        console.log( 'intersti {{ INTERSTITIAL }}' );
                         break;
                 }
             } );
 
             // To handle toggle capping
             $('.create-zone').on( 'ifChanged', '.freq-cap', function(){
-                console.log( 'test' );
                 if( $(this).prop('checked') ){
                     $(this).parents('.form-group').find('.freq-input').removeClass( 'hidden' );
                 }else{

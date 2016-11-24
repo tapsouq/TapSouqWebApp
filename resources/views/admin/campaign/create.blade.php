@@ -97,7 +97,7 @@
                                             <select class="form-control category" name="fcategory" >
                                                 <option value="">{{ trans('admin.select_cat') }}</option>
                                                 @foreach( $categories as $key => $fcategory )
-                                                    <option value="{{ $fcategory->id }}" {{ isset($camp) ? ( $fcategory->id == $selected_cats[0] ? 'selected' : '' ) : ( old('fcategory') == $fcategory->id ? 'selected' :'' ) }} >
+                                                    <option value="{{ $fcategory->id }}" {{ isset($camp) ? ( $fcategory->id == $camp->fcategory ? 'selected' : '' ) : ( old('fcategory') == $fcategory->id ? 'selected' :'' ) }} >
                                                         {{ $fcategory->name }}
                                                     </option>
                                                 @endforeach
@@ -117,7 +117,7 @@
                                             <select class="form-control category" name="scategory" >
                                                 <option value="">{{ trans('admin.select_cat') }}</option>
                                                 @foreach( $categories as $key => $scategory )
-                                                    <option value="{{ $scategory->id }}" {{ isset($camp) ? ( $scategory->id == $selected_cats[1] ? 'selected' : '' ) : ( old('scategory') == $scategory->id ? 'selected' :'' ) }} >
+                                                    <option value="{{ $scategory->id }}" {{ isset($camp) ? ( $scategory->id == $camp->scategory ? 'selected' : '' ) : ( old('scategory') == $scategory->id ? 'selected' :'' ) }} >
                                                         {{ $scategory->name }}
                                                     </option>
                                                 @endforeach

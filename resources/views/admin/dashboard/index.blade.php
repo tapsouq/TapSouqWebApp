@@ -20,6 +20,7 @@
 	        </div>
 	        <div class="box-body">
                 <div class="table">
+                    @include('admin.partial.filterTimePeriod')
                     @if( sizeof( $chartData ) > 0 )
                         <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                         <div class="container-fluid mt20">

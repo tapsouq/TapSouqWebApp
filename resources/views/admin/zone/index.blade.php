@@ -82,6 +82,9 @@
                                             <td>
                                                 @if( $ad->status != DELETED_APP )
                                                     <div class="btn-group">
+                                                        <a href="{{ url('zone/relevant-ads/' . $ad->id ) }}" title="{{ trans('admin.show_relevant_ads') }}" class="btn btn-sm btn-warning">
+                                                            <i class="fa fa-exchange"></i>
+                                                        </a>
                                                         <a href="{{ url('zone/edit/' . $ad->id ) }}" class="btn btn-sm btn-info">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
@@ -122,6 +125,9 @@
                                             <td>
                                                 @if( $_value->status != DELETED_APP )
                                                     <div class="btn-group">
+                                                        <a href="{{ url('zone/relevant-ads/' . $ad->id ) }}" title="{{ trans('admin.show_relevant_ads') }}" class="btn btn-sm btn-warning">
+                                                            <i class="fa fa-exchange"></i>
+                                                        </a>
                                                         <a href="{{ url('zone/edit/' . $_value->id ) }}" class="btn btn-sm btn-info">
                                                             <i class="fa fa-edit"></i>
                                                         </a>

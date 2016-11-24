@@ -50,20 +50,23 @@ class SdkAction extends Model
      *
      * @param int $placementId.
      * @param int $deviceId.
+     * @param string $appPackage.
      * @return array
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public static function getCreativeAds ( $placementId, $deviceId ){
+    public static function getCreativeAds ( $placementId, $deviceId, $appPackage ){
         $admin = ADMIN_PRIV;
+        $runningCamp   = RUNNING_CAMP;
+        $runningAd     = RUNNING_AD;
+        $activeUser    = ACTIVE_USER;
+
         $query = "
             SELECT `ad_creative`.*
                 FROM `ad_creative`
                     INNER JOIN `campaigns`                          ON `campaigns`.`id` = `ad_creative`.`camp_id`
                     INNER JOIN `ad_placement`                       ON `ad_placement`.`format` = `ad_creative`.`format`
-                    INNER JOIN `campaign_categories`                ON `campaign_categories`.`camp_id` = `campaigns`.`id`
                     INNER JOIN `applications` `app`                 ON `app`.`platform` = `campaigns`.`target_platform`
-                    INNER JOIN `application_categories`             ON `application_categories`.`app_id` = `app`.`id`
                     INNER JOIN `devices`                            ON `devices`.`id` = {$deviceId}
                     INNER JOIN `users` `camp_users`                 ON `camp_users`.`id` = `campaigns`.`user_id`
                     INNER JOIN `users` `app_users`                  ON `app_users`.`id` = `app`.`user_id`
@@ -73,19 +76,117 @@ class SdkAction extends Model
                     AND
                         `ad_placement`.`app_id` = `app`.`id`
                     AND
-                        `campaign_categories`.`cat_id` = `application_categories`.`cat_id`
+                    (
+                        (  
+                                `campaigns`.`scategory` IN (`app`.`fcategory`, `app`.`scategory` )
+                        
+                            OR
+                                `campaigns`.`fcategory` IN ( `app`.`fcategory`, `app`.`scategory` )
+                            OR
+                            (
+                                    `campaigns`.`fcategory` IS NULL
+                                AND
+                                    `campaigns`.`scategory` IS NULL
+                            )
+                        )
+                        OR
+                        (
+                            CASE
+                                WHEN `campaign_keywords`.`keyword_id` IS NULL THEN 1
+                                WHEN `campaign_keywords`.`keyword_id` IS NOT NULL THEN `campaign_keywords`.`keyword_id` IN ( SELECT `keyword_id` FROM `application_keywords` WHERE `application_keywords`.`app_id` = `ad_placement`.`app_id` )
+                            END
+                        )
+                    )
                     AND
-                        CASE
-                            WHEN `campaign_keywords`.`keyword_id` IS NULL THEN 1
-                            WHEN `campaign_keywords`.`keyword_id` IS NOT NULL THEN `campaign_keywords`.`keyword_id` IN ( SELECT `keyword_id` FROM `application_keywords` WHERE `application_keywords`.`app_id` = `ad_placement`.`app_id` )
-                        END
+                        `camp_users`.`id` != `app_users`.`id`
+                    AND
+                    (
+                            ( SELECT COUNT(*) FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id`) = 0
+                        OR
+                            `devices`.`country` IN ( SELECT `campaign_countries`.`country_id` FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id` )
+                    )
+                    AND
+                        ADDTIME(NOW(), '08:00:00') BETWEEN `campaigns`.`start_date` AND `campaigns`.`end_date`
+                    AND
+                    (
+                        (
+                                `camp_users`.`role` != {$admin} 
+                            AND 
+                                `camp_users`.`credit` >   1
+                        )
+                        OR
+                        (
+                                `camp_users`.`role`     = {$admin} 
+                            AND
+                                ROUND(`camp_users`.`credit`)   >= 1
+                            AND
+                                ROUND(`app_users`.`debit`, 1)     >= 0.9 
+                        )
+                    )
+                    AND
+
+                        `ad_creative`.`status` = {$runningAd}
+                    AND
+                        `campaigns`.`status`   = {$runningCamp}
+                    AND
+                        `camp_users`.`status`  = {$activeUser}
+                    AND
+                        `app_users`.`status`   = {$activeUser}
+                    AND
+                        `app`.`package_id`     = '{$appPackage}' 
+                        ";
+        return \DB::select($query);
+
+    }
+
+    /**
+     * getRelevantAds. To get the most suitable relevant ads for placement zone.
+     *
+     * @param int $placementId.
+     * @param int $countryId.
+     * @return array
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public static function getRelevantAds ( $placementId, $countryId ){
+        
+        $admin         = ADMIN_PRIV;
+        $runningCamp   = RUNNING_CAMP;
+        $runningAd     = RUNNING_AD;
+        $activeUser    = ACTIVE_USER;
+
+        $query = "
+            SELECT `ad_creative`.*
+                FROM `ad_creative`
+                    INNER JOIN `campaigns`                          ON `campaigns`.`id` = `ad_creative`.`camp_id`
+                    INNER JOIN `ad_placement`                       ON `ad_placement`.`format` = `ad_creative`.`format`
+                    INNER JOIN `campaign_categories`                ON `campaign_categories`.`camp_id` = `campaigns`.`id`
+                    INNER JOIN `applications` `app`                 ON `app`.`platform` = `campaigns`.`target_platform`
+                    INNER JOIN `application_categories`             ON `application_categories`.`app_id` = `app`.`id`
+                    INNER JOIN `users` `camp_users`                 ON `camp_users`.`id` = `campaigns`.`user_id`
+                    INNER JOIN `users` `app_users`                  ON `app_users`.`id` = `app`.`user_id`
+                    LEFT  JOIN `campaign_keywords`                  ON `campaign_keywords`.`camp_id` = `campaigns`.`id`
+                WHERE
+                        `ad_placement`.`id` = {$placementId}
+                    AND
+                        `ad_placement`.`app_id` = `app`.`id`
+                    AND
+                            CASE
+                                WHEN `campaign_categories`.`cat_id` IS NULL THEN 1
+                                WHEN `campaign_categories`.`cat_id` IS NOT NULL THEN `campaign_categories`.`cat_id` = `application_categories`.`cat_id`
+                            END
+                        OR
+                            CASE
+                                WHEN `campaign_keywords`.`keyword_id` IS NULL THEN 1
+                                WHEN `campaign_keywords`.`keyword_id` IS NOT NULL THEN `campaign_keywords`.`keyword_id` IN ( SELECT `keyword_id` FROM `application_keywords` WHERE `application_keywords`.`app_id` = `ad_placement`.`app_id` )
+                            END
                     AND
                         `camp_users`.`id` != `app_users`.`id`
                     AND
                         (
                                 ( SELECT COUNT(*) FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id`) = 0
                             OR
-                                `devices`.`country` IN ( SELECT `campaign_countries`.`country_id` FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id` )
+                                {$countryId} IN ( SELECT `campaign_countries`.`country_id` FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id` )
                         )
                     AND
                         ADDTIME(NOW(), '08:00:00') BETWEEN `campaigns`.`start_date` AND `campaigns`.`end_date`
@@ -105,6 +206,14 @@ class SdkAction extends Model
                                         ROUND(`app_users`.`debit`, 1)     >= 0.9 
                                 )
                         )
+                    AND
+                        `ad_creative`.`status` = {$runningAd}
+                    AND
+                        `campaigns`.`status`   = {$runningCamp}
+                    AND
+                        `camp_users`.`status`  = {$activeUser}
+                    AND
+                        `app_users`.`status`   = {$activeUser}
                         ";
         return \DB::select($query);
 

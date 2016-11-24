@@ -70,6 +70,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post( 'save-zone', 'ZoneCtrl@save' ); // To save edited ad's zone.
 		Route::get( 'delete-zone', 'ZoneCtrl@destroy' ); // To deactivate ad's zone.
 		Route::get('zone/{zone}', 'ZoneCtrl@show');
+		Route::get('zone/relevant-ads/{zone}', 'ZoneCtrl@showRelevant'); // To show all relevant ads
 		/** End Zone ( Ad Placement ) Module  **/
 
 		/** Campaigns Module  **/
@@ -118,7 +119,7 @@ Route::get(
 );
 
 Route::get(
-	"sdk-action/{device_id}/{action_name}/{request_id}/{ad_placement_id}/{ad_creative_id}",
+	"sdk-action/{device_id}/{action_name}/{request_id}/{ad_placement_id}/{ad_creative_id}/{app_package}",
 	"Admin\SdkCtrl@setAction"
 );
 

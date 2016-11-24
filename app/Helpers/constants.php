@@ -78,13 +78,14 @@ define('ACTION_NAME', 2);
 define('REQUEST_ID', 3);
 define('PLACEMENT_ID', 4);
 define('CREATIVE_ID', 5);
+define('APP_PACKAGE', 6);
 
 // For Charts module
 define('IS_CAMPAIGN', false);
 define('NOT_CAMPAIGN', true);
 define('IN_DASHBOARD', true);
 // For Dashboard module
-
+define('SEVEN_DAYS', true);
 // For Cron Jobs
 define("PENDING_UPDATED", 0);
 define("SUCCESS_UPDATED", 1);

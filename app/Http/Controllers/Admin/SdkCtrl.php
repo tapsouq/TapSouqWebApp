@@ -192,13 +192,14 @@ class SdkCtrl extends Controller
         
         $deviceId       = $inputs[DEVICE_ID];
         $placementId    = $inputs[PLACEMENT_ID];
+        $appPackage     = $inputs[APP_PACKAGE];
 
         // to insert request action into database
         $requestId = SdkRequest::insertRequest($placementId, 0, $deviceId);
         if( $requestId ){
 
             // To get creative ads from database.
-            $result = SdkAction::getCreativeAds($placementId, $deviceId);
+            $result = SdkAction::getCreativeAds($placementId, $deviceId, $appPackage);
             
             if( sizeof( $result ) > 0 ){
                 $response = [

@@ -183,11 +183,13 @@ class CampaignCtrl extends Controller
         $countries  = $this->_countries;
         $keywords   = $this->_keywords;
         
-        $selected_cats      = DB::table( 'campaign_categories' )
-                                ->where( 'camp_id', '=', $camp_id )
-                                ->lists( 'cat_id' );
-        array_push($selected_cats, '');
-        array_push($selected_cats, '');
+        /*
+            $selected_cats      = DB::table( 'campaign_categories' )
+                                    ->where( 'camp_id', '=', $camp_id )
+                                    ->lists( 'cat_id' );
+            array_push($selected_cats, '');
+            array_push($selected_cats, '');
+        */
 
         $selected_countries = DB::table( 'campaign_countries' )
                                 ->where( 'camp_id', '=', $camp_id )
@@ -205,7 +207,7 @@ class CampaignCtrl extends Controller
                             ->with( 'warning', trans('lang.spam_msg') );
         }
 
-        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'keywords', 'selected_cats', 'selected_countries', 'selectedKeys' ];
+        $data = [ 'mTitle', 'title', 'camp', 'categories', 'countries', 'keywords', 'selected_countries', 'selectedKeys' ];
         return view( 'admin.campaign.create' )
                     ->with( compact( $data ) );
     }
@@ -219,7 +221,6 @@ class CampaignCtrl extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function save ( Request $request ){
-
         $rules      = array_merge( $this->_initRules, [ 
                 'id'            => 'required|exists:campaigns,id',
                 'scategory'     => 'exists:categories,id|not_in:' . $request->input('fcategory') 
@@ -243,7 +244,7 @@ class CampaignCtrl extends Controller
       *
       * @param \Illuminate\Http\Request $request
       * @return void
-      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com
       * @copyright Smart Applications Co. <www.smartapps-ye.com>
       */
     public function changeStatus ( Request $request ){
@@ -306,6 +307,9 @@ class CampaignCtrl extends Controller
         $camp->target_platform  = $request->target_platform;
         $camp->ad_serving_pace  = $request->input( 'ad_serving_pace' );
 
+        $camp->fcategory        = $request->has('fcategory') ? $request->fcategory : NULL;
+        $camp->scategory        = $request->has('scategory') ? $request->scategory : NULL;
+
         if( $request->has('status') ){
             if( $request->status == DELETED_CAMP ){
                 // delete all ads to these campaign
@@ -317,23 +321,22 @@ class CampaignCtrl extends Controller
 
         $camp->save();
 
-        $categories = [];
-        if( $request->has('fcategory') || $request->has('scategory') ){
+        // $categories = [];
+        // if( $request->has('fcategory') || $request->has('scategory') ){
 
-            $request->has('fcategory') ? array_push($categories, $request->fcategory) : '';
-            $request->has('scategory') ? array_push($categories, $request->scategory) : '';
+        //     $request->has('fcategory') ? array_push($categories, $request->fcategory) : '';
+        //     $request->has('scategory') ? array_push($categories, $request->scategory) : '';
             
-            syncPivot( 'campaign_categories', 'camp_id', $camp->id, 'cat_id', $categories );
-        }else{
-            DB::table('campaign_categories')
-                ->where('camp_id', '=', $camp->id)
-                ->delete();
-        }
+        //     syncPivot( 'campaign_categories', 'camp_id', $camp->id, 'cat_id', $categories );
+        // }else{
+        //     DB::table('campaign_categories')
+        //         ->where('camp_id', '=', $camp->id)
+        //         ->delete();
+        // }
 
-        if( $request->has( 'country' ) ){
-            $countries = $request->country;
-            syncPivot( 'campaign_countries', 'camp_id', $camp->id, 'country_id', $countries );
-        }
+        $countries = $request->has( 'country' ) ? $request->country : [];
+        syncPivot( 'campaign_countries', 'camp_id', $camp->id, 'country_id', $countries );
+
 
         // save application keywords
         $this->_saveCampKeywords( $request, $camp->id );

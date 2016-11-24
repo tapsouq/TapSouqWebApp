@@ -10,6 +10,13 @@
                     <i class="fa fa-caret-down"></i>
                     <input type="hidden" name="from">
                     <input type="hidden" name="to">
+                    @if( sizeof( $inputs = Request::all() ) > 0 )
+                        @foreach($inputs  as $_key => $_inputVal)
+                            @if( ! in_array($_key, ['from', 'to']) )
+                                <input type="hidden" name="{{ $_key }}" value="{{ $_inputVal }}">
+                            @endif
+                        @endforeach
+                    @endif
                 </button>
             </div>
         </div>

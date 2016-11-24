@@ -174,11 +174,12 @@ class AppCtrl extends Controller
         $mTitle     = $this->_mTitle;
         $title      = trans( 'admin.edit_app' );
         $categories = $this->_categories;
+        /*
         $app_cats   = Category::join( 'application_categories', 'application_categories.cat_id', '=', 'categories.id' )
                                 ->where( 'application_categories.app_id', '=', $app_id )
                                 ->select( 'categories.id' )
                                 ->lists('id')->toArray();
-
+        */
         $_app = Application::where( 'id', '=', $app_id );
         $_app = $this->_user->role == ADMIN_PRIV ? $_app : $_app->where( 'status', '!=', DELETED_APP );
         $_app = $_app->first();
@@ -188,7 +189,7 @@ class AppCtrl extends Controller
                         ->with( 'warning', trans( 'lang.spam_msg' ) );
         }
 
-        $data = [ 'mTitle', 'title', '_app', 'categories', 'app_cats' ];
+        $data = [ 'mTitle', 'title', '_app', 'categories' ];
         return view( 'admin.app.create' )
                     ->with( compact( $data ) );
     }
@@ -319,6 +320,9 @@ class AppCtrl extends Controller
         $app->name          = $request->name;
         $app->platform      = $request->platform;
 
+        $app->fcategory     = $request->fcategory;
+        $app->scategory     = $request->scategory;
+
         $app->package_id    = $request->package_id;
 
         if( $request->hasFile( 'icon' ) ){
@@ -328,8 +332,8 @@ class AppCtrl extends Controller
         $app->save();
 
         // To make sure that two categories only be inserted
-        $categories = [ $request->fcategory, $request->scategory ];
-        syncPivot( 'application_categories', 'app_id', $app->id, 'cat_id', $categories );
+        // $categories = [ $request->fcategory, $request->scategory ];
+        //syncPivot( 'application_categories', 'app_id', $app->id, 'cat_id', $categories );
         
         return $app;
     }

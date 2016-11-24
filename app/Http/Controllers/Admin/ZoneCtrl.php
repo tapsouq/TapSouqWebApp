@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Auth, Validator, DB;
 use App\Models\Application, App\Models\Zone;
 use App\Models\PlacementLog;
+use App\Models\Country, App\Models\SdkAction;
 
 class ZoneCtrl extends Controller
 {
@@ -137,7 +138,7 @@ class ZoneCtrl extends Controller
 
         if( is_null($zone) ){
             return redirect('admin')
-                        ->with('warning', trans('lang.spam'));
+                        ->with('warning', trans('lang.spam_msg'));
         }
 
         $chartData      = adaptChartData( clone($items), 'placement_log' );
@@ -195,10 +196,12 @@ class ZoneCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $zone = $this->_store( $request );
+            $data = [
+                    'msg'       => trans( 'admin.created_zone_msg' ),
+                    'id'        => $zone->id
+                ];
             return redirect('zone/' . $zone->id)
-                            ->with( 'notification', trans( 'admin.placement_id_is' ))
-                            ->with('notificationData', $zone->id)
-                            ->with( 'success', trans( 'admin.created_zone_msg' ) );
+                            ->with( 'placement', $data );
         }
     }
 
@@ -218,12 +221,12 @@ class ZoneCtrl extends Controller
         
         if( $this->_user->role != ADMIN_PRIV ){
             $zone->leftJoin( 'applications', 'applications.id', '=', 'ad_placement.app_id' )
-                        ->where( 'applications.user_id', '=', $this->_user->id )
-                        ->where( 'applications.status', '!=', DELETED_APP )
-                        ->where( 'ad_placement.status', '!=', DELETED_ZONE )
-                        ->select( 'ad_placement.*' );
+                    ->where( 'applications.user_id', '=', $this->_user->id )
+                    ->where( 'applications.status', '!=', DELETED_APP )
+                    ->where( 'ad_placement.status', '!=', DELETED_ZONE )
+                    ->select('ad_placement.*' );
         }
-        $zone       = $zone->first();  
+        $zone   = $zone->first();  
 
         if( is_null( $zone ) ){
             return redirect()->back()
@@ -262,6 +265,35 @@ class ZoneCtrl extends Controller
         }
     }
     
+    /**
+     * showRelevant. To show the relevant creative ads.
+     *
+     * @param int $zone_id
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function showRelevant ( $zone_id, Request $request){
+        $mTitle = $this->_mTitle;
+        $title = trans('admin.show_relevant_ads');
+        
+        $zone = Zone::find($zone_id);
+        if( $zone == null ){
+            return redirect('admin')
+                        ->with('warning', trans('admin.spam_msg'));
+        }
+
+        $egyptCountry   = Country::where('name', '=', 'egypt')->first();
+        $countryId      = $request->has('country') ? $request->country : ($egyptCountry ? $egyptCountry->id : 1 );
+
+        $relevantAds    = SdkAction::getRelevantAds($zone_id, $countryId);
+                  
+        $data = ['title', 'mTitle', 'relevantAds'];
+        return view('admin.zone.show-relevant')
+                    ->with(compact($data));
+    }
+
     /**
       * destroy. To deactivate the ad placement.
       *

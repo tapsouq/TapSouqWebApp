@@ -261,9 +261,10 @@ if( ! function_exists('filterByTimeperiod')){
             $to         = $request->input("to");
             $object->whereDate("{$table}.created_at", ">=", $from)
                     ->whereDate("{$table}.created_at", "<=", $to);
-        }else if( ! $sevenDays) {
+        }else{
+            $interval = $sevenDays ? '6 days' : '30 days';
             $object->where( "{$table}.created_at", '<=', date('Y-m-d') . " 23:59:59")
-                    ->where( "{$table}.created_at", '>=', date_create()->sub(date_interval_create_from_date_string('30 days'))->format("Y-m-d 00:00:00") );
+                    ->where( "{$table}.created_at", '>=', date_create()->sub(date_interval_create_from_date_string($interval))->format("Y-m-d 00:00:00") );
         }
     }
 }

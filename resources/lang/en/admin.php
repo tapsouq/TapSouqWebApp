@@ -25,7 +25,7 @@ return [
 	"category"					=> "Category",
 	"create_app"				=> "Add a new App",
 	"app_icon"					=> "App icon",
-	"select_cat"				=> "Select Category",
+	"select_cat"				=> "All Categories",
 	"no_apps"					=> "There is no apps",
 	"no_ads"					=> "There is no placement ads",
 	"developer"					=> "Developer",
@@ -136,7 +136,7 @@ return [
 	"language"					=> "Language",
 	"created_app_msg"			=> "The application is created successfully.",
 	"created_camp_msg"			=> "The campaign is created successfully.",
-	"created_zone_msg"			=> "The ad placement is created successfully.",
+	"created_zone_msg"			=> "The ad placement is created successfully with id",
 	"created_ads_msg"			=> "The ad creative is created successfully.",
 	"updated_app_msg"			=> "The application is updated successfully.",
 	"updated_camp_msg"			=> "The campaign is updated successfully.",
@@ -168,4 +168,10 @@ return [
 	"there_is_no_apps"			=> "There is no applications.",
 	'there_is_no_records'		=> "There is no records. Zero records.",
 	"status"					=> "Status",
+	"show_relevant_ads"			=> "Show relevant creative ads",
+	"there_is_no_relevant"		=> "There is no relevant ads for that ad.",
+	"view_countries"			=> "view Countries",
+	"view_keywords"				=> "view Keywords",
+	"categories"				=> "Categories",
+	"countries"					=> "Countries"
 ];
