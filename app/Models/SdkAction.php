@@ -62,7 +62,9 @@ class SdkAction extends Model
         $activeUser    = ACTIVE_USER;
 
         $query = "
-            SELECT `ad_creative`.*
+            SELECT 
+                    `ad_creative`.*,
+                    (`camp_users`.`credit` * 1000 / (UNIX_TIMESTAMP(`campaigns`.`end_date`) - UNIX_TIMESTAMP(`campaigns`.`start_date`)) ) as `priority`
                 FROM `ad_creative`
                     INNER JOIN `campaigns`                          ON `campaigns`.`id` = `ad_creative`.`camp_id`
                     INNER JOIN `ad_placement`                       ON `ad_placement`.`format` = `ad_creative`.`format`
@@ -134,7 +136,7 @@ class SdkAction extends Model
                         `app_users`.`status`   = {$activeUser}
                     AND
                         `app`.`package_id`     = '{$appPackage}' 
-                        ";
+                    ORDER BY `priority` DESC";
         return \DB::select($query);
 
     }
@@ -216,7 +218,6 @@ class SdkAction extends Model
                         `app_users`.`status`   = {$activeUser}
                         ";
         return \DB::select($query);
-
     }
 
     /**

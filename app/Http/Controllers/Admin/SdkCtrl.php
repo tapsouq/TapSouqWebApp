@@ -24,16 +24,26 @@ class SdkCtrl extends Controller
     public function addDevice ( Request $request ){
         $array     = $request->segments();
         
-        $country    = Country::find($array[ADD_COUNTRY]);
-        $language   = Language::find($array[ADD_LANG]);
-        $platform   = $array[ADD_PLATFORM];
+        $googleAdvId    = $array[ADD_ADVERTISING_ID];
+        $device         = Device::where('advertising_id', $googleAdvId)->first();
+        if( $device != null ){
+            $response = [ 
+                   'status'     => true,
+                   'device_id'  => $device->id 
+               ];
+            return response()->json($response);
+        }
+
+        $country        = Country::find($array[ADD_COUNTRY]);
+        $language       = Language::find($array[ADD_LANG]);
+        $platform       = $array[ADD_PLATFORM];
 
         if( $language == null ){
-             $response = [ 
+            $response = [ 
                     'status'    => false,
                     'error'     => "The language id isn't valid." 
-                 ];
-             return response()->json($response);   
+                ];
+            return response()->json($response);   
         }
 
         if( $country == null  ){
@@ -59,11 +69,11 @@ class SdkCtrl extends Controller
         $device->language       = $language->id;
         $device->country        = $country->id;
         $device->platform       = $array[ADD_PLATFORM]; 
-        $device->advertising_id = $array[ADD_ADVERTISING_ID]; 
+        $device->advertising_id = $googleAdvId; 
         $device->manefacturer   = $array[ADD_MANEFACTURER]; 
         $device->model          = $array[ADD_MODEL];
         $device->os_version     = $array[ADD_OS_VER];
-        $device->city           = $array[ADD_CITY];
+        $device->os_api_version = $array[ADD_OS_API];
         $device->carrier        = $array[ADD_CARRIER];
         $device->sdk_version    = $array[TAPSOUQ_SDK_VER];
 
@@ -205,7 +215,7 @@ class SdkCtrl extends Controller
                 $response = [
                         'status'        => true,
                         'requestId'     => $requestId,
-                        'adsObject'     => (array) $result[mt_rand(0, count($result) - 1 )]
+                        'adsObject'     => (array) $result[0]
                     ];
             }else{
                 $response = [

@@ -57,10 +57,10 @@ define('ADD_PLATFORM', 1);
 define('ADD_ADVERTISING_ID', 2);
 define('ADD_MANEFACTURER', 3);
 define('ADD_MODEL', 4);
-define('ADD_OS_VER', 5);
-define('ADD_LANG', 6);
-define('ADD_COUNTRY', 7);
-define('ADD_CITY', 8);
+define('ADD_OS_API', 5);
+define('ADD_OS_VER', 6);
+define('ADD_LANG', 7);
+define('ADD_COUNTRY', 8);
 define('ADD_CARRIER', 9);
 define('TAPSOUQ_SDK_VER', 10);
 

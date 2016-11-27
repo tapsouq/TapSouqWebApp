@@ -12,17 +12,6 @@
 */
 Route::get('test', function(){
 
-	set_time_limit(1000000000);
-	ini_set('memory_limit', '-1');
-
-	// $user = Config::get('database.connections.mysql.username');
-	// $pass = Config::get('database.connections.mysql.password');
-	// $db   = Config::get('database.connections.mysql.database');
-	$sqls = Storage::get('insert.sql');
-	$array = explode(";", $sqls);
-	foreach ($array as $key => $value) {
-		DB::statement($value);
-	}
 });
 
 // Authentication routes...
@@ -88,7 +77,6 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post( 'store-ads', 'AdsCtrl@store' ); // To store the created creative ad's.
 		Route::get( 'ads/edit/{ads}', 'AdsCtrl@edit' ); // To show edit creative ad's page.
 		Route::post( 'save-ads', 'AdsCtrl@save' ); // To save edited creative ad's zone.
-		//Route::get( 'delete-ads', 'AdsCtrl@destroy' ); // To deactivate creative ad's zone.
 		Route::get( 'ads/change-status', 'AdsCtrl@changeStatus' ); // To change Ads status.
 		Route::get('ads/{ads}', 'AdsCtrl@show');
 		/** End Creative Ad Module  **/
@@ -114,7 +102,7 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 Route::get(
-	"create_device/{platform}/{advertising_id}/{manefacturer}/{model}/{os_version}/{language}/{country}/{city}/{carrier}/{tap_souq_sdk_version}",
+	"create_device/{platform}/{advertising_id}/{manefacturer}/{model}/{os_api_number}/{os_version}/{language}/{country}/{carrier}/{tap_souq_sdk_version}",
 	"Admin\SdkCtrl@addDevice"
 );
 

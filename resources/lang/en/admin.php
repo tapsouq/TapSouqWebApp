@@ -173,5 +173,5 @@ return [
 	"view_countries"			=> "view Countries",
 	"view_keywords"				=> "view Keywords",
 	"categories"				=> "Categories",
-	"countries"					=> "Countries"
+	"countries"					=> "Countries",
 ];
