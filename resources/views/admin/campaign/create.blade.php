@@ -159,7 +159,7 @@
                                             <select name="ad_serving_pace" class="form-control">
                                                 <option value="">{{ trans( 'admin.normal' ) }}</option>
                                                 @foreach( $servingPaces as $key => $value )
-                                                    <option value="{{ $key }}" {{ isset($camp) ? ( $camp->ad_serving_pace == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' :'' ) }}>
+                                                    <option value="{{ $key }}" {{ isset($camp) ? ( $camp->ad_serving_pace == $key ? 'selected' : '' ) : ( old('ad_serving_pace') == $key ? 'selected' :'' ) }}>
                                                         {{ $value }}
                                                     </option>
                                                 @endforeach
@@ -217,7 +217,7 @@
                                             @if( sizeof( $states = config('consts.camp_status') ) > 0 )
                                                 <select name="status" class="form-control">
                                                     @foreach( $states as $key => $value )
-                                                        <option value="{{ $key }}" {{ isset($camp) ? ( $camp->status == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' :'' ) }}>
+                                                        <option value="{{ $key }}" {{ isset($camp) ? ( $camp->status == $key ? 'selected' : '' ) : ( old('status') == $key ? 'selected' :'' ) }}>
                                                             {{ $value }}
                                                         </option>
                                                     @endforeach

@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         Commands\GetApplicationInfo::class,
         Commands\KeywordMatcher::class,
         Commands\SetLog::class,
+        Commands\SetCreditLog::class,
     ];
 
     /**
@@ -48,7 +49,13 @@ class Kernel extends ConsoleKernel
          * To get the placement, creative logs from the sdk actions and requests
          */
         $schedule->command('setLog')
-                  ->everyFiveMinutes()
-                  ->withoutOverlapping();                 
+                  ->everyMinute()
+                  ->withoutOverlapping();
+
+        /**
+         * To set credit every day for every user.
+         */
+        $schedule->command('setCreditLog')
+                  ->dailyAt('15:59:59');                 
     }
 }

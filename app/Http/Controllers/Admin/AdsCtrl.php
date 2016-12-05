@@ -41,7 +41,8 @@ class AdsCtrl extends Controller
                 'campaign'      => 'required|exists:campaigns,id', 
                 'title'         => 'required_if:type,1|max:255',
                 'description'   => 'required_if:type,' . TEXT_AD . '|max:255',
-                'status'        => 'in:' . implode(',' , array_keys( config( 'consts.ads_status' ) ))
+                'status'        => 'in:' . implode(',' , array_keys( config( 'consts.ads_status' ) )),
+                'layout'        => 'required_if:format,' . INTERSTITIAL,
             ];
     }
 
@@ -319,7 +320,9 @@ class AdsCtrl extends Controller
         $ad->name          = $request->name;
         $ad->type          = $request->type;
         $ad->format        = $request->format;
+        $ad->layout        = ($request->format == INTERSTITIAL ) ?  $request->layout : null;
         $ad->click_url     = $request->click_url;
+        
         if( $request->hasFile( 'image_file' ) ){
             $ad->image_file    = uploadFile($request->image_file , 'public/uploads/ad-images/');
         }

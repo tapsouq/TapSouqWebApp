@@ -92,6 +92,7 @@
         <script src="{{ url( 'resources/assets' ) }}/dist/js/app.js"></script>
         <!-- AdminLTE for demo purposes -->
         <script src="{{ url( 'resources/assets' ) }}/dist/js/demo.js"></script>
+        <script type="text/javascript" src="{{ url( 'resources/assets/plugins/highcharts/highcharts.js' ) }}"></script>
         <script>
             function adaptRange(start, end){
                 $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -147,13 +148,11 @@
                 });
 
                 // Date range
-                var startDate = moment().subtract(29, 'days');
+                var startDate = moment().subtract(6, 'days');
                 var endDate   = moment();
                 @if( Request::has('to') &&  Request::has('from'))
                     startDate = moment("{{Request::input('from')}}");
                     endDate = moment("{{Request::input('to')}}");
-                @elseif(Request::segment(1) == 'admin')
-                    startDate = moment().subtract(6, 'days');
                 @endif
                 //Date range as a button
                 $('#daterange-btn').daterangepicker(
@@ -175,13 +174,13 @@
                     }
                 );
             });
+            
+            Highcharts.setOptions().colors = [ "#f39c12", "#00c0ef", "#00a65a", "#605ca8", "#dd4b39", '#792e86', '#333' ];
         </script>
         @if( isset( $chartData ) )
             @if( sizeof($chartData ) > 0 )
-                <script type="text/javascript" src="{{ url( 'resources/assets/plugins/highcharts/highcharts.js' ) }}"></script>
                 <script type="text/javascript">
                     // Yellow, aqua, green, purple, red
-                    Highcharts.setOptions().colors = [ "#f39c12", "#00c0ef", "#00a65a", "#605ca8", "#dd4b39", '#792e86', '#333' ];
                     data = JSON.parse( '{!! json_encode($chartData) !!}' );
                     var count = 0;
                     var chartOptions = {
@@ -374,10 +373,6 @@
         @if( Request::has('to') && Request::has('from') )
             <script type="text/javascript">
                 adaptRange( moment("{{Request::input('from') }}"), moment("{{Request::input('to') }}") );
-            </script>
-        @elseif( Request::segment(1) == 'admin' )
-            <script type="text/javascript">
-                adaptRange( moment().subtract(6, 'days'), moment() );
             </script>
         @endif
         @yield( 'script' )

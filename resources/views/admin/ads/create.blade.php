@@ -42,7 +42,7 @@
                                             @if( sizeof( $formats = config('consts.all_formats') ) > 0 )
                                                  <select name="format" class="form-control" required>
                                                      @foreach( $formats as $key => $value )
-                                                         <option value="{{ $key }}" {{ isset($ad) ? ( $ad->format == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' :'' ) }}>
+                                                         <option value="{{ $key }}" {{ isset($ad) ? ( $ad->format == $key ? 'selected' : '' ) : ( old('format') == $key ? 'selected' :'' ) }}>
                                                              {{ $value }}
                                                          </option>
                                                      @endforeach
@@ -63,7 +63,7 @@
                                               @if( sizeof( $types = config('consts.ads_types') ) > 0 )
                                                   <select name="type" class="form-control" required>
                                                       @foreach( $types as $key => $value )
-                                                          <option value="{{ $key }}" {{ isset($ad) ? ( $ad->type == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' :'' ) }}>
+                                                          <option value="{{ $key }}" {{ isset($ad) ? ( $ad->type == $key ? 'selected' : '' ) : ( old('type') == $key ? 'selected' :'' ) }}>
                                                               {{ $value }}
                                                           </option>
                                                       @endforeach
@@ -145,6 +145,27 @@
                                             </span>
                                           </div>  
                                     </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 interstitial-layout - {{ isset($ad) ? ( $ad->layout == BANNER ? 'hidden' : '' ) : ( old('layout') == BANNER ? 'hidden' : '' ) }} - ">
+                                        <div class="form-group has-feedback {{ $errors->has( 'layout' ) ? 'has-error' : '' }}">
+                                            <label>
+                                                  {{ trans( 'admin.layout' ) }}
+                                            </label>
+                                            @if( sizeof( $layouts = config('consts.zone_layouts') ) > 0 )
+                                                <select name="layout" class="form-control">
+                                                    @foreach( $layouts as $key => $value )
+                                                        <option value="{{ $key }}" {{ isset($ad) ? ( $ad->layout == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' :'' ) }}>
+                                                            {{ $value }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <span class="help-block">
+                                                    {{ $errors->has( 'layout' ) ? $errors->first( 'layout' ) : '' }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
                                     @if( Auth::user()->role == ADMIN_PRIV )
                                         <div class="col-md-6">
                                             <div class="form-group has-feedback {{ $errors->has( 'status' ) ? 'has-error' : '' }}">
@@ -154,7 +175,7 @@
                                                 @if( sizeof( $states = config('consts.ads_status') ) > 0 )
                                                     <select name="status" class="form-control">
                                                         @foreach( $states as $key => $value )
-                                                            <option value="{{ $key }}" {{ isset($ad) ? ( $ad->status == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' :'' ) }}>
+                                                            <option value="{{ $key }}" {{ isset($ad) ? ( $ad->status == $key ? 'selected' : '' ) : ( old('status') == $key ? 'selected' :'' ) }}>
                                                                 {{ $value }}
                                                             </option>
                                                         @endforeach
@@ -201,6 +222,7 @@
             });
 
             adaptTypeControls( $('select[name=type]') );
+            
             function adaptTypeControls( $this ){
                 var val = $this.val(); 
                 if( val == "{{ TEXT_AD }}" ) {
@@ -217,6 +239,7 @@
             } );
 
             adaptFormatControls( $( 'select[name=format]' ) );
+            
             function adaptFormatControls( $this ){
                 var $type   = $('select[name=type]');
                 var format  = $this.val();
@@ -225,7 +248,9 @@
                     $texAdDetails.addClass('hidden');
                     $type.find('option[value="{{ TEXT_AD }}"]').attr( 'disabled', true );
                     $imgDimension.text( "{{ trans( 'admin.inters_dimension' ) }}" );
+                    $('.interstitial-layout').removeClass('hidden');
                 }else{
+                    $('.interstitial-layout').addClass('hidden');
                     $type.find('option[value="{{ TEXT_AD }}"]').attr( 'disabled', false );
                     if( $type.val() == "{{ IMAGE_AD }}" ){
                         $texAdDetails.addClass('hidden');

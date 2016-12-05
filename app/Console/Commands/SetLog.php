@@ -54,9 +54,9 @@ class SetLog extends Command
                                     WHERE 
                                         `action` = $action
                                     AND
-                                        `sdk_requests`.`created_at` < ADDTIME( NOW(), '07:55:00' )
+                                        `sdk_requests`.`created_at` < ADDTIME( NOW(), '07:59:00' )
                                     AND
-                                        `sdk_requests`.`created_at` >= ADDTIME( NOW(), '07:50:00' )
+                                        `sdk_requests`.`created_at` >= ADDTIME( NOW(), '07:58:00' )
 
                                 GROUP BY {$adsType}
                         ");
@@ -74,7 +74,7 @@ class SetLog extends Command
                         $impressions    = isset($actionsResult[SHOW_ACTION][$adsId]) ? $actionsResult[SHOW_ACTION][$adsId] : 0;
                         $clicks         = isset($actionsResult[CLICK_ACTION][$adsId]) ? $actionsResult[CLICK_ACTION][$adsId] : 0;
                         $installed      = isset($actionsResult[INSTALL_ACTION][$adsId]) ? $actionsResult[INSTALL_ACTION][$adsId] : 0;
-                        $time           = time() - ( 5 * 60 );
+                        $time           = time() - ( 1 * 60 ) + ( 8 * 60 * 60 );
                        
                         $insertArray[] = [
                                 'ads_id'        => $adsId,

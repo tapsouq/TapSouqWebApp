@@ -22,7 +22,7 @@
                                         <label>
                                             {{ trans( 'lang.name' ) }}
                                             {!! csrf_field() !!}
-                                            <input name="application" value="{{ $app_id }}" type="hidden">
+                                                <input type="hidden" name="application" value="{{ $app_id }}">
                                             @if( isset($zone) )
                                                 <input type="hidden" name="id" value="{{ $zone->id }}" >
                                             @endif
@@ -62,7 +62,7 @@
                                         @if( sizeof( $formats = config( 'consts.zone_formats' ) ) > 0 )
                                             <select name="format" class="form-control">
                                                 @foreach( $formats as $key => $value )
-                                                    <option value="{{ $key }}" {{ isset($zone) ? ( $zone->format == $key ? 'selected' : '' ) : ( old('application') == $key ? 'selected' :'' ) }} >
+                                                    <option value="{{ $key }}" {{ isset($zone) ? ( $zone->format == $key ? 'selected' : '' ) : ( old('format') == $key ? 'selected' :'' ) }} >
                                                         {{ $value }}
                                                     </option>
                                                 @endforeach
@@ -74,7 +74,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group interstitial-layout has-feedback {{ $errors->has( 'layout' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->device_type == BANNER ? 'hidden' : '' ) : ( old('device_type') == BANNER ? 'hidden' : '' ) }} ">
+                                    <div class="form-group interstitial-layout has-feedback {{ $errors->has( 'layout' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->layout == BANNER ? 'hidden' : '' ) : ( old('layout') == BANNER ? 'hidden' : '' ) }} ">
                                         <label>
                                               {{ trans( 'admin.layout' ) }}
                                         </label>
@@ -91,7 +91,7 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="form-group banner-refresh has-feedback {{ $errors->has( 'refresh_interval' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->device_type != BANNER ? 'hidden' : '' ) : ( old('device_type') != BANNER ? 'hidden' : '' ) }} ">
+                                    <div class="form-group banner-refresh has-feedback {{ $errors->has( 'refresh_interval' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->layout != BANNER ? 'hidden' : '' ) : ( old('layout') != BANNER ? 'hidden' : '' ) }} ">
                                         <label>
                                               {!! trans( 'admin.refresh_interval' ) !!}
                                         </label>
@@ -102,55 +102,7 @@
                                     </div>  
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'hourly_freq_cap' ) ? 'has-error' : '' }}">
-                                        <label>
-                                            {{ trans( 'admin.hourly_freq_cap' ) }}
-                                        </label>
-                                        <div class="row">
-                                            <div class="col-md-2">
-                                                <input type="checkbox" class="minimal-blue freq-cap" value="1" name="hourly_freq" {{ isset($zone) ? ( $zone->hourly_freq_cap ? 'checked' : '' ) : ( old('hourly_freq') ? 'checked' : '' )  }} >
-                                            </div>
-                                            <div class="col-md-10 freq-input {{ isset($zone) ? ( $zone->hourly_freq_cap ? '' : 'hidden' ) : ( old('hourly_freq') ? '' : 'hidden' ) }} ">
-                                                <div class="input-group input-group-sm">
-                                                    <input class="form-control" type="number" min="1" name="hourly_freq_cap" value="{{ isset($zone) ? $zone->hourly_freq_cap : old('hourly_freq_cap') }}">
-                                                    <span class="input-group-addon">
-                                                        {{ trans( 'admin.times_per_hour' ) }}
-                                                    </span>
-                                                </div>
-                                                <span class="help-block">
-                                                    {{ $errors->has( 'hourly_freq_cap' ) ? $errors->first( 'hourly_freq_cap' ) : '' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group has-feedback {{ $errors->has( 'daily_freq_cap' ) ? 'has-error' : '' }}">
-                                        <label>
-                                            {{ trans( 'admin.daily_freq_cap' ) }}
-                                        </label>
-                                        <div class="row">
-                                            <div class="col-md-2">
-                                                <input type="checkbox" class="minimal-blue freq-cap" value="1" name="daily_freq" {{ isset($zone) ? ( $zone->daily_freq_cap ? 'checked' : '' ) : ( old('daily_freq') ? 'checked' : '' )  }} >
-                                            </div>
-                                            <div class="col-md-10 freq-input {{ isset($zone) ? ( $zone->daily_freq_cap ? '' : 'hidden' ) : ( old('daily_freq') ? '' : 'hidden' ) }} ">
-                                                <div class="input-group input-group-sm">
-                                                    <input class="form-control" type="number" min="1" name="daily_freq_cap" value="{{ isset($zone) ? $zone->daily_freq_cap : old('daily_freq_cap') }}">
-                                                    <span class="input-group-addon">
-                                                        {{ trans( 'admin.times_per_day' ) }}
-                                                    </span>
-                                                </div>
-                                                <span class="help-block">
-                                                    {{ $errors->has( 'daily_freq_cap' ) ? $errors->first( 'daily_freq_cap' ) : '' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                                
+                            
                             @if( Auth::user()->role == ADMIN_PRIV )
                                 <div class="row">
                                     <div class="col-md-6">
@@ -161,7 +113,7 @@
                                             @if( sizeof( $zone_states = config('consts.zone_status') ) > 0 )
                                                 <select name="status" class="form-control">
                                                     @foreach( $zone_states as $key => $value )
-                                                        <option value="{{ $key }}" {{ isset($zone) ? ( $zone->status == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' :'' ) }}>
+                                                        <option value="{{ $key }}" {{ isset($zone) ? ( $zone->status == $key ? 'selected' : '' ) : ( old('status') == $key ? 'selected' :'' ) }}>
                                                             {{ $value }}
                                                         </option>
                                                     @endforeach

@@ -23,7 +23,8 @@
 		            		<tbody>
 		            		@foreach($relevantAds as $key => $ad)
 		            			<tr>
-		            				<td>{{ $ad->name }}</td>
+		            				<td>
+		            					{{ $ad->name }}</td>
 		            				<td></td>
 		            				<td>
 		            					<a href="" class="btn btn-sm btn-info">{{ trans('admin.keywords') }}</a>

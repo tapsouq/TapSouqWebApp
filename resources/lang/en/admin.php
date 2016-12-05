@@ -147,7 +147,7 @@ return [
 	"deleted_zone_msg"			=> "The ad placement is deleted successfully.",
 	"deleted_ads_msg"			=> "The ad creative is deleted successfully.",
 	"filter"					=> "Filter",
-	"select_time_period"		=> "Select time period <em>(Default: last 30 days)</em>",
+	"select_time_period"		=> "Select time period <em>(Default: last 7 days)</em>",
 	"main"						=> "Main",
 	"admin"						=> "Admin",
 	"all_apps_7days"			=> "All Applications - Last 7 Days",

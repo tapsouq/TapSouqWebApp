@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use DB, Auth;
+use DB, Auth, App\Models\DailyLog;
 use App\Models\CreativeLog, App\Models\PlacementLog;
 
 class DashboardCtrl extends Controller
@@ -38,6 +38,8 @@ class DashboardCtrl extends Controller
      public function index ( Request $request){
      	$mTitle = $this->_mTitle;
 
+     	$creditCharts = $this->_adaptCreditLog($request);
+
      	if( $request->has('camps') ){
 	     	$title 	= 	trans( "admin.all_camps_7days" );
 	     	$items  =   CreativeLog::join( 'ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id' )
@@ -58,7 +60,7 @@ class DashboardCtrl extends Controller
 	     		$items->where('camp_users.id', '=', $this->_user->id);
 	     	}
 
- 		    filterByTimeperiod($items, $request, 'creative_log', SEVEN_DAYS);
+ 		    filterByTimeperiod($items, $request, 'creative_log');
 
      		$cloneItems = clone($items);
      		$total		= $cloneItems->first();
@@ -82,15 +84,14 @@ class DashboardCtrl extends Controller
 			if( $this->_user->role == DEV_PRIV ){
 	     		$items->where('applications.user_id', '=', $this->_user->id);
 	     	}
- 		    filterByTimeperiod($items, $request, 'placement_log', SEVEN_DAYS);
+ 		    filterByTimeperiod($items, $request, 'placement_log');
 
      		$cloneItems = clone($items);
      		$total		= $cloneItems->first();
      		$chartData 	= adaptChartData ( $items, 'placement_log', NOT_CAMPAIGN, IN_DASHBOARD);
-     		$chartData 	= $this->_addAdminCreditToCharts($chartData, $request);
      	}
 
-     	$data = [ 'mTitle', 'title', 'chartData', 'total' ];
+     	$data = [ 'mTitle', 'title', 'chartData', 'total', 'creditCharts' ];
      	return view( 'admin.dashboard.index' )
      				->with( compact( $data ) );
     }
@@ -150,5 +151,39 @@ class DashboardCtrl extends Controller
 	        }
         }
         return $chartData;
+    }
+
+    /**
+     * _adaptCreditLog. To adapt the data to be shown in credit charts.
+     *
+     * @param Illuminate\Http\Request $request
+     * @return array
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _adaptCreditLog ( $request ){
+
+    	$array = [];
+    	$creditLog 	= DailyLog::where('user_id', '=', $this->_user->id);
+
+    	if( $request->has('from') && $request->has('to') ){
+    		$from       = $request->input("from");
+    		$to         = $request->input("to");
+    		$creditLog->whereDate("date", ">=", $from)
+    		        	->whereDate("date", "<=", $to);
+    	}else{
+    		$creditLog->where('date', '<=', date('Y-m-d') . ' 23:59:59')
+    					->where('date', '>=', date_create()->sub(date_interval_create_from_date_string('6 days'))->format("Y-m-d 00:00:00"));
+    	}
+    	$items = $creditLog->select(DB::raw('date, credit') )
+    						->orderBy('date')->get();
+
+        foreach ($items as $key => $item) {
+            if( $item->date ){
+            	$array['credit'][]    = [ strtotime($item->date) * 1000, (int)$item->credit ];
+            }
+        }
+
+    	return $array;
     }
 }

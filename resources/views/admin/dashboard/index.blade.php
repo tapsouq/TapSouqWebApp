@@ -21,6 +21,9 @@
 	        <div class="box-body">
                 <div class="table">
                     @include('admin.partial.filterTimePeriod')
+                    @if( sizeof( $creditCharts ) )
+                        <div id="creditchart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                    @endif
                     @if( sizeof( $chartData ) > 0 )
                         <div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                         <div class="container-fluid mt20">
@@ -38,11 +41,11 @@
                                                 {{ $total->requests }}
                                             </span>
 
-                                          <div class="progress">
-                                            <div class="progress-bar" style="width: 100%"></div>
-                                          </div>
-                                                <span class="progress-description">
-                                                </span>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                            </span>
                                         </div>
                                         <!-- /.info-box-content -->
                                     </div>
@@ -64,8 +67,6 @@
                                             <?php $progress = $total->requests ? ( round( $total->impressions / $total->requests, 2)  * 100 ) : 0 ?>
                                             <div class="progress-bar" style="width: {{$progress}}%"></div>
                                           </div>
-                                                <span class="progress-description">
-                                                </span>
                                         </div>
                                         <!-- /.info-box-content -->
                                     </div>
@@ -166,4 +167,63 @@
             </div>
         </div>
     </section>
+@stop
+
+@section('script')
+    <script type="text/javascript">
+        $(function(){
+            creditData = JSON.parse( '{!! json_encode($creditCharts) !!}' );
+
+            var creditChart = new Highcharts.chart({
+                chart: {
+                   renderTo : 'creditchart-container',
+                   type: 'spline' 
+                },
+                title : {
+                    text : '{!! trans('admin.credit') !!}'
+                },
+                xAxis: {
+                    type: 'datetime'
+                },
+                yAxis: { // Primary yAxis
+                    labels: {
+                        format: '{value}',
+                        style: {
+                            color: '#000'
+                        }
+                    },
+                    title: {
+                        text: '{{ trans( 'admin.actions' ) }}',
+                        style: {
+                            color: '#000'
+                        }
+                    },
+                    min: 0
+                },
+                tooltip : {
+                    crosshairs : true
+                },
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            radius: 3,
+                            lineColor: '#666666',
+                            lineWidth: 1
+                        }
+                    }
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'top',
+                    borderWidth: 0,
+                    y : 20
+                },
+                series: [{
+                    name: '{{ trans( 'admin.credit' ) }}',
+                    data: creditData.credit
+                }]
+            });
+        });
+    </script>
 @stop

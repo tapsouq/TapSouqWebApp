@@ -11,9 +11,21 @@
 |
 */
 Route::get('test', function(){
+	$users = App\User::all()->toArray();
+	$array = array_map('getMap', $users);
 
+	dd($array);
 });
 
+function getMap($step){
+	return  [
+			'user_id'		=> $step['id'],
+			'credit'		=> $step['credit'],
+			'date'			=> date('Y-m-d H:i:s'),
+			'created_at'	=> date('Y-m-d H:i:s'),
+			'updated_at'	=> date('Y-m-d H:i:s')
+		];
+}
 // Authentication routes...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');
