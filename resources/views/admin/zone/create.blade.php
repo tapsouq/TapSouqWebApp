@@ -74,14 +74,14 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group interstitial-layout has-feedback {{ $errors->has( 'layout' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->layout == BANNER ? 'hidden' : '' ) : ( old('layout') == BANNER ? 'hidden' : '' ) }} ">
+                                    <div class="form-group interstitial-layout has-feedback {{ $errors->has( 'layout' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->format == BANNER ? 'hidden' : '' ) : ( old('format') == BANNER ? 'hidden' : '' ) }} ">
                                         <label>
-                                              {{ trans( 'admin.layout' ) }}
+                                              {{ trans( 'admin.layout' )  }}
                                         </label>
                                         @if( sizeof( $layouts = config('consts.zone_layouts') ) > 0 )
                                             <select name="layout" class="form-control">
                                                 @foreach( $layouts as $key => $value )
-                                                    <option value="{{ $key }}" {{ isset($zone) ? ( $zone->layout == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' :'' ) }}>
+                                                    <option value="{{ $key }}" {{ isset($zone) ? ( $zone->layout == $key ? 'selected' : '' ) : ( old('layout') == $key ? 'selected' : '' ) }}>
                                                         {{ $value }}
                                                     </option>
                                                 @endforeach
@@ -91,7 +91,7 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="form-group banner-refresh has-feedback {{ $errors->has( 'refresh_interval' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->layout != BANNER ? 'hidden' : '' ) : ( old('layout') != BANNER ? 'hidden' : '' ) }} ">
+                                    <div class="form-group banner-refresh has-feedback {{ $errors->has( 'refresh_interval' ) ? 'has-error' : '' }} {{ isset($zone) ? ( $zone->format != BANNER ? 'hidden' : '' ) : ( old('format') != BANNER ? 'hidden' : '' ) }} ">
                                         <label>
                                               {!! trans( 'admin.refresh_interval' ) !!}
                                         </label>
@@ -157,7 +157,7 @@
                 $('.banner-refresh, .interstitial-layout').addClass( 'hidden' );
                 switch (format) {
                     case "{{ BANNER }}":
-                        $('.banner-refresh').removeClass('hidden');
+                        $('.banner-refresh').removeClass('hidden').find('input[name=refresh_interval]').val('60');
                         break;
                     case "{{ INTERSTITIAL }}":
                         $('.interstitial-layout').removeClass('hidden');

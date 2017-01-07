@@ -42,6 +42,9 @@
                                     <th>{{ trans( 'admin.fill_rate' ) }}</th>
                                     <th>{{ trans( 'admin.convs' ) }}</th>
                                     <th>{{ trans( 'lang.status' ) }}</th>
+                                    @if( \Auth::user()->role == ADMIN_PRIV )
+                                        <th>{{ trans( 'lang.actions' ) }}</th>
+                                    @endif
                                     <th>{{ trans( 'lang.actions' ) }}</th>
                                 </tr>
                             </thead>
@@ -80,11 +83,20 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                @if( $ad->status != DELETED_APP )
+                                                @if( $ad->status != DELETED_APP && \Auth::user()->role == ADMIN_PRIV )
                                                     <div class="btn-group">
-                                                        <a href="{{ url('zone/relevant-ads/' . $ad->id ) }}" title="{{ trans('admin.show_relevant_ads') }}" class="btn btn-sm btn-warning">
+                                                        <a href="{{ url('reports/relevant-ads/' . $ad->id ) }}" title="{{ trans('admin.show_relevant_ads') }}" class="btn btn-sm btn-warning">
                                                             <i class="fa fa-exchange"></i>
                                                         </a>
+                                                        <a href="{{ url('reports/shown-ads/' . $ad->id ) }}" title="{{ trans('admin.show_shown_ads') }}" class="btn btn-sm btn-info">
+                                                            <i class="fa fa-laptop"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if( $ad->status != DELETED_APP )
+                                                    <div class="btn-group">
                                                         <a href="{{ url('zone/edit/' . $ad->id ) }}" class="btn btn-sm btn-info">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
@@ -123,11 +135,20 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                @if( $_value->status != DELETED_APP )
+                                                @if( $_value->status != DELETED_APP && \Auth::user()->role == ADMIN_PRIV )
                                                     <div class="btn-group">
-                                                        <a href="{{ url('zone/relevant-ads/' . $ad->id ) }}" title="{{ trans('admin.show_relevant_ads') }}" class="btn btn-sm btn-warning">
+                                                        <a href="{{ url('reports/relevant-ads/' . $_value->id ) }}" title="{{ trans('admin.show_relevant_ads') }}" class="btn btn-sm btn-info">
                                                             <i class="fa fa-exchange"></i>
                                                         </a>
+                                                        <a href="{{ url('reports/shown-ads/' . $_value->id ) }}" title="{{ trans('admin.show_shown_ads') }}" class="btn btn-sm btn-warning">
+                                                            <i class="fa fa-laptop"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if( $_value->status != DELETED_APP )
+                                                    <div class="btn-group">
                                                         <a href="{{ url('zone/edit/' . $_value->id ) }}" class="btn btn-sm btn-info">
                                                             <i class="fa fa-edit"></i>
                                                         </a>

@@ -48,6 +48,8 @@ define('SHOW_ACTION', 2);
 define('CLICK_ACTION', 3);
 define('INSTALL_ACTION', 4);
 
+define( 'CREDIT_ACTION', 5);
+
 define('PLACEMENT_AD', 1);
 define('CREATIVE_AD', 2);
 
@@ -84,9 +86,15 @@ define('APP_PACKAGE', 6);
 define('IS_CAMPAIGN', false);
 define('NOT_CAMPAIGN', true);
 define('IN_DASHBOARD', true);
+
 // For Dashboard module
 define('SEVEN_DAYS', true);
+
 // For Cron Jobs
 define("PENDING_UPDATED", 0);
 define("SUCCESS_UPDATED", 1);
 define("ERROR_UPDATED", 2);
+
+// For Ad serving algorithm
+define("RETRIEVE_ADS", 1); // for retrieve creative ads.
+define("RELEVANT_ADS", 2); // for relevant ads for the placement ad.

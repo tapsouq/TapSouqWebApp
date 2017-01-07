@@ -52,10 +52,25 @@ class Kernel extends ConsoleKernel
                   ->everyMinute()
                   ->withoutOverlapping();
 
+                  
+        /**
+         * To get the placement, creative logs from the sdk actions and requests
+         */
+        $schedule->command('finishCompletedCampaigns')
+                  ->everyMinute()
+                  ->withoutOverlapping();
+
+
         /**
          * To set credit every day for every user.
          */
         $schedule->command('setCreditLog')
-                  ->dailyAt('15:59:59');                 
+                  ->dailyAt('23:59:59');
+
+        /**
+         * To do daily jobs
+         */
+        $schedule->command('execDailyJobs')
+                    ->dailyAt('00:00:00'); 
     }
 }

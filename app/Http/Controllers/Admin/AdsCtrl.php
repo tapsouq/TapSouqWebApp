@@ -85,8 +85,15 @@ class AdsCtrl extends Controller
 
         // to get the ads that within that campaign
         if( $camp_id != null ){
-            $ads    = $ads->where('ad_creative.camp_id', '=', $camp_id);
+            
             $camp   = Campaign::find($camp_id);
+            // To validate the campaign
+            if( $camp == null ){
+                return redirect('admin')
+                            ->with('warning', trans('lang.spam_msg'));
+            }
+
+            $ads    = $ads->where('ad_creative.camp_id', '=', $camp_id);
             $title  = trans('admin.ads_of') . $camp->name; 
 
             $allAds->where('campaigns.id', '=', $camp_id);

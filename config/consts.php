@@ -14,6 +14,9 @@ return [
             1 => 'Portrait',
             2 => 'Landscape'
         ],
+    'page_sizes'    =>[
+            10, 20, 50, 100
+        ],
 
     // For User Module
     'user_status'   => [

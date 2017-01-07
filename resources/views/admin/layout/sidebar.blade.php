@@ -95,6 +95,70 @@
                     </li>
                 </ul>
             </li>
+            @if( \Auth::user()->role == ADMIN_PRIV )
+            <li class="treeview  {{ in_array( Request::segment(1), [ 'reports' ] ) ? 'active' : '' }}">
+               <a href="#">
+                   <i class="fa fa-bar-chart"></i>
+                   <span>{{ trans( 'admin.reports' ) }}</span>
+                   <span class="pull-right-container">
+                       <i class="fa fa-angle-left pull-right"></i>
+                   </span>
+               </a>
+               <ul class="treeview-menu">
+                   <li class="{{ Request::url() == url('reports/campaigns-and-creatives') ? 'active' : '' }}">
+                       <a href="{{ url('reports/campaigns-and-creatives') }}">
+                           <i class="fa fa-circle-o"></i> {{ trans( 'admin.campaigns_and_creatives' ) }}
+                       </a>
+                   </li>
+                   <li class="{{ Request::url() == url('reports/show-all-apps') ? 'active' : '' }}">
+                       <a href="{{ url('reports/show-all-apps') }}">
+                           <i class="fa fa-circle-o"></i> {{ trans( 'admin.all_applications' ) }}
+                       </a>
+                   </li>
+               </ul> 
+            </li>
+            <li class="treeview  {{ in_array( Request::segment(1), [ 'device-reports' ] ) ? 'active' : '' }}">
+               <a href="#">
+                   <i class="fa fa-mobile"></i>
+                   <span>{{ trans( 'admin.device_reports' ) }}</span>
+                   <span class="pull-right-container">
+                       <i class="fa fa-angle-left pull-right"></i>
+                   </span>
+               </a>
+               <ul class="treeview-menu">
+                   <li class="{{ Request::url() == url('device-reports/countries') ? 'active' : '' }}">
+                       <a href="{{ url('device-reports/countries') }}">
+                           <i class="fa fa-circle-o"></i> {{ trans( 'admin.device_countries' ) }}
+                       </a>
+                   </li>
+                   <li class="{{ Request::url() == url('device-reports/languages') ? 'active' : '' }}">
+                       <a href="{{ url('device-reports/languages') }}">
+                           <i class="fa fa-circle-o"></i> {{ trans( 'admin.device_languages' ) }}
+                       </a>
+                   </li>
+                   <li class="{{ Request::url() == url('device-reports/manefacturer') ? 'active' : '' }}">
+                       <a href="{{ url('device-reports/manefacturer') }}">
+                           <i class="fa fa-circle-o"></i> {{ trans( 'admin.device_manefacturers' ) }}
+                       </a>
+                   </li>
+                   <li class="{{ Request::url() == url('device-reports/model') ? 'active' : '' }}">
+                       <a href="{{ url('device-reports/model') }}">
+                           <i class="fa fa-circle-o"></i> {{ trans( 'admin.device_models' ) }}
+                       </a>
+                   </li>
+                   <li class="{{ Request::url() == url('device-reports/os_version') ? 'active' : '' }}">
+                       <a href="{{ url('device-reports/os_version') }}">
+                           <i class="fa fa-circle-o"></i> {{ trans( 'admin.device_osversions' ) }}
+                       </a>
+                   </li>
+                   <li class="{{ Request::url() == url('device-reports/carrier') ? 'active' : '' }}">
+                       <a href="{{ url('device-reports/carrier') }}">
+                           <i class="fa fa-circle-o"></i> {{ trans( 'admin.device_carriers' ) }}
+                       </a>
+                   </li>
+                </ul>
+            </li>
+            @endif
         </ul>
     </section>
     <!-- /.sidebar -->

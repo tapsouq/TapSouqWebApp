@@ -18,7 +18,7 @@
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div placeholder="{{ trans( 'lang.name' ) }}" class="form-group has-feedback {{ $errors->has( 'name' ) ? 'has-error' : '' }}">
+                                    <div class="form-group has-feedback {{ $errors->has( 'name' ) ? 'has-error' : '' }}">
                                         <label>
                                             {{ trans( 'lang.name' ) }}
                                             {{ csrf_field() }}
@@ -26,7 +26,7 @@
                                                 <input type="hidden" name="id" value="{{ $camp->id }}">
                                             @endif
                                         </label>
-                                        <input type="text" class="form-control" name="name" value="{{ isset($camp) ? $camp->name : old('name') }}" required>
+                                        <input type="text" class="form-control" placeholder="{{ trans( 'lang.name' ) }}" name="name" value="{{ isset($camp) ? $camp->name : old('name') }}" required>
                                         <span class="help-block">
                                             {{ $errors->has( 'name' ) ? $errors->first( 'name' ) : '' }}
                                         </span>
@@ -209,6 +209,18 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
+                                    <div class="form-group has-feedback {{ $errors->has( 'imp_per_day' ) ? 'has-error' : '' }}">
+                                        <label class="mr20">
+                                            {{ trans( 'admin.imp_per_day' ) }}
+                                        </label>
+                                        <input type="checkbox" value="1" name="imp_per_day_checkbox" class="minimal-blue toggle-target" data-toggle="imp-per-day" {{ isset($camp)? ( $camp->imp_per_day ? 'checked' : ''): (old('checkbox')? 'checked' : '')}}>
+                                        <input type="number" placeholder="{{ trans( 'admin.imp_per_day' ) }}" class="form-control imp-per-day {{ isset($camp)? ( $camp->imp_per_day ? '' : 'hidden'): (old('checkbox')? '' : 'hidden') }}" name="imp_per_day" value="{{ isset($camp) ? $camp->imp_per_day : old('imp_per_day') }}" >
+                                        <span class="help-block">
+                                            {{ $errors->has( 'imp_per_day' ) ? $errors->first( 'imp_per_day' ) : '' }}
+                                        </span>
+                                    </div>        
+                                </div>
+                                <div class="col-md-6">
                                     @if( Auth::user()->role == ADMIN_PRIV && isset($camp) )
                                         <div class="form-group has-feedback {{ $errors->has( 'status' ) ? 'has-error' : '' }}">
                                             <label>
@@ -248,6 +260,10 @@
     <!-- Page script -->
     <script type="text/javascript">
         $(function () {
+            $('.toggle-target').on('ifChanged', function(){
+                $target = $(this).attr('data-toggle');
+                $('.' + $target).toggleClass('hidden');
+            });
             $('.country-select').select2({
                 placeholder : "{{ trans( 'admin.select_country' ) }}"
             });

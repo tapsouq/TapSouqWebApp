@@ -1,4 +1,4 @@
-<form method="get" class="time-period-form">
+<form method="get" class="time-period-form mb10">
     <div class="form row">
         <div class="col-md-4 col-md-offset-4 text-center">
             <div class="btn-group filter-group">

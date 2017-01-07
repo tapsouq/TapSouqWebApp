@@ -124,8 +124,6 @@
                                 requiredFlag = true;
                             }
                         }
-                        console.log(requiredFlag);
-                        console.log($(formControl).val());
                     }); 
                     if( ! requiredFlag ){
                         var loading = "{{ trans('lang.loading') }}  <i class='fa fa-spinner fa-pulse'></i>";
@@ -375,6 +373,29 @@
                 adaptRange( moment("{{Request::input('from') }}"), moment("{{Request::input('to') }}") );
             </script>
         @endif
+
+        <script type="text/javascript">
+            // To trigger form submitting on change select
+            function triggerFormSubmission($formObject){
+                var urlQuery = JSON.parse('{!! json_encode(Request::query()) !!}');
+                for (inputName in urlQuery){
+                    var inputVal = urlQuery[inputName];
+                    if( $formObject.find("[name='" + inputName + "']").length == 0 ){
+                        $formObject.append("<input type='hidden' name='" + inputName + "' value='" + inputVal + "' />");
+                    }
+                }
+                $formObject.trigger('submit');
+            }
+
+            $('select[name=per-page]').on('change', function(){
+                triggerFormSubmission($('form.per-page-form'));
+            });
+
+            $('.filter-input').on('change', function(){
+                triggerFormSubmission($('.filter-form'));
+            });
+
+        </script>
         @yield( 'script' )
     </body>
 </html>

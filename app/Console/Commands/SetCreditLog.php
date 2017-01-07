@@ -56,9 +56,9 @@ class SetCreditLog extends Command
         return [
                 'user_id'       => $row['id'],
                 'credit'        => $row['credit'],
-                'date'          => date("Y-m-d H:i:s", (time() - ( 2 * 60 ) + ( 8 * 60 * 60 ) ) ),      
-                'created_at'    => date("Y-m-d H:i:s", (time() - ( 1 * 60 ) + ( 8 * 60 * 60 ) ) ),      
-                'updated_at'    => date("Y-m-d H:i:s", (time() - ( 1 * 60 ) + ( 8 * 60 * 60 ) ) )      
+                'date'          => date("Y-m-d H:i:s", (time() - ( 60 * 60 )) ),      
+                'created_at'    => date("Y-m-d H:i:s", (time() - ( 60 * 60 )) ),      
+                'updated_at'    => date("Y-m-d H:i:s", (time() - ( 60 * 60 )) )      
             ];
     }
 }

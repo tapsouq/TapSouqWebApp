@@ -267,58 +267,69 @@ if( ! function_exists('filterByTimeperiod')){
         }
     }
 }
-
-if( ! function_exists('newRows') ){
+if( ! function_exists('getCampKeywords') ){
     /**
-     * newRows. To get the rows.
+     * getCampKeywords. To get the keywords belongs to the campaign.
      *
-     * @param string $table.
-     * @param string $table.
-     * @return return
+     * @param int $campId
+     * @return sting
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-     function newRows ( $table ){
-        $array = [
-                'applications'  => [
-                        'status'    => true,
-                        'model'     => 'applications',
-                        'ad'        => 'ad_placement',
-                        'log'       => 'placement_log',
-                        'id'        => 'app_id'
-                    ],
-                'campaigns'     => [
-                        'status'    => true,
-                        'model'     => 'campaigns',
-                        'ad'        => 'ad_creative',
-                        'log'       => 'creative_log',  
-                        'id'        => 'camp_id'
-                    ],
-                'ad_placement'  => [
-                        'status'    => false,
-                        'ad'        => 'ad_placement',
-                        'log'       => 'placement_log'
-                    ],
-                'ad_creative'   => [
-                        'status'    => false,
-                        'ad'        => 'ad_creative',
-                        'log'       => 'creative_log'
-                    ]
-            ];
-
-        $object = (object) $array[ $table ];
-        if( $object->status ){
-
-            $modelIds   = DB::table('ad_placement')->select(DB::raw("DISTINCT(app_id) AS `id`"))->lists('id');
-            $rows       = DB::table('applications')->whereNotIn('id', $modelIds)
-                                      ->get();
-            $modelIds   = DB::table($object->ad)->select(DB::raw("DISTINCT({$object->id}) AS `id`"))->lists('id');
-            $rows       = DB::table($object->model)
-                                ->select('*')
-                                ->whereNotIn('id', $modelIds)
-                                ->union(
-                                        
-                                    );
+    function getCampKeywords ( $campId ){
+        $items = \DB::table('campaign_keywords')
+                    ->join('keywords', 'keywords.id', '=', 'campaign_keywords.keyword_id')
+                    ->select('keywords.name')
+                    ->where('campaign_keywords.camp_id', '=', $campId)
+                    ->get();
+        if( sizeof( $items ) > 0 ){
+            $keywords = array_pluck($items, 'name');
+            return implode(', ', $keywords);
         }
+        return trans('admin.no_specific_keywords');
+    }
+}
+
+if( ! function_exists('getCategories') ){
+    /**
+     * getCategories. To get all categories.
+     *
+     * @param void.
+     * @return array.
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+     function getCategories ( ){
+        $categories = \App\Models\Category::all();
+        return array_pluck($categories, 'name', 'id');
+    }
+}
+
+
+
+
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
+if( ! function_exists( 'paginate' ) ){
+    /**
+     * paginate. To handle manual pagination. 
+     * 
+     * @param array $items. Items that will be paginated.
+     * @param int $perPage. count of shown units per page.
+     * @param int $pageStart. Order of start page.
+     * @return void
+     * @author Abdul-Kareem Mohammed.
+     * @copyright IM4H Company.
+     */
+
+    function paginate( $items, $perPage, $pageStart = 1 )
+    {
+        // Start displaying items from this number;
+        $offSet = ($pageStart * $perPage) - $perPage; 
+
+        // Get only the items you need using array_slice
+        $itemsForCurrentPage = array_slice($items, $offSet, $perPage, true);
+
+        return new LengthAwarePaginator($itemsForCurrentPage, count($items), $perPage,Paginator::resolveCurrentPage(), array('path' => Paginator::resolveCurrentPath()));
     }
 }

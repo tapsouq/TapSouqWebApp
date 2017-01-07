@@ -12,7 +12,8 @@ use App\User, App\Models\PlacementLog, App\Models\CreativeLog;
 
 class UserCtrl extends Controller
 {
-	private $_mTitle;
+	// _mTitle, the main title for all view relating to user module.
+    private $_mTitle;
     protected $_user;
 
     /**
@@ -40,6 +41,7 @@ class UserCtrl extends Controller
      public function index ( Request $request ){
         $mTitle = $this->_mTitle;
         
+        // To manage tabs between advertisers and publisher users.
         if( $request->has('adv') ){
             $title  = trans( 'admin.all_users' ) . ' > ' . trans('admin.advertisers');
             $camps  =   User::leftJoin( 'campaigns', 'campaigns.user_id', '=', 'users.id')
@@ -55,8 +57,11 @@ class UserCtrl extends Controller
                                 DB::raw('SUM(`creative_log`.`installed`) AS installed ')
                             )
                            ->where( 'users.role', '=', DEV_PRIV );
-                           
+            
+            // Filter advertisers users's records by the time period
             filterByTimeperiod($camps, $request, 'creative_log');
+
+            // Get the array for the advertisers users's main chart.
             $chartData  = adaptChartData( clone($camps), 'creative_log' );
             
             $tableItems = $camps->groupBy('users.id')
@@ -81,14 +86,18 @@ class UserCtrl extends Controller
                                 )
                                 ->where( 'users.role', '=', DEV_PRIV );
 
+            // Filter publishers users's records by the time period
             filterByTimeperiod($apps, $request, 'placement_log');
             
+            // Get the array for the publishers users's main chart.
             $chartData  = adaptChartData( clone($apps), 'placement_log' );
+            
             $tableItems = $apps->groupBy('users.id')
                         ->orderBy('placement_log.created_at', 'ASC')
                         ->get();
         }
 
+        // Get all users except admin users.
         $allUsers = User::where('role', '=', DEV_PRIV)->get();
 
      	$data =[ 'mTitle', 'title', 'tableItems', 'chartData', 'allUsers' ];
@@ -113,8 +122,9 @@ class UserCtrl extends Controller
                     ->where( 'users.id', '=', $user_id )
                     ->first();
         
+        // Redirect to dashboard with spam message if the user isn't exists. To avoid spams.
         if( is_null( $user ) ){
-            return redirect()->back()
+            return redirect('admin')
                     ->with( 'warning', trans( 'lang.spam_msg' ) );
         }
 
@@ -223,6 +233,7 @@ class UserCtrl extends Controller
       * @copyright Smart Applications Co. <www.smartapps-ye.com>
       */
      public function destroy ( Request $request ){
+
         if( $request->has( 'id' ) && $request->has('token') ){
             $user = User::find( $request->id );
             $session_token = session( "_token" );
@@ -233,6 +244,8 @@ class UserCtrl extends Controller
                                 ->with( 'success', trans( 'lang.compeleted_msg' ) );
             }
         }
+
+        // If the token in invalid or the id isn't valid user id. redirect and show the spam message
         return redirect()->back()
                         ->with( 'warning', trans( 'lang.spam_msg' ) );
      } 

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use DB, Validator;
+use DB, Validator, Session;
 
 use App\Models\SdkAction, App\Models\SdkRequest, App\Models\Device;
 use App\Models\Country, App\Models\Language;
@@ -70,12 +70,12 @@ class SdkCtrl extends Controller
         $device->country        = $country->id;
         $device->platform       = $array[ADD_PLATFORM]; 
         $device->advertising_id = $googleAdvId; 
-        $device->manefacturer   = $array[ADD_MANEFACTURER]; 
-        $device->model          = $array[ADD_MODEL];
-        $device->os_version     = $array[ADD_OS_VER];
-        $device->os_api_version = $array[ADD_OS_API];
-        $device->carrier        = $array[ADD_CARRIER];
-        $device->sdk_version    = $array[TAPSOUQ_SDK_VER];
+        $device->manefacturer   = urldecode($array[ADD_MANEFACTURER]); 
+        $device->model          = urldecode($array[ADD_MODEL]);
+        $device->os_version     = urldecode($array[ADD_OS_VER]);
+        $device->os_api_version = urldecode($array[ADD_OS_API]);
+        $device->carrier        = urldecode($array[ADD_CARRIER]);
+        $device->sdk_version    = urldecode($array[TAPSOUQ_SDK_VER]);
 
         if( $device->save() ){
             $response = [
@@ -115,9 +115,9 @@ class SdkCtrl extends Controller
 
                     $device->country        = $country->id;
                     $device->language       = $language->id;
-                    $device->os_version     = $array[UPDATE_OS];
-                    $device->model          = $array[UPDATE_MODEL];
-                    $device->manefacturer   = $array[UPDATE_MANEFACTURER];
+                    $device->os_version     = urldecode($array[UPDATE_OS]);
+                    $device->model          = urldecode($array[UPDATE_MODEL]);
+                    $device->manefacturer   = urldecode($array[UPDATE_MANEFACTURER]);
 
                     if( $device->save() ){
                         $response = [
@@ -166,15 +166,16 @@ class SdkCtrl extends Controller
         $action         = $array[ACTION_NAME];
         $requestId      = $array[REQUEST_ID];
         $creativeId     = $array[CREATIVE_ID];
-        
+        $deviceId       = $array[DEVICE_ID];
+
         switch ($action) {
             case REQUEST_ACTION:
                 # code ...
-                return $this->_insertRequestAction($array);
+                return $this->_insertRequestAction($request);
                 break;
             case SHOW_ACTION:
                 # code ...
-                return $this->_insertSdkAction(SHOW_ACTION, $requestId, $creativeId);
+                return $this->_insertSdkAction(SHOW_ACTION, $requestId, $creativeId, $deviceId);
                 break;
             case CLICK_ACTION:
                 # code ...
@@ -193,13 +194,15 @@ class SdkCtrl extends Controller
     /**
       * _insertRequestAction. To insert the request action.
       *
-      * @param array $inputs.
+      * @param \Illuminate\Http\Request $request
       * @return void
       * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
       * @copyright Smart Applications Co. <www.smartapps-ye.com>
       */
-     private function _insertRequestAction ( $inputs ){
+     private function _insertRequestAction ( $request ){
         
+        $inputs          = $request->segments();
+
         $deviceId       = $inputs[DEVICE_ID];
         $placementId    = $inputs[PLACEMENT_ID];
         $appPackage     = $inputs[APP_PACKAGE];
@@ -208,21 +211,8 @@ class SdkCtrl extends Controller
         $requestId = SdkRequest::insertRequest($placementId, 0, $deviceId);
         if( $requestId ){
 
-            // To get creative ads from database.
-            $result = SdkAction::getCreativeAds($placementId, $deviceId, $appPackage);
-            
-            if( sizeof( $result ) > 0 ){
-                $response = [
-                        'status'        => true,
-                        'requestId'     => $requestId,
-                        'adsObject'     => (array) $result[0]
-                    ];
-            }else{
-                $response = [
-                        'status'    => false,
-                        'error'     => 'There is no suitable ads.'
-                    ];
-            }
+            // To get suitable creative ad if ther is.
+            return AdServingCtrl::getCreativeAd($placementId, $deviceId, $appPackage, $requestId, $request->input('ads'));
         }else{
             $response = [
                     'status'    => false,
@@ -238,16 +228,19 @@ class SdkCtrl extends Controller
      * @param int $action
      * @param int $requestId
      * @param int $creativeId
+     * @param int $deviceId
      * @return json
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _insertSdkAction ( $action, $requestId, $creativeId ){
+    public function _insertSdkAction ( $action, $requestId, $creativeId, $deviceId = null){
         
-        if( $action == SHOW_ACTION ){
+        if( $action == SHOW_ACTION && $deviceId ){
+            // update sdk actions table with impression action.
             SdkRequest::updateRequest( $requestId, $creativeId);
         }
 
+        // insert the sdk action into DB
         $inserted = SdkAction::insertAction($action, $requestId);
 
         if($inserted){

@@ -24,7 +24,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(Router $router)
     {
-        //
+        // To filter all ids passed as values in urls
+        $router->pattern('id', '[1-9]+[0-9]*');
 
         parent::boot($router);
     }

@@ -38,8 +38,10 @@ class DashboardCtrl extends Controller
      public function index ( Request $request){
      	$mTitle = $this->_mTitle;
 
+     	// To get the array for the credit charts.
      	$creditCharts = $this->_adaptCreditLog($request);
 
+     	// To mange tabs between campaigns and applications for the same user.
      	if( $request->has('camps') ){
 	     	$title 	= 	trans( "admin.all_camps_7days" );
 	     	$items  =   CreativeLog::join( 'ad_creative', 'ad_creative.id', '=', 'creative_log.ads_id' )
@@ -53,17 +55,22 @@ class DashboardCtrl extends Controller
 			     	                    DB::raw('SUM(`creative_log`.`impressions`) AS impressions '),
 			     	                    DB::raw('SUM(`creative_log`.`clicks`) AS clicks '),
 			     	                    DB::raw('SUM(`creative_log`.`installed`) AS installed '),
-			     	                    DB::raw('SUM(`creative_log`.`clicks` ) AS credit')
+			     	                    DB::raw('SUM(`creative_log`.`credits` ) AS credit')
 			     	                );
 	     	
-	     	if( $this->_user->role == DEV_PRIV ){
+	     	// To get only the user's campaigns if his role isn't admin
+	     	if( $this->_user->role != ADMIN_PRIV ){
 	     		$items->where('camp_users.id', '=', $this->_user->id);
 	     	}
 
+	     	// to filter the campaigns using the time period filter
  		    filterByTimeperiod($items, $request, 'creative_log');
 
      		$cloneItems = clone($items);
+     		// total records to be shown in the visual user records in the dashboard page.
      		$total		= $cloneItems->first();
+
+     		// get the array of the campaign's main chart.
      		$chartData 	= adaptChartData ( $items, 'creative_log', IS_CAMPAIGN, IN_DASHBOARD );
      		
      	}else{
@@ -78,16 +85,23 @@ class DashboardCtrl extends Controller
 			     	                    DB::raw('SUM(`placement_log`.`requests`) AS requests '),
 			     	                    DB::raw('SUM(`placement_log`.`impressions`) AS impressions '),
 			     	                    DB::raw('SUM(`placement_log`.`clicks`) AS clicks '),
-			     	                    DB::raw('SUM(`placement_log`.`clicks`) AS credit '),
+			     	                    DB::raw('SUM(`placement_log`.`credits`) AS credit '),
 			     	                    DB::raw('SUM(`placement_log`.`installed`) AS installed ')
 			     	                );
-			if( $this->_user->role == DEV_PRIV ){
+			// To get only the user's applications if his role isn't admin.
+			if( $this->_user->role != ADMIN_PRIV ){
 	     		$items->where('applications.user_id', '=', $this->_user->id);
 	     	}
+
+	     	// Filter the applications with the time period. 
  		    filterByTimeperiod($items, $request, 'placement_log');
 
      		$cloneItems = clone($items);
+
+     		// Get the total records to be shown in the visual records in the dashboard page.
      		$total		= $cloneItems->first();
+
+     		// Get the array for the application's main chart.
      		$chartData 	= adaptChartData ( $items, 'placement_log', NOT_CAMPAIGN, IN_DASHBOARD);
      	}
 
@@ -98,6 +112,7 @@ class DashboardCtrl extends Controller
 
     /**
      * _addAdminCreditToCharts. To add admin credits to chartdata.
+     * Don't be used now. Was used before. May be neede later.
      *
      * @param array $chartData
      * @param \Illuminate\Http\Request $request.
@@ -124,14 +139,14 @@ class DashboardCtrl extends Controller
 							->where( 'sdk_requests.created_at', '<=', date('Y-m-d') . " 23:59:59")
 							->where( 'sdk_requests.created_at', '>=', date_create()->sub(date_interval_create_from_date_string('7 days'))->format("Y-m-d 00:00:00") );
 		
-		if( $this->_user->role == DEV_PRIV ){
-			$adminData = $adminData->where('app_users.id', '=', $this->_user->id);
+		if( $this->_user->role != ADMIN_PRIV ){
+			$adminData->where('app_users.id', '=', $this->_user->id);
 		}
 		if( $request->has('from') && $request->has('to') ){
                 $from       = $request->input("from");
                 $to         = $request->input("to");
-                $adminData  = $adminData->whereDate("sdk_requests.created_at", ">=", $from)
-                                     ->whereDate("sdk_requests.created_at", "<=", $to);
+                $adminData->whereDate("sdk_requests.created_at", ">=", $from)
+                          ->whereDate("sdk_requests.created_at", "<=", $to);
         }
     	
     	$adminData 	= $adminData->groupBy('date')
@@ -166,18 +181,21 @@ class DashboardCtrl extends Controller
     	$array = [];
     	$creditLog 	= DailyLog::where('user_id', '=', $this->_user->id);
 
+    	// Check if the time periods range is selected.
     	if( $request->has('from') && $request->has('to') ){
     		$from       = $request->input("from");
     		$to         = $request->input("to");
     		$creditLog->whereDate("date", ">=", $from)
     		        	->whereDate("date", "<=", $to);
     	}else{
+    		// the default time period range is 7 days before.
     		$creditLog->where('date', '<=', date('Y-m-d') . ' 23:59:59')
     					->where('date', '>=', date_create()->sub(date_interval_create_from_date_string('6 days'))->format("Y-m-d 00:00:00"));
     	}
     	$items = $creditLog->select(DB::raw('date, credit') )
     						->orderBy('date')->get();
 
+    	// Init the array for the credit chart.
         foreach ($items as $key => $item) {
             if( $item->date ){
             	$array['credit'][]    = [ strtotime($item->date) * 1000, (int)$item->credit ];

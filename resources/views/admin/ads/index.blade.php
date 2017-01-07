@@ -53,6 +53,7 @@
                                                     <?php $imgSrc = url('public/uploads/ad-images') . '/' . $ad->image_file;?>
                                                     <a class="ads-tooltip" title="<img src='{{$imgSrc}}' />" href="{{ url( 'ads/' . $ad->id ) }}">
                                                         {{ $ad->name }}
+                                                        <img src="{{ $imgSrc }}" style="display:none;">
                                                     </a>
                                                 </td>
                                                 <td>
@@ -190,7 +191,7 @@
                                         .find('.modal-header .modal-title')
                                         .text( "{{ trans('admin.delete_ads') }}" );
                 var $link = $('#change-status-modal .modal-footer a');
-                var src = "{!! url( 'ads/change-status?&token=' . csrf_token() . '&s=' . DELETED_AD  . '&id=' ) !!}" + id;
+                var src = "{!! url( 'ads/change-status?token=' . csrf_token() . '&s=' . DELETED_AD  . '&id=' ) !!}" + id;
                 $link.attr( 'href', src );
             });
 

@@ -8,8 +8,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Auth, Validator, DB;
 use App\Models\Application, App\Models\Zone;
-use App\Models\PlacementLog;
-use App\Models\Country, App\Models\SdkAction;
+use App\Models\PlacementLog, App\Models\Category;
+use App\Models\Country, App\Models\SdkAction, App\Models\SdkRequest;
 
 class ZoneCtrl extends Controller
 {
@@ -19,8 +19,13 @@ class ZoneCtrl extends Controller
     private $_user;
     // Rules for create and edit forms
     private $_initRules;
-    // all applications for the user.
+    // All applications for the user.
     private $_applications;
+    // All categories
+    private $_categories;
+    // All countries
+    private $_countries;
+
     /**
      * __construct. To init the class
      *
@@ -30,11 +35,16 @@ class ZoneCtrl extends Controller
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function __construct ( ){
-        $this->_mTitle  = trans( 'admin.placement_ads' );
-        $this->_user    = Auth::user();
-        $this->_applications = Application::where( 'user_id', '=', $this->_user->id )
+        $this->_mTitle          = trans( 'admin.placement_ads' );
+        $this->_user            = Auth::user();
+        $this->_categories      = array_pluck( Category::all()->toArray(), 'name', 'id' ); 
+        $this->_countries       = Country::all();
+        $this->_applications    = Application::where( 'user_id', '=', $this->_user->id )
                                         ->where( 'status', '=', ACTIVE_APP )
                                         ->get();
+
+
+        // The repeated rules for this modules
         $this->_initRules = [
                 'format'            => 'required|in:' . implode(',' , array_keys( config( 'consts.zone_formats' ) )),
                 'device_type'       => 'required|in:' . implode(',' , array_keys( config( 'consts.zone_devices' ) )),
@@ -71,26 +81,38 @@ class ZoneCtrl extends Controller
                                     DB::raw('SUM(placement_log.installed) AS installed')
                                 );
 
+        // Filter the placement ads within the time period
         filterByTimeperiod($zones, $request, 'placement_log');
-                        
+        
+        // To get all the ad placment to add the zero records ads which won't be there in the main query.
         $allZones = Zone::leftJoin('applications', 'applications.id', '=', 'ad_placement.app_id')->select('ad_placement.*');
 
+        // To get only undeleted ad placment within undeleted application if the user isn't admin
         if( $this->_user->role != ADMIN_PRIV ){ // If user isn't admin.
             $zones->where( 'applications.status', '!=', DELETED_APP  )
                     ->where( 'ad_placement.status', '!=', DELETED_ZONE )
                     ->where( 'applications.user_id', '=', $this->_user->id );
 
+            // To get all the ad placment to add the zero records ads which won't be there in the main query.
             $allZones->where('applications.user_id', '=', $this->_user->id)
                     ->where( 'ad_placement.status', '!=', DELETED_ZONE )
                     ->where( 'applications.status', '!=', DELETED_APP  );
         }
 
+        // If the Authorized user want to view ad placement for specific application with id $app_id.
         if( ! is_null( $app_id ) ){ // Zones for the clicked application
             
-            $zones->where( 'applications.id', '=', $app_id );
             $application = Application::find($app_id);
+            // To validate the application
+            if( $application == null ){
+                return redirect('admin')
+                            ->with('warning', trans('lang.spam_msg'));
+            }
+
+            $zones->where( 'applications.id', '=', $app_id );
             $title = trans('admin.ads_of') . $application->name;
 
+            // To get all the ad placment to add the zero records ads which won't be there in the main query.
             $allZones->where('applications.id', '=', $app_id);
         }else{
             if($request->has('user')){
@@ -99,10 +121,13 @@ class ZoneCtrl extends Controller
             }
         }
 
+        // To get the array for the ad placement main chart.
         $chartData = adaptChartData( clone($zones), 'placement_log' );
+        
         $ads = $zones->groupBy('ad_placement.id')
                         ->orderBy('ad_placement.created_at', 'ASC')
                         ->get();
+        
         $allZones = $allZones->get();
 
         $data   = [ 'mTitle', 'title', 'ads', 'application', 'chartData', 'user_id', 'allZones' ];
@@ -133,14 +158,16 @@ class ZoneCtrl extends Controller
                                             DB::raw('SUM(placement_log.installed) AS installed')
                                         )
                                 ->where('ad_placement.id', '=', $zone_id);
-
+        // Filter ad placement with the time period
         filterByTimeperiod($items, $request, 'placement_log');
 
+        // redirect to dashboard with spam message if the ad placement isn't valid.
         if( is_null($zone) ){
             return redirect('admin')
                         ->with('warning', trans('lang.spam_msg'));
         }
 
+        // To get the array for the ad placement chart.
         $chartData      = adaptChartData( clone($items), 'placement_log' );
         $zoneDetails    = $items->groupBy('ad_placement.id')
                             ->first();
@@ -167,8 +194,10 @@ class ZoneCtrl extends Controller
         // get the id from the previous link
         $app_id = $this->_getIdFromPrevLink();
 
-        if( ! $app_id ) 
+        // redirect to dashboard with spam message if the application isn't valid.
+        if( ! $app_id ){
             return redirect('admin')->with( 'warning', trans('lang.spam_msg') );
+        }
 
         $data = [ 'mTitle', 'title', 'app_id' ];
         return view( 'admin.zone.create' )
@@ -263,35 +292,6 @@ class ZoneCtrl extends Controller
             return redirect()->back()
                             ->with( 'success', trans( 'admin.updated_zone_msg' ) );
         }
-    }
-    
-    /**
-     * showRelevant. To show the relevant creative ads.
-     *
-     * @param int $zone_id
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
-     * @copyright Smart Applications Co. <www.smartapps-ye.com>
-     */
-    public function showRelevant ( $zone_id, Request $request){
-        $mTitle = $this->_mTitle;
-        $title = trans('admin.show_relevant_ads');
-        
-        $zone = Zone::find($zone_id);
-        if( $zone == null ){
-            return redirect('admin')
-                        ->with('warning', trans('admin.spam_msg'));
-        }
-
-        $egyptCountry   = Country::where('name', '=', 'egypt')->first();
-        $countryId      = $request->has('country') ? $request->country : ($egyptCountry ? $egyptCountry->id : 1 );
-
-        $relevantAds    = SdkAction::getRelevantAds($zone_id, $countryId);
-                  
-        $data = ['title', 'mTitle', 'relevantAds'];
-        return view('admin.zone.show-relevant')
-                    ->with(compact($data));
     }
 
     /**

@@ -118,3 +118,47 @@ input[required]:before {
     max-width: 400px;
     height: auto !important;
 }
+table td{
+    vertical-align: middle !important;
+}
+.mb10{
+    margin-bottom: 10px;
+}
+.mt10{
+    margin-top: 10px;
+}
+.mv10{
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.mh10{
+    margin-right: 10px;
+    margin-left: 10px;
+}
+.sized-icon img{
+    width: 50px !important;
+    height: 50px !important;
+    display: inline;
+    margin-right: 5px;
+}
+.per-page-form{
+    margin: 20px 0;
+}
+.per-page-form label{
+    padding-right: 10px;
+}
+
+#DevicesMap .jqvmap-zoomin,
+#DevicesMap .jqvmap-zoomout{
+    width: 15px;
+    height: 15px;
+}
+#allChart .highcharts-container,
+#newChart .highcharts-container,
+#activeChart .highcharts-container{
+    text-align: center !important;
+    width: auto !important;
+}
+.mr20{
+    margin-right: 20px;
+}

@@ -24,6 +24,7 @@ class AppCtrl extends Controller
     private $_user;
     // All categories
     private $_categories;
+    
     /**
      * __construct. To init the class
      *
@@ -36,12 +37,13 @@ class AppCtrl extends Controller
         $this->_mTitle      = trans( 'admin.applications' );
         $this->_categories   = Category::all();
         $this->_user = Auth::user();
+
         $this->_initRules = [
-                    'name'          => 'required|max:255',
-                    'platform'      => 'required|in:' . implode( ',' , array_keys( config('consts.app_platforms') ) ), 
-                    'package_id'    => 'required|max:255',
-                    'fcategory'     => 'required|exists:categories,id'
-                ];
+                'name'          => 'required|max:255',
+                'platform'      => 'required|in:' . implode( ',' , array_keys( config('consts.app_platforms') ) ), 
+                'package_id'    => 'required|max:255',
+                'fcategory'     => 'required|exists:categories,id'
+            ];
     }
 
     /**
@@ -71,15 +73,20 @@ class AppCtrl extends Controller
                                 DB::raw('SUM(`placement_log`.`installed`) AS installed')
                             );
 
+        // Filter applications by time period.
         filterByTimeperiod($apps, $request, 'placement_log');
 
         // get the count of all placement ads
         $adsCount = Zone::leftJoin('applications', 'applications.id', '=', 'ad_placement.app_id');
 
-        if( $this->_user->role != ADMIN_PRIV ){ // if the user isn't an admin
+        // To get only the undeleted user's applications if his role isn't admin. 
+        if( $this->_user->role != ADMIN_PRIV ){
+
+            // Get all apps to compelete zero records apps that won't be retrieve within the main query. 
             $allApps = Application::where('user_id', '=', $this->_user->id)
                     ->where('status', '!=', DELETED_APP);
-                
+            
+            // Apps within the main query.
             $apps ->where( 'applications.user_id', '=', $this->_user->id )
                   ->where( 'applications.status', '!=', DELETED_APP )
                   ->where(function($query){
@@ -87,28 +94,50 @@ class AppCtrl extends Controller
                                 ->orWhere('ad_placement.status', '!=', DELETED_ZONE);
                 });
             
+            // To get the ads count in the applications.
             $adsCount ->where('applications.user_id', '=', $this->_user->id )
-                      ->where('applications.status', '!=', DELETED_APP)
-                      ->where('ad_placement.status', '!=', DELETED_ZONE);
+                      ->where('applications.status', '!=', DELETED_APP )
+                      ->where('ad_placement.status', '!=', DELETED_ZONE );
 
+        // If the authorized user is the admin. and view the apps for specific user with id $user_id
         }else if( $user_id != null ){ // if the user is an admin and check user apps
-            $allApps = Application::where('applications.user_id', '=', $user_id);
 
             $user = User::find($user_id);
+            // To validate the user
+            if( $user == null ){
+                return redirect('admin')
+                            ->with('warning', trans('lang.spam_msg'));
+            }            
+            // Get all apps to compelete zero records apps that won't be retrieve within the main query. 
+            $allApps = Application::where('applications.user_id', '=', $user_id);
+
             $title = $title . trans('admin.belongs_to') . "{$user->fname}  {$user->lname}"; 
+            
+            // Apps within the main query.
             $apps->where( 'applications.user_id', '=', $user_id );
+            
+            // To get the ads count in the applications.
             $adsCount->where( 'applications.user_id', '=', $user_id );
+        
+        // If the authorized user is the admin and view all the applications.
         }else{
+
+            // Get all apps to compelete zero records apps that won't be retrieve within the main query. 
             $allApps = new Application;
         }
 
+        // Get the array data for the applications's main chart.
         $chartData = adaptChartData( clone($apps), 'placement_log' );
         
+        // Get the main array for the apps to be shown in the apps list.
         $apps = $apps->groupBy('applications.id')
                     ->orderBy('applications.created_at', 'ASC')
                     ->get();
         
+        // Get the ads count within the applications.
         $adsCount = $adsCount->count();
+
+        // Get all the valid application according the authorized user.
         $allApps  = $allApps->get();
             
         $data = [ 'title', 'mTitle', 'apps', 'adsCount', 'chartData', 'user_id', 'allApps' ];
@@ -147,6 +176,8 @@ class AppCtrl extends Controller
                 'icon'      => 'required|image|mimes:jpeg,jpg,bmp,png,gif',
                 'scategory' => 'required|exists:categories,id|not_in:' . $request->input('fcategory') // to make sure that secondary category differ than first category
             ];
+
+        // Merge the repated (_initRules) with create app rules.
         $rules =array_merge( $this->_initRules, $createRules );
         
         $validator = Validator::make( $request->all(), $rules );
@@ -157,6 +188,8 @@ class AppCtrl extends Controller
                             ->with( 'error', trans( 'lang.validate_msg' ) );
         }else{
             $app = $this->_store( $request );
+            
+            // After creating application successfully, redirect to the application page to create a new ad placement.
             return redirect('zone/all/' . $app->id )
                             ->with( 'success', trans( 'admin.created_app_msg' ) );
         }
@@ -174,18 +207,17 @@ class AppCtrl extends Controller
         $mTitle     = $this->_mTitle;
         $title      = trans( 'admin.edit_app' );
         $categories = $this->_categories;
-        /*
-        $app_cats   = Category::join( 'application_categories', 'application_categories.cat_id', '=', 'categories.id' )
-                                ->where( 'application_categories.app_id', '=', $app_id )
-                                ->select( 'categories.id' )
-                                ->lists('id')->toArray();
-        */
+
+        // Change the $app to $_app not to conflicit with the main laravel $app object through run time application.
         $_app = Application::where( 'id', '=', $app_id );
+
+        // To enable edit only undeleted applications if the user isn't admin.
         $_app = $this->_user->role == ADMIN_PRIV ? $_app : $_app->where( 'status', '!=', DELETED_APP );
         $_app = $_app->first();
-                            
+        
+        // If the application isn't valid, redirect to dashboard page with spam message.                           
         if( is_null( $_app ) ){
-            return redirect()->back()
+            return redirect('admin')
                         ->with( 'warning', trans( 'lang.spam_msg' ) );
         }
 
@@ -210,9 +242,10 @@ class AppCtrl extends Controller
                 'scategory' => 'required|exists:categories,id|not_in:' . $request->input('fcategory'),
                 'status'    => 'in:' . implode( ',' , array_keys( config('consts.app_status') ) )
             ]; 
+        // Merge the repeated rules(_initRules) with edit rules
         $rules      = array_merge( $this->_initRules, $editRules );
 
-        $validator = Validator::make( $request->all(), $rules );
+        $validator  = Validator::make( $request->all(), $rules );
         if( $validator->fails() ){
             return redirect()->back()
                             ->withInput()
@@ -257,19 +290,21 @@ class AppCtrl extends Controller
                                 ->with( 'success', trans( 'admin.deleted_app_msg' ) );
             }
         }
+        // Redirect to the dashboard page with spam message if the token, or the application id aren't valid values.
         return redirect()->back()
                         ->with( 'warning', trans( 'lang.spam_msg' ) );
     }
 
     /**
-     * getKeywords. To get all keywords that match the search words.
-     *
+     * getKeywords. To get all keywords that match the search words. 
+     * // Not used method. May be needed later.
      * @param \Illuminate\Http\Request $Request
      * @return json
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     public function getKeywords ( Request $request ){
+        
         if( $request->has('key') ){
             $ids = [];
             $search = $request->key;
@@ -330,11 +365,6 @@ class AppCtrl extends Controller
         }
 
         $app->save();
-
-        // To make sure that two categories only be inserted
-        // $categories = [ $request->fcategory, $request->scategory ];
-        //syncPivot( 'application_categories', 'app_id', $app->id, 'cat_id', $categories );
-        
         return $app;
     }
 }

@@ -11,21 +11,11 @@
 |
 */
 Route::get('test', function(){
-	$users = App\User::all()->toArray();
-	$array = array_map('getMap', $users);
-
-	dd($array);
+	return \DB::table('campaigns')
+            ->where('end_date', '<', date('Y-m-d H:i:s'))
+            ->update(['status' => COMPLETED_CAMP]);
 });
 
-function getMap($step){
-	return  [
-			'user_id'		=> $step['id'],
-			'credit'		=> $step['credit'],
-			'date'			=> date('Y-m-d H:i:s'),
-			'created_at'	=> date('Y-m-d H:i:s'),
-			'updated_at'	=> date('Y-m-d H:i:s')
-		];
-}
 // Authentication routes...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');
@@ -54,7 +44,7 @@ Route::group(['middleware' => 'auth'], function () {
 		/** End For User Module **/
 		
 		/** Application Module **/
-		Route::get( 'app/all/{user?}', 'AppCtrl@index' ); // To show all apps.
+		Route::get( 'app/all/{id?}', 'AppCtrl@index' ); // To show all apps.
 		Route::get( 'app/create', 'AppCtrl@create' ); // To create the application.
 		Route::post( 'store-app', 'AppCtrl@store' ); // To store the created application.
 		Route::get( 'app/edit/{app}', 'AppCtrl@edit' ); // To edit the appliaction.
@@ -64,33 +54,32 @@ Route::group(['middleware' => 'auth'], function () {
 		/** End Application Module**/
 
 		/** Ad Zones ( Ad Placement ) Module  **/
-		Route::get( 'zone/all/{app?}', 'ZoneCtrl@index' ); // To show all ads's zones page.
+		Route::get( 'zone/all/{id?}', 'ZoneCtrl@index' ); // To show all ads's zones page.
 		Route::get( 'zone/create', 'ZoneCtrl@create' ); // To show create ad's zone page.
 		Route::post( 'store-zone', 'ZoneCtrl@store' ); // To store the created ad's zone.
-		Route::get( 'zone/edit/{zone}', 'ZoneCtrl@edit' ); // To show edit ad's zone page.
+		Route::get( 'zone/edit/{id}', 'ZoneCtrl@edit' ); // To show edit ad's zone page.
 		Route::post( 'save-zone', 'ZoneCtrl@save' ); // To save edited ad's zone.
 		Route::get( 'delete-zone', 'ZoneCtrl@destroy' ); // To deactivate ad's zone.
-		Route::get('zone/{zone}', 'ZoneCtrl@show');
-		Route::get('zone/relevant-ads/{zone}', 'ZoneCtrl@showRelevant'); // To show all relevant ads
+		Route::get('zone/{id}', 'ZoneCtrl@show');
 		/** End Zone ( Ad Placement ) Module  **/
 
 		/** Campaigns Module  **/
-		Route::get( 'campaign/all/{user?}', 'CampaignCtrl@index' ); // To show all campaigns page.
+		Route::get( 'campaign/all/{id?}', 'CampaignCtrl@index' ); // To show all campaigns page.
 		Route::get( 'campaign/create', 'CampaignCtrl@create' ); // To show create campaign page.
 		Route::post( 'store-campaign', 'CampaignCtrl@store' ); // To store the created campaign.
-		Route::get( 'campaign/edit/{zone}', 'CampaignCtrl@edit' ); // To show edit campaign page.
+		Route::get( 'campaign/edit/{id}', 'CampaignCtrl@edit' ); // To show edit campaign page.
 		Route::post( 'save-campaign', 'CampaignCtrl@save' ); // To save edited campaign.
 		Route::get( 'camp/change-status', 'CampaignCtrl@changeStatus' ); // To change campaign status.
 		/** End Campaigns Module  **/
 
 		/** Creative Ad Module  **/
-		Route::get( 'ads/all/{camp?}', 'AdsCtrl@index' ); // To show all creative ads's page.
+		Route::get( 'ads/all/{id?}', 'AdsCtrl@index' ); // To show all creative ads's page.
 		Route::get( 'ads/create', 'AdsCtrl@create' ); // To show create creative ad's  page.
 		Route::post( 'store-ads', 'AdsCtrl@store' ); // To store the created creative ad's.
-		Route::get( 'ads/edit/{ads}', 'AdsCtrl@edit' ); // To show edit creative ad's page.
+		Route::get( 'ads/edit/{id}', 'AdsCtrl@edit' ); // To show edit creative ad's page.
 		Route::post( 'save-ads', 'AdsCtrl@save' ); // To save edited creative ad's zone.
 		Route::get( 'ads/change-status', 'AdsCtrl@changeStatus' ); // To change Ads status.
-		Route::get('ads/{ads}', 'AdsCtrl@show');
+		Route::get('ads/{id}', 'AdsCtrl@show');
 		/** End Creative Ad Module  **/
 
 		/** Middleware for admin users **/
@@ -98,7 +87,7 @@ Route::group(['middleware' => 'auth'], function () {
 			
 			/** For User Module **/
 			Route::get( 'user/all', 'UserCtrl@index' ); // Show all users page.
-			Route::get( 'user/edit/{user}', 'UserCtrl@edit' ); // Show edit user page.
+			Route::get( 'user/edit/{id}', 'UserCtrl@edit' ); // Show edit user page.
 			Route::post( 'save-user', "UserCtrl@save" ); // To save edited user.
 			Route::get( 'user/delete', "UserCtrl@destroy" );// To delete the user.
 			/** End User Module **/
@@ -109,6 +98,19 @@ Route::group(['middleware' => 'auth'], function () {
 			Route::get( 'delete-matching', 'MatchingCtrl@deleteMatching' ); // To delete keyword matching
 			Route::get( 'change-priority', 'MatchingCtrl@changePriority' ); // To change priority for matching
 			/** End Keywords Module **/
+
+			/** Admin Reports **/
+				Route::get('reports/relevant-ads/{id}', 'ReportCtrl@showRelevant'); // To show all relevant ads
+				Route::get('reports/shown-ads/{id}', 'ReportCtrl@showShownAds'); // To show all relevant ads
+				Route::get('reports/campaigns-and-creatives', 'ReportCtrl@showCampAndAds');
+				Route::get('reports/show-all-apps', 'ReportCtrl@showAllApps');
+				Route::get('device-reports/{report}', 'ReportCtrl@showDeviceReports');
+/*				Route::get('device-reports/languages', 'ReportCtrl@showDeviceLanguages');
+				Route::get('device-reports/manefacturers', 'ReportCtrl@showDeviceManefacturers');
+				Route::get('device-reports/models', 'ReportCtrl@showDeviceModels');
+				Route::get('device-reports/os-versions', 'ReportCtrl@showDeviceOsVersions');
+				Route::get('device-reports/carriers', 'ReportCtrl@showDeviceCarriers');
+			/** End Admin Reports**/
 		});
 	});
 });

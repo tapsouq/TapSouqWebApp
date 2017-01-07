@@ -103,6 +103,12 @@ class CampaignCtrl extends Controller
         } else if( $user_id != null ){ // If the user is admin and get all campaigns for the user has id ($user_id).
 
             $user       = User::find($user_id);
+            // To validate the user
+            if( $user == null ){
+                return redirect('admin')
+                            ->with('warning', trans('lang.spam_msg'));
+            }
+            
             $title      = $title . trans("admin.belongs_to") . "{$user->fname} {$user->lname}"; 
             $camps      = $camps->where('campaigns.user_id', '=', $user_id);
             $adsCount   = $adsCount->where('campaigns.user_id', '=', $user_id);
@@ -154,7 +160,8 @@ class CampaignCtrl extends Controller
      */
     public function store ( Request $request ){
         $validator = Validator::make( $request->all(), array_merge($this->_initRules, [
-                    'scategory'=> 'exists:categories,id|not_in:' . $request->input('fcategory')
+                    'scategory'     => 'exists:categories,id|not_in:' . $request->input('fcategory'),
+                    'imp_per_day'   => 'integer'
                 ]));
         if( $validator->fails() ){
             return redirect()->back()
@@ -301,6 +308,7 @@ class CampaignCtrl extends Controller
 
         $camp->name             = $request->name;
         $camp->description      = $request->input('description');
+        $camp->imp_per_day      = $request->has('imp_per_day_checkbox') ? $request->imp_per_day : 0;
 
         $camp->start_date       = date_create_from_format( 'm/d/Y g:i A', $request->start_date )->format( 'Y-m-d H:i:s' );
         $camp->end_date         = date_create_from_format( 'm/d/Y g:i A', $request->end_date )->format( 'Y-m-d H:i:s' );
