@@ -11,7 +11,6 @@ use Auth, DB, Validator;
 use App\Models\Category, App\Models\Country, App\Models\Zone;
 use App\Models\Ads, App\Models\SdkAction, App\Models\SdkRequest;
 use App\Models\Application, App\Models\Device, App\Models\Language;
-
 class ReportCtrl extends Controller
 {
     // the main Title of all pages controlled by this controller
@@ -44,13 +43,13 @@ class ReportCtrl extends Controller
     /**
      * showRelevant. To show the relevant creative ads.
      *
-     * @param int $zone_id
+     * @param int $zoneId
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function showRelevant ( $zone_id, Request $request){
+    public function showRelevant ( $zoneId, Request $request){
         $mTitle = $this->_mTitle;
         $title = trans('admin.relevant_ads');
         $categories = $this->_categories;
@@ -58,7 +57,7 @@ class ReportCtrl extends Controller
 
         // Validate the ad placement. and get the package id to be used later.
         $zone = Zone::join('applications', 'applications.id', '=', 'ad_placement.app_id')
-                    ->where('ad_placement.id', $zone_id)
+                    ->where('ad_placement.id', $zoneId)
                     ->select('ad_placement.*')
                     ->select('applications.package_id')
                     ->first();
@@ -73,7 +72,8 @@ class ReportCtrl extends Controller
         $countryId      = $request->has('country') ? $request->country : ($egyptCountry ? $egyptCountry->id : 1 );
         
         // Get the relevant creative ads for the ad placement.
-        $relevantAds    = AdServingCtrl::getRelevantAds($zone_id, $countryId, $zone->package_id);
+        $adServingQuery = new AdServingQueryCtrl($zoneId, $zone->package_id);
+        $relevantAds    = $adServingQuery->getRelevantAds ($countryId);
 
         // to Validate per page variable not to be null nor zero.
         $perPage        = $request->input('per-page') ?: $this->_initPerPage;
@@ -91,13 +91,13 @@ class ReportCtrl extends Controller
     /**
      * showShownAds. To show shown creative ads.
      *
-     * @param int $zone_id
+     * @param int $zoneId
      * @param int $request
      * @return return
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function showShownAds( $zone_id, Request $request ){
+    public function showShownAds( $zoneId, Request $request ){
         $mTitle = $this->_mTitle;
         $title = trans('admin.shown_ads');
 
@@ -105,7 +105,7 @@ class ReportCtrl extends Controller
         $perPage        = $request->input('per-page') ?: $this->_initPerPage;
 
         // Get shown creative
-        $shownAds = SdkRequest::getShownAds($zone_id, $request);
+        $shownAds = SdkRequest::getShownAds($zoneId, $request);
 
         // Paginate items with mentioned arguments.
         $items = sizeof($shownAds) ? paginate( $shownAds, $perPage, $request->input('page') ) : [];

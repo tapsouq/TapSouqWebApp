@@ -8,37 +8,54 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\SdkAction;
 
-use Session;
+use Session, Validator;
 class AdServingCtrl extends Controller
 {
-	public function index(){
-		//$rules = [0 => 20, 1 => 10, 2 => 40, 3 => 5, 4 => 25 ];
-		$array = [5, 10, 20, 17];
-        $bigArray = [5, 10, 20, 30, 40];
-
-        //Session::put('device', 10);
-        print_r( array_diff($bigArray, $array));
-	}
+    // Ad placement id.
+    private $_placementId;
+    // Device id.
+    private $_deviceId;
+    // Application package id.
+    private $_appPackage;
+    // Sdk request id.
+    private $_requestId;
 
     /**
-     * getRelevantAd. To get the relevant ad object if there is.
+     * __construct. To init class.
      *
-     * @param  int $zone_id
-     * @param  int $countryId
-     * @param  int $packageId
+     * @param  int $placementId
+     * @param  int $deviceId
+     * @param  int $appPackage
      * @param  int $requestId
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function __construct($placementId, $deviceId, $appPackage, $requestId)
+    {
+        $this->_placementId = $placementId;
+        $this->_deviceId = $deviceId;
+        $this->_appPackage = $appPackage;
+        $this->_requestId = $requestId;
+    }
+
+    /**
+     * getSuitableCreativeAd. To get the suitable creative ad object if there is,
+     * else return error message with the reason of why there isn't suitable ad.
+     *
      * @param  string $shownAds
      * @return mixed.
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public static function getCreativeAd( $zoneId, $countryId, $packageId, $requestId, $shownAds = null )
+    public function getSuitableCreativeAd( $shownAds = null )
     {
         $sumOfweights = 0;
         $adsProbabilities = []; 
         
         // Get a list of relevant ads that suit the placement ad that sent the sdk request
-        $relevantAds = SdkAction::getRelevantAds( $zoneId, $countryId, $packageId );  
+        $adServingQuery = new AdServingQueryCtrl($this->_placementId, $this->_appPackage);
+        $relevantAds = $adServingQuery->getCreativeAds($this->_deviceId);  
 
         if( sizeof($relevantAds) > 0 ){
 
@@ -46,26 +63,31 @@ class AdServingCtrl extends Controller
             $relevantAdsWithPriorities  = array_pluck($relevantAds, 'priority', 'id');
 
             // Adapt $relevantAds array by making an array with ads ids as key and the ads objects as it's values.
-            $callBackFcn = [ "App\Http\Controllers\Admin\AdServingCtrl", "_adaptRelevatAdsArray"];
+            $callBackFcn = [ "App\Http\Controllers\Admin\AdServingCtrl", "_adaptRelevantAdsArray"];
             $relevantAdsWithIdAsKey     = array_reduce($relevantAds, $callBackFcn, []);
 
             // To exclude the shown ads for that device
-            $adsArray = self::_excludeShownAdsForThatDevice($relevantAdsWithPriorities, $shownAds);
+            $adsArray = $this->_excludeShownAdsForThatDevice($relevantAdsWithPriorities, $shownAds);
             
             // The selected ad id by using the probability function.
-            $selectedAdKey = self::_sortAdsByProbability( $adsArray, array_sum($adsArray) );
+            $selectedAdKey = $this->_sortAdsByProbability( $adsArray, array_sum($adsArray) );
 
             // Get the ad object using ad id.
             $selectedAd = $relevantAdsWithIdAsKey[ $selectedAdKey ];
 
             return [
                     'status'        => true,
-                    'requestId'     => $requestId,
+                    'requestId'     => $this->_requestId,
                     'adsObject'     => (array) $selectedAd
                 ];
         }else{
+            $test = [
+                    'status'        => false,
+                    'error'         => 'There is no suitable ads'
+                ];
             // Get why there is no relevant ads. To help testing
-            self::_getEmptyRelevantError($zone_id, $countryId, $packageId);
+            $errorValidator = new ValidateAdServingEmptyCtrl($this->_placementId, $this->_deviceId, $this->_appPackage, $this->_requestId);
+            return $errorValidator->getEmptyRelevantError();
         }
 
     }
@@ -73,16 +95,17 @@ class AdServingCtrl extends Controller
   	/**
   	 * _sortAdsByProbability. To sort ads using probability function.
   	 *
-  	 * @param  param
+     * @param  array $adsArray
+  	 * @param  int $sumOfweights
   	 * @return return
   	 * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
   	 * @copyright Smart Applications Co. <www.smartapps-ye.com>
   	 */
-  	private static function _sortAdsByProbability( $adsArray, $sumOfweights )
+  	private function _sortAdsByProbability( $adsArray, $sumOfweights )
   	{
 		$accumulated_probability = 0;
 		$rand = mt_rand(1,$sumOfweights);
-   		$adsArray = self::_shuffleArray($adsArray);
+   		$adsArray = $this->_shuffleArray($adsArray);
  
 		foreach($adsArray as $key => $probability) {
   			$actual_probability = $probability + $accumulated_probability;
@@ -98,12 +121,12 @@ class AdServingCtrl extends Controller
   /**
    * _shuffleArray. To shuffle arrays .
    *
-   * @param  param
+   * @param  array $array
    * @return return
    * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
    * @copyright Smart Applications Co. <www.smartapps-ye.com>
    */
-  	private static function _shuffleArray( $array )
+  	private function _shuffleArray( $array )
   	{
   		$new = [];
   		$keys = array_keys($array);
@@ -125,7 +148,7 @@ class AdServingCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    private static function _excludeShownAdsForThatDevice($relevantAds, $shownAds)
+    private function _excludeShownAdsForThatDevice($relevantAds, $shownAds)
     {
         $new = [];
         $shownAds = explode(",", $shownAds);
@@ -146,13 +169,15 @@ class AdServingCtrl extends Controller
      * _adaptRelevatAdsArray. To edit the array to make ads id as a key and the ads object as it's value.
      *
      * @param  array $adsArray
+     * @param  mixed $item
      * @return array
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    private static function _adaptRelevatAdsArray( &$result, $item )
+    private static function _adaptRelevantAdsArray( &$result, $item )
     {
         $result[$item->id] = $item;
         return $result;
     }
+
 }

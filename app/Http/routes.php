@@ -126,6 +126,6 @@ Route::get(
 );
 
 Route::get(
-	"update_device/{device_id}/{language}/{country}/{os}/{model}/{manefacturer}",
+	"update_device/{device_id}/{manefacturer}/{model}/{os_api_number}/{os_version}/{language}/{country}/{carrier}/{tap_souq_sdk_version}",
 	"Admin\SdkCtrl@updateDevice"
 );

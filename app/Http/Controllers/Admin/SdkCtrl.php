@@ -62,7 +62,6 @@ class SdkCtrl extends Controller
                  ];
              return response()->json($response);   
         }
-        
 
         $device  = new Device();
     
@@ -105,7 +104,7 @@ class SdkCtrl extends Controller
         $array      = $request->segments();
         $country    = Country::find($array[UPDATE_COUNTRY]);
         $language   = Language::find($array[UPDATE_LANG]);
-        
+
         $deviceId   = $array[UPDATE_DEVICE_ID];
         $device     = Device::find($deviceId);
 
@@ -113,11 +112,14 @@ class SdkCtrl extends Controller
             if( $language != null ){
                 if( $country != null ){
 
-                    $device->country        = $country->id;
                     $device->language       = $language->id;
-                    $device->os_version     = urldecode($array[UPDATE_OS]);
+                    $device->country        = $country->id;
+                    $device->manefacturer   = urldecode($array[UPDATE_MANEFACTURER]); 
                     $device->model          = urldecode($array[UPDATE_MODEL]);
-                    $device->manefacturer   = urldecode($array[UPDATE_MANEFACTURER]);
+                    $device->os_version     = urldecode($array[UPDATE_OS_VER]);
+                    $device->os_api_version = urldecode($array[UPDATE_OS_API]);
+                    $device->carrier        = urldecode($array[UPDATE_CARRIER]);
+                    $device->sdk_version    = urldecode($array[UPDATE_SDK_VER]);
 
                     if( $device->save() ){
                         $response = [
@@ -175,7 +177,7 @@ class SdkCtrl extends Controller
                 break;
             case SHOW_ACTION:
                 # code ...
-                return $this->_insertSdkAction(SHOW_ACTION, $requestId, $creativeId, $deviceId);
+                return $this->_insertSdkAction(SHOW_ACTION, $requestId, $creativeId);
                 break;
             case CLICK_ACTION:
                 # code ...
@@ -212,7 +214,8 @@ class SdkCtrl extends Controller
         if( $requestId ){
 
             // To get suitable creative ad if ther is.
-            return AdServingCtrl::getCreativeAd($placementId, $deviceId, $appPackage, $requestId, $request->input('ads'));
+            $AdServing = new AdServingCtrl($placementId, $deviceId, $appPackage, $requestId );
+            return $AdServing->getSuitableCreativeAd($request->input('ads'));
         }else{
             $response = [
                     'status'    => false,
@@ -233,9 +236,9 @@ class SdkCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _insertSdkAction ( $action, $requestId, $creativeId, $deviceId = null){
+    public function _insertSdkAction ( $action, $requestId, $creativeId){
         
-        if( $action == SHOW_ACTION && $deviceId ){
+        if( $action == SHOW_ACTION ){
             // update sdk actions table with impression action.
             SdkRequest::updateRequest( $requestId, $creativeId);
         }
@@ -267,7 +270,7 @@ class SdkCtrl extends Controller
     public function _returnNotValidAction ( $action ){
         $response =  [
                 'status'    => false,
-                'error'     => "Action name `" . $action . "` isn't valid. Please enter action name in values " . implode( ',' , array_keys( config('consts.sdk_actions') ) ) 
+                'error'     => "Action `" . $action . "` isn't valid. Please enter action within values " . implode( ',' , array_keys( config('consts.sdk_actions') ) ) 
             ];
 
         return response()->json( $response );

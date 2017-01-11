@@ -85,6 +85,7 @@
                             <div class="form-group has-feedback {{ $errors->has( 'country' ) ? 'has-error' : '' }} ">
                                 @if( sizeof( $countries = DB::table( 'countries' )->get() ) > 0 )
                                     <select name="country" class="form-control" required>
+                                        <option value="" >{{ trans('admin.select_ur_country') }}</option>
                                         @foreach( $countries as $key => $value )
                                             <option value="{{ $value->id }}" {{ old('country') == $value->id ? 'selected' : '' }}>{{ $value->name }}</option>
                                         @endforeach

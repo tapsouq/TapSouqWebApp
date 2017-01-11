@@ -361,7 +361,7 @@ class AppCtrl extends Controller
         $app->package_id    = $request->package_id;
 
         if( $request->hasFile( 'icon' ) ){
-            $app->icon          = uploadFile( $request->icon , 'public/uploads/app-icons' );
+            $app->icon          = uploadFile( $request->icon , 'uploads/app-icons' );
         }
 
         $app->save();

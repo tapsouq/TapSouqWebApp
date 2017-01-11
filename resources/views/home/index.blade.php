@@ -23,10 +23,9 @@
                                 <img src="{{ url('resources/assets/home') }}/images/img1.png" alt="...">
                                 <div class="slider-caption">
                                     <article>
-                                        <h2>From developers to developers</h2>
+                                        <h2>From Developers to Developers</h2>
                                         <p>
-                                            We Know that the biggest problem of mobile application developers is getting new users for their apps,
-                                            So,we made this solution to help developers in utilizing their apps to get new users in new countries.
+                                            We Know that the biggest problem of mobile application developers is getting new users for their apps, so we made this solution to help developers in utilizing their apps to get new users in new countries.
                                         </p>
                                     </article>  
                                 </div>
@@ -35,9 +34,9 @@
                                 <img src="{{ url('resources/assets/home') }}/images/img2.png" alt="...">
                                 <div class="slider-caption">
                                     <article>
-                                        <h2>Give and take</h2>
+                                        <h2>Give and Take</h2>
                                         <p>
-                                            Simply you will show ads of other developers in your apps. On the other hand, you will get your ads be shown in other applications and get new installs accordingly.
+                                            Simply you will show ads of other developers in your apps. And your ads will be shown in other developers' apps and get new installs accordingly.
                                         </p>
                                     </article>
                                 </div>
@@ -46,7 +45,7 @@
                                 <img class="pig-img" src="{{ url('resources/assets/home') }}/images/img3.png" alt="...">
                                 <div class="slider-caption">
                                     <article> 
-                                        <h2>Main benfits</h2>
+                                        <h2>Main Benefits</h2>
                                         <ul>
                                             <li>About 90% of monetization ad requests are not filled. So, tapsouq can utilize your ad inventory.</li>
                                             <li>Gather ads in your account and use them in the big launch of new application.</li>
@@ -72,6 +71,13 @@
             </div>
         </div>
     </section>
+    <section class="video">
+        <video width="auto" height="auto" autoplay volume="0.5">
+          <source src="{{url("resources/assets/custom")}}/video.mp4" type="video/mp4">
+          <source src="{{url("resources/assets/custom")}}/video.ogg" type="video/ogg">
+          Your browser does not support the video tag.
+        </video>
+    </section>
     <section class="cols-section">
         <div class="container">
             <div class="row">
@@ -96,7 +102,7 @@
                     <article class="text-center">
                         <header>
                             <h3>
-                                Gross Promotion
+                                Cross Promotion
                             </h3>
                         </header>
                         <div>
@@ -179,9 +185,9 @@
             </div>
             <div class="row">
                 <div class="col-md-4 col-md-offset-4">
-                    <button class="btn btn-info btn-block">
-                        Join the Dev Community
-                    </button>
+                    <a href="{{ url('auth/register') }}" class="btn btn-info btn-block">
+                        Join The Developer Community
+                    </a>
                 </div>
             </div>
         </div>

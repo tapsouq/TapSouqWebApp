@@ -120,7 +120,14 @@ body .slider .carousel .slider-caption article ul{
 body .slider .carousel .slider-caption article ul li{
     padding: 7px 0;
 }
-/**/
+/* Video section */
+.vide{
+  background: #34b4e0;
+}
+.video video{
+  max-width: 100%;
+}
+/* Columns sectio*/
 body .cols-section{
     background: #fff;
     padding: 35px 0;
@@ -171,7 +178,7 @@ body .steps-section .container p{
 body .steps-section .container p img{
     margin: -30px 20px 0 0;
 }
-body .steps-section button.btn{
+body .steps-section a.btn{
     font-size: 1.5em;
     height: 45px;
 }
@@ -185,8 +192,13 @@ body footer h4{
     color: #4d585d;
 }
 body footer p,
-body footer ul{
+body footer ul,
+body footer ul li a{
     color: #1b292f;
+}
+body footer ul li a:hover{
+  color: #fff;
+  text-decoration: none;
 }
 body footer p{
     margin-top: 40px;

@@ -66,6 +66,7 @@ return [
 	"normal"					=> "Normal",
 	"all_countries"				=> "All Countries",
 	"select_country"			=> "Select Targeted Countries",
+	"select_ur_country"			=> "Select Country",
 	"select_keyword"			=> "Select Targeted Keywords",
 	"targeted_country"			=> "Targeted Countries <em>(Default : All Countries) </em>",
 	"targeted_keywords"			=> "Targeted Keywords <em>(Default : No Specific Keywords)</em>",
