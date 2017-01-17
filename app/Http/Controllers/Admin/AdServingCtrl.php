@@ -68,7 +68,7 @@ class AdServingCtrl extends Controller
 
             // To exclude the shown ads for that device
             $adsArray = $this->_excludeShownAdsForThatDevice($relevantAdsWithPriorities, $shownAds);
-            
+
             // The selected ad id by using the probability function.
             $selectedAdKey = $this->_sortAdsByProbability( $adsArray, array_sum($adsArray) );
 
@@ -81,10 +81,7 @@ class AdServingCtrl extends Controller
                     'adsObject'     => (array) $selectedAd
                 ];
         }else{
-            $test = [
-                    'status'        => false,
-                    'error'         => 'There is no suitable ads'
-                ];
+
             // Get why there is no relevant ads. To help testing
             $errorValidator = new ValidateAdServingEmptyCtrl($this->_placementId, $this->_deviceId, $this->_appPackage, $this->_requestId);
             return $errorValidator->getEmptyRelevantError();
@@ -104,7 +101,9 @@ class AdServingCtrl extends Controller
   	private function _sortAdsByProbability( $adsArray, $sumOfweights )
   	{
 		$accumulated_probability = 0;
-		$rand = mt_rand(1,$sumOfweights);
+
+        $rand = mt_rand(1,$sumOfweights);
+
    		$adsArray = $this->_shuffleArray($adsArray);
  
 		foreach($adsArray as $key => $probability) {
@@ -154,7 +153,6 @@ class AdServingCtrl extends Controller
         $shownAds = explode(",", $shownAds);
         // To get the the ads that's not being shown in the device.
         $diffKeys = array_diff(array_keys($relevantAds), $shownAds); 
-        
         if( count($diffKeys) ){
             foreach ($diffKeys as $diffKey) {
                 $new[$diffKey] = $relevantAds[$diffKey];

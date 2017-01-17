@@ -118,5 +118,9 @@ class ValidateAdServingEmptyCtrl extends Controller
      */
     public function _validateAdServingParamatersStepByStep()
     {
+        return [
+                'status'        => false,
+                'error'         => 'There is no suitable ads'
+            ];;
     }
 }

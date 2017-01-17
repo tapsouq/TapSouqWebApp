@@ -55,7 +55,7 @@ class SdkCtrl extends Controller
         }
 
 
-        if( ! in_array($platform, [1, 2] ) ){
+        if( ! in_array($platform, config('consts.app_platforms') ) ){
              $response = [ 
                      'status'    => false,
                      'error'     => "The platform isn't valid." 
@@ -248,7 +248,7 @@ class SdkCtrl extends Controller
 
         if($inserted){
             $response = [
-                    'status'    => true,
+                    'status'    => true
                 ];
         }else{
             $response = [

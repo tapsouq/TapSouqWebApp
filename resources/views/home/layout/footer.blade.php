@@ -40,6 +40,11 @@
                             Contact Us
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ url("terms-of-service") }}">
+                            Terms of service
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

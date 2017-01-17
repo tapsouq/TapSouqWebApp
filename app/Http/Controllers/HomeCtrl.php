@@ -39,5 +39,39 @@ class HomeCtrl extends Controller
                     ->with( compact( $data ) );
     }
 
+    /**
+     * showTermOfService. Show Term Of Service page.
+     *
+     * @param  param
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function showTermOfService()
+    {
+        $mTitle = $this->_mTitle;
+        $title  = trans("admin.terms");
+        $data = ['mTitle', 'title'];
+        return view('home.terms')
+                    ->with(compact($data));  
+    }
+
+    /**
+     * showResourcesPage . Show Term Of Service page.
+     *
+     * @param  param
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function showResourcesPage()
+    {
+        $mTitle = $this->_mTitle;
+        $title  = trans("admin.resources");
+        $data = ['mTitle', 'title'];
+        return view('home.resources')
+                    ->with(compact($data));  
+    }
+
  
 }

@@ -121,10 +121,26 @@ body .slider .carousel .slider-caption article ul li{
     padding: 7px 0;
 }
 /* Video section */
-.vide{
-  background: #34b4e0;
+.video{
+  background: #eee;
+  text-align: center;
+  position: relative;
+}
+.video .overlay {
+    position: absolute;
+    z-index: 100000000000;
+    background: #000;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+    background: #000 url(../../images/video-bg.png);
+}
+.video header{
+  text-align: center;
+  padding: 10px;
 }
 .video video{
+  max-height: 500px;
   max-width: 100%;
 }
 /* Columns sectio*/
@@ -243,4 +259,37 @@ body footer ul i.fa{
 .register-box .btn,
 .login-box .btn{
     border-radius: 0;
+}
+
+/* Terms Page */
+.terms{
+  background: #f2f2f2;
+  color: #414141;
+  line-height: 1.85;
+}
+.terms ol > li > ol{
+    list-style-type: lower-alpha;
+}
+.terms ol > li > ol > li > ol{
+    list-style-type: lower-roman;
+}
+
+/* Resources page */
+.resources-page{
+    background: #f2f2f2;
+    color: #414141;
+    line-height: 1.85;
+}
+.resources-page ol li img {
+    max-width: 100%;
+    margin: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #1d2940;
+}
+.resources-page pre {
+    display: block;
+    max-width: 600px;
+    white-space: pre-line;
+    background-color: #333;
+    color: #fff;
 }

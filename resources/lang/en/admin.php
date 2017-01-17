@@ -210,5 +210,6 @@ return [
 	"model_reports"				=> "Models",
 	"carrier_reports"			=> "Carriers",
 	"os_version_reports"		=> "OS Versions",
-	"imp_per_day"				=> "Impressions per day"
+	"imp_per_day"				=> "Impressions per day",
+	"resources"					=> "Resources Page"
 ];

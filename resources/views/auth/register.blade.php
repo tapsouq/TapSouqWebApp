@@ -118,7 +118,7 @@
                             <div class="checkbox icheck">
                                 <label>
                                     {!! csrf_field() !!}
-                                    <input type="checkbox" name="agree" required> {{ trans( 'lang.agree_the' ) }} <a href="#">{{ trans( 'lang.terms' ) }}</a>
+                                    <input type="checkbox" name="agree" required> {{ trans( 'lang.agree_the' ) }} <a href="{{ url('terms-of-service') }}" target="_blank">{{ trans( 'lang.terms' ) }}</a>
                                     <span class="help-block">
                                         {{ $errors->has( 'agree' ) ? $errors->first( 'agree' ) : '' }}
                                     </span>

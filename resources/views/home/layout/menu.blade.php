@@ -24,7 +24,7 @@
                             <li>
                                 <a href="#">Blog</a>
                             </li>
-                            <li><a href="#">Resources</a></li>
+                            <li><a href="{{ url('resources-page') }}">Resources</a></li>
                             <li><a href="#">About us</a></li>
                             <li>
                                 <a href="{{ url('auth/login') }}">Login</a>

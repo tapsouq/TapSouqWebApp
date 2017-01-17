@@ -11,9 +11,7 @@
 |
 */
 Route::get('test', function(){
-	return \DB::table('campaigns')
-            ->where('end_date', '<', date('Y-m-d H:i:s'))
-            ->update(['status' => COMPLETED_CAMP]);
+
 });
 
 // Authentication routes...
@@ -28,7 +26,8 @@ Route::get( 'verify-email', 'Auth\AuthController@verifyEmail' );
 
 // Home Module
 Route::get('/', 'HomeCtrl@index');
-
+Route::get('terms-of-service', 'HomeCtrl@showTermOfService');
+Route::get('resources-page', 'HomeCtrl@showResourcesPage');
 
 // Middlware fo authinticated active users
 Route::group(['middleware' => 'auth'], function () {
@@ -106,7 +105,7 @@ Route::group(['middleware' => 'auth'], function () {
 				Route::get('reports/show-all-apps', 'ReportCtrl@showAllApps');
 				Route::get('device-reports/{report}', 'ReportCtrl@showDeviceReports');
 /*				Route::get('device-reports/languages', 'ReportCtrl@showDeviceLanguages');
-				Route::get('device-reports/manefacturers', 'ReportCtrl@showDeviceManefacturers');
+				Route::get('device-reports/manufacturers', 'ReportCtrl@showDevicemanufacturers');
 				Route::get('device-reports/models', 'ReportCtrl@showDeviceModels');
 				Route::get('device-reports/os-versions', 'ReportCtrl@showDeviceOsVersions');
 				Route::get('device-reports/carriers', 'ReportCtrl@showDeviceCarriers');
@@ -116,16 +115,16 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 Route::get(
-	"create_device/{platform}/{advertising_id}/{manefacturer}/{model}/{os_api_number}/{os_version}/{language}/{country}/{carrier}/{tap_souq_sdk_version}",
+	"create_device/{platform}/{advertising_id}/{manufacturer}/{model}/{os_api_number}/{os_version}/{language}/{country}/{carrier}/{tap_souq_sdk_version}",
 	"Admin\SdkCtrl@addDevice"
 );
 
 Route::get(
-	"sdk-action/{device_id}/{action_name}/{request_id}/{ad_placement_id}/{ad_creative_id}/{app_package}",
+	"sdk-action/{device_id}/{action}/{request_id}/{ad_placement_id}/{ad_creative_id}/{app_package}",
 	"Admin\SdkCtrl@setAction"
 );
 
 Route::get(
-	"update_device/{device_id}/{manefacturer}/{model}/{os_api_number}/{os_version}/{language}/{country}/{carrier}/{tap_souq_sdk_version}",
+	"update_device/{device_id}/{manufacturer}/{model}/{os_api_number}/{os_version}/{language}/{country}/{carrier}/{tap_souq_sdk_version}",
 	"Admin\SdkCtrl@updateDevice"
 );
