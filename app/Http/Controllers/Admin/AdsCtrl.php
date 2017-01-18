@@ -39,7 +39,7 @@ class AdsCtrl extends Controller
                 'type'          => 'required|in:' . implode(',' , array_keys( config( 'consts.ads_types' ) )),
                 'click_url'     => 'required|max:255',
                 'campaign'      => 'required|exists:campaigns,id', 
-                'title'         => 'required_if:type,1|max:255',
+                'title'         => 'required_if:type,' . TEXT_AD . '|max:255',
                 'description'   => 'required_if:type,' . TEXT_AD . '|max:255',
                 'status'        => 'in:' . implode(',' , array_keys( config( 'consts.ads_status' ) )),
                 'layout'        => 'required_if:format,' . INTERSTITIAL,

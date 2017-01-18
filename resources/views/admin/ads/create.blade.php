@@ -113,7 +113,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group has-feedback {{ $errors->has( 'image_file' ) ? 'has-error' : '' }}">
-                                            <label>
+                                            <label class="image-label">
                                                 {{ trans( 'admin.image_file' ) }}
                                             </label>
                                             @if( isset( $ad ) )
@@ -216,22 +216,48 @@
         $(function(){
             var $texAdDetails   = $('input[name=title], input[name=description]').parents('.form-group');
             var $imgDimension   = $('.image-dimensions');
+            var $imgLabel       = $('.image-label');
 
             $('select[name=type]').on( 'change', function(){
                 adaptTypeControls($(this));
             });
 
-            adaptTypeControls( $('select[name=type]') );
-            
-            function adaptTypeControls( $this ){
-                var val = $this.val(); 
-                if( val == "{{ TEXT_AD }}" ) {
-                    $texAdDetails.removeClass('hidden');
-                    $imgDimension.text( "{{ trans( 'admin.bann_text_dimension' ) }}" );
+            function changeImageDimensionsAndLabel(type, format){
+                if( format == "{{ INTERSTITIAL }}" ){
+                    /** Disable text ads for interstitial **/
+                    //$type.val( "{{ IMAGE_AD }}" );
+                    //$texAdDetails.addClass('hidden');
+                    //$type.find('option[value="{{ TEXT_AD }}"]').attr( 'disabled', true );
+                    /** **/
+                    if( type == "{{ IMAGE_AD }}" ){
+                        $texAdDetails.addClass('hidden');
+                        $imgLabel.text("{{ trans('admin.img_img_label') }}");
+                        $imgDimension.text( "{{ trans( 'admin.inters_img_dimension' ) }}" );
+                    }else{
+                        $texAdDetails.removeClass('hidden');
+                        $imgLabel.text("{{ trans('admin.img_txt_label') }}");
+                        $imgDimension.text( "{{ trans( 'admin.inters_txt_dimension' ) }}" );
+                    }
+                    $('.interstitial-layout').removeClass('hidden');
                 }else{
-                    $texAdDetails.addClass('hidden');
-                    $imgDimension.text( "{{ trans( 'admin.bann_image_dimension' ) }}" );
+                    if( type == "{{ IMAGE_AD }}" ){
+                        $texAdDetails.addClass('hidden');
+                        $imgLabel.text("{{ trans('admin.img_img_label') }}");
+                        $imgDimension.text( "{{ trans( 'admin.bann_img_dimension' ) }}" );
+                    }else{
+                        $texAdDetails.removeClass('hidden');
+                        $imgLabel.text("{{ trans('admin.img_txt_label') }}");
+                        $imgDimension.text( "{{ trans( 'admin.bann_txt_dimension' ) }}" );
+                    }
+                    $('.interstitial-layout').addClass('hidden');
                 }
+            }
+
+            function adaptTypeControls( $this ){
+                var type    = $this.val();
+                var format  = $('select[name=format]').val();
+                
+                changeImageDimensionsAndLabel(type, format);
             }
 
             $('select[name=format]').on( 'change', function(){
@@ -241,25 +267,10 @@
             adaptFormatControls( $( 'select[name=format]' ) );
             
             function adaptFormatControls( $this ){
-                var $type   = $('select[name=type]');
+                var type   = $('select[name=type]').val();
                 var format  = $this.val();
-                if( format == "{{ INTERSTITIAL }}" ){
-                    $type.val( "{{ IMAGE_AD }}" );
-                    $texAdDetails.addClass('hidden');
-                    $type.find('option[value="{{ TEXT_AD }}"]').attr( 'disabled', true );
-                    $imgDimension.text( "{{ trans( 'admin.inters_dimension' ) }}" );
-                    $('.interstitial-layout').removeClass('hidden');
-                }else{
-                    $('.interstitial-layout').addClass('hidden');
-                    $type.find('option[value="{{ TEXT_AD }}"]').attr( 'disabled', false );
-                    if( $type.val() == "{{ IMAGE_AD }}" ){
-                        $texAdDetails.addClass('hidden');
-                        $imgDimension.text( "{{ trans( 'admin.bann_image_dimension' ) }}" );
-                    }else{
-                        $texAdDetails.removeClass('hidden');
-                        $imgDimension.text( "{{ trans( 'admin.bann_text_dimension' ) }}" );
-                    }
-                }
+                
+                changeImageDimensionsAndLabel(type, format);
             }
         });
     </script>

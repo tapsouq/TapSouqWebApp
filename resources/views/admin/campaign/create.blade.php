@@ -271,16 +271,10 @@
                 placeholder : "{{ trans( 'admin.select_keyword' ) }}"
             });
 
-            $('input[name=start_date]').datetimepicker({
-                defaultDate : moment()
-            });
-
-            $('input[name=end_date]').datetimepicker({
-                defaultDate : moment().add( 1, 'week')
-            });
+            $('input[name=start_date], input[name=end_date]').datetimepicker();
 
             @if( isset($camp) )
-                $('input[name=start_date]').data('DateTimePicker').minDate(moment()).date( moment( '{{ $camp->start_date }}' ) );
+                $('input[name=start_date]').data('DateTimePicker').minDate(moment( '{{ $camp->start_date }}' )).date( moment( '{{ $camp->start_date }}' ) );
                 $('input[name=end_date]').data('DateTimePicker').minDate(moment( '{{ $camp->start_date }}' )).date( moment( '{{ $camp->end_date }}' ) );
             @else
                 $('input[name=start_date]').data('DateTimePicker').minDate(moment());
@@ -291,93 +285,6 @@
                 $('input[name=end_date]').data('DateTimePicker').minDate( e.date ).date(e.date.add(1, 'week'));                    
             });
 
-            /**
-             * Function to search automatic for keywords
-             */
-            /* 
-                // To handle search keywords.
-                $(".keyword").on( 'keyup', function(e){
-                    $this = $(this);
-                    e.preventDefault();
-
-                    // variable to delay sent ajax request not to overlap.
-                    if ( $this.data('requestRunning') || $(this).val() == '' ) {
-                        $('.keywords-list li').remove();
-                        return;
-                    }
-                    $(this).data('requestRunning', true);
-
-                    $('.keywords-list li').remove();
-                    
-                    ids = [];
-                    $("input[name='keywords[]']").each(function( i, val ){
-                        ids[i] = $(this).val();
-                    });
-                    $('.keywords-list').append( "<li class='spinner'><i class='fa fa-spinner fa-spin' ></i>{{ trans('lang.loading') }}</li>" );
-                    $.ajax({
-                        url     : '{{ url('get-keywords') }}',
-                        type    : 'post',
-                        data    : {
-                            key : $(this).val(),
-                            present : ids
-                        },
-                        success : function(data){
-                            $('.keywords-list li').remove();
-                            if( data.length > 0 ){
-                                for (var i = data.length - 1; i >= 0; i--) {
-                                    var id = data[i]['id'];
-                                    var name = data[i]['name'];
-                                    var listItem = "<li data-id='" + id + "' >" + name + "</li>";
-                                    $('.keywords-list').append( listItem )
-                                                    .css('display', 'none')
-                                                    .fadeIn(200);
-                                }
-                            }else{
-                                $('.keywords-list').append( "<li data-id='new'>{{ trans('admin.add_new_keyword') }} <em>" + $('.keyword').val() + "</em></li>")
-                                                    .css('display', 'none')
-                                                    .slideDown();
-                            }
-                        },
-                        complete : function(){
-                            $this.data('requestRunning', false);
-                        }
-                    });
-                });
-
-                $('.keywords-list').on( 'click', 'li', function(){
-                    
-                    // Rest the shown keywords list
-                    $('input.keyword').val('');
-                    $('.keywords-list li').remove();
-
-                    var id = $(this).attr('data-id');
-                    var newKeyword = '';
-
-                    if( id == 'new' ){
-                        var name = $(this).find('em').text();
-                        var input = "<input name='new_keywords[]' type='hidden' value='" + name + "' />";
-                        id = name;
-                        newKeyword = 'new';
-                    }else{
-                        var name = $(this).text();
-                        var input ="<input name='keywords[]' type='hidden' value='" + id + "' />";
-                    }
-                    $(this).remove();
-                    $('.keywords-list').append( input ); 
-                    var keyword = "<span class='label label-primary'>" + name + " <i data-id='" + id + "' class='" + newKeyword + " remove-keyword fa fa-times' ></i></span>";
-                    $('.selected-keywords').append( keyword );
-                });
-
-                $('.selected-keywords').on( 'click', '.remove-keyword', function(){
-                    var id = $(this).attr('data-id');
-                    if( $(this).hasClass('new') ){
-                        $('input[name="new_keywords[]"][value="' + id + '"]').remove();
-                    }else{
-                        $('input[name="keywords[]"][value="' + id + '"]').remove();
-                    }
-                    $(this).parents('span').remove();
-                });
-            */
 
             $("select.category").select2();
 
