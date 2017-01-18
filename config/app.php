@@ -145,6 +145,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /* Custom Service Providers */
+        \Cviebrock\ImageValidator\ImageValidatorServiceProvider::class,
     ],
 
     /*

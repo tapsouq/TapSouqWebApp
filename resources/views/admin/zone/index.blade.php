@@ -14,7 +14,7 @@
                 @if( isset( $application ) )
                     @if( Auth::user()->role != ADMIN_PRIV )
                     <div class="pull-right">
-                        <a class="btn btn-sm btn-info" href="{{ url( 'zone/create' ) }}">
+                        <a class="btn btn-sm btn-info" href="{{ url( 'zone/create?app=' . $application->id ) }}">
                             <i class="fa fa-plus"></i>
                             {{ trans( 'admin.add_new_place_ad' ) }}
                         </a>

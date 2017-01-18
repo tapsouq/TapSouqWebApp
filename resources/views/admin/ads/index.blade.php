@@ -14,7 +14,7 @@
                 </h3>
                 @if( isset( $camp ) )
                     <div class="pull-right">
-                        <a class="btn btn-sm btn-info" href="{{ url( 'ads/create' ) }}">
+                        <a class="btn btn-sm btn-info" href="{{ url( 'ads/create?camp=' . $camp->id ) }}">
                             <i class="fa fa-plus"></i>
                             {{ trans( 'admin.add_new_ad' ) }}
                         </a>

@@ -186,13 +186,14 @@ class ZoneCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function create ( ){
+    public function create (Request $request ){
 
         $mTitle         = $this->_mTitle;
         $title          = trans( 'admin.add_new_place_ad' );
 
         // get the id from the previous link
-        $app_id = $this->_getIdFromPrevLink();
+        $app_id     =   $request->input('app');
+        $previous   = \URL::previous();
 
         // redirect to dashboard with spam message if the application isn't valid.
         if( ! $app_id ){

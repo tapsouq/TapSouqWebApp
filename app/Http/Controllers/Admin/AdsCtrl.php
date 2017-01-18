@@ -159,18 +159,19 @@ class AdsCtrl extends Controller
     /**
      * create. To show create ads page
      *
-     * @param void
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response.
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function create (){
+    public function create ( Request $request ){
         $mTitle     = $this->_mTitle;
         $title      = trans( 'admin.add_new_ad' );
         
-        // To get the camp_id from the previous link
-        $camp_id    = $this->_getIdFromPrevLink();
-        
+        // To get the camp_id
+        $camp_id    = $request->input('camp');
+        $previous   = \URL::previous();
+
         if( ! $camp_id )
             return redirect('admin')->with( 'warning', trans('lang.spam_msg') );
 
@@ -189,7 +190,7 @@ class AdsCtrl extends Controller
      */
     public function store ( Request $request ){
         $validator = Validator::make( $request->all(), array_merge($this->_initRules, [
-                'image_file'    => 'required|image|mimes:png,bmp,jpeg,jpg,gif',
+                'image_file'    => 'required|image|mimes:png,bmp,jpeg,jpg,gif|image_size:' . $this->_getImageDimensions( $request ),
                 'campaign'      => 'required|exists:campaigns,id' 
             ]));
 
@@ -248,7 +249,7 @@ class AdsCtrl extends Controller
     public function save ( Request $request ){
         $rules = array_merge($this->_initRules, [
                 'id'            => 'required|exists:ad_creative,id',
-                'image_file'    => 'image|mimes:png,bmp,jpeg,jpg,gif'
+                'image_file'    => 'image|mimes:png,bmp,jpeg,jpg,gif|image_size:' . $this->_getImageDimensions( $request )
             ]);
         $validator = Validator::make( $request->all(), $rules );
         if( $validator->fails() ){
@@ -369,5 +370,45 @@ class AdsCtrl extends Controller
         }
 
         return $segments[ $count - 1 ];
+    }
+
+    /**
+     * _getImageDimensions. To get the right dimensions to be used in image size validation.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function _getImageDimensions(Request $request)
+    {
+        $dimensions = '*';
+        switch ($request->input('format')) {
+            case INTERSTITIAL:
+                # code...
+                switch ($request->input('type')) {
+                    case IMAGE_AD:
+                        # code...
+                        $dimensions = "320,480";
+                        break;
+                    case TEXT_AD:
+                        $dimensions = "200,200";
+                        break;
+                }
+                break;
+            case BANNER:
+                # code...
+                switch ($request->input('type')) {
+                    case IMAGE_AD:
+                        # code...
+                        $dimensions = "320,50";
+                        break;
+                    case TEXT_AD:
+                        $dimensions = "48,48";
+                        break;
+                }
+                break;
+        }
+        return $dimensions;
     }
 }

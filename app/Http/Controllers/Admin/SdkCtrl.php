@@ -54,8 +54,8 @@ class SdkCtrl extends Controller
             return response()->json($response);
         }
 
-
-        if( ! in_array($platform, config('consts.app_platforms') ) ){
+        $platforms = array_keys(config('consts.app_platforms'));
+        if( ! in_array($platform, $platforms ) ){
              $response = [ 
                      'status'    => false,
                      'error'     => "The platform isn't valid." 
