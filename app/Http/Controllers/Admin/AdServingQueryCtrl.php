@@ -28,6 +28,8 @@ class AdServingQueryCtrl extends Controller
 
     // The parts that the ad serving algorithm query is depending on.
     private $_queryParts;
+
+    private $_query;
 	/**
 	 * __construct. To init the class.
 	 *
@@ -89,7 +91,7 @@ class AdServingQueryCtrl extends Controller
         $conditions = $this->_adServingQueryParts();
         $queryParts = $this->_adServingQueryParts();
 
-        $query = "
+        $this->_query = "
                 SELECT 
                     DISTINCT `ad_creative`.`id`, `ad_creative`.`name`, `ad_creative`.`format`, `ad_creative`.`layout`, `ad_creative`.`type`, `ad_creative`.`camp_id`,
                     `ad_creative`.`click_url`, `ad_creative`.`image_file`, `ad_creative`.`status`, `ad_creative`.`title`, `ad_creative`.`description`,   
@@ -147,9 +149,21 @@ class AdServingQueryCtrl extends Controller
                         /* Layout */
                         {$queryParts->deviceLayoutConditions}
                     ORDER BY `priority` DESC";
-        return \DB::select($query);
+        return \DB::select($this->_query);
     }
 
+    /**
+     * getQuery. To get the query for test reasons.
+     *
+     * @param  param
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function getQuery()
+    {
+        return $this->_query;
+    }
     /**
      * _adaptStatusDiffInAlgorithm. To adapt the algorithm changes due to the status.
      *

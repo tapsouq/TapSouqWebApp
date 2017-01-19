@@ -50,7 +50,8 @@ class CampaignCtrl extends Controller
                 'status'            => 'in:' . implode(',' , array_keys( config( 'consts.camp_status' ) )),
                 'start_date'        => 'required|date_format:m/d/Y g:i A',
                 'end_date'          => 'required|date_format:m/d/Y g:i A',
-                'keyword'           => 'array|exists:keywords,id'
+                'keyword'           => 'array|exists:keywords,id',
+                'imp_per_day'       => 'required_with:imp_per_day_checkbox|integer|min:1'
             ];
     }
     
@@ -161,7 +162,6 @@ class CampaignCtrl extends Controller
     public function store ( Request $request ){
         $validator = Validator::make( $request->all(), array_merge($this->_initRules, [
                     'scategory'     => 'exists:categories,id|not_in:' . $request->input('fcategory'),
-                    'imp_per_day'   => 'integer'
                 ]));
         if( $validator->fails() ){
             return redirect()->back()
@@ -308,7 +308,7 @@ class CampaignCtrl extends Controller
 
         $camp->name             = $request->name;
         $camp->description      = $request->input('description');
-        $camp->imp_per_day      = $request->has('imp_per_day_checkbox') ? $request->imp_per_day : 0;
+        $camp->imp_per_day      = $request->has('imp_per_day_checkbox') ? $request->imp_per_day : null;
 
         $camp->start_date       = date_create_from_format( 'm/d/Y g:i A', $request->start_date )->format( 'Y-m-d H:i:s' );
         $camp->end_date         = date_create_from_format( 'm/d/Y g:i A', $request->end_date )->format( 'Y-m-d H:i:s' );

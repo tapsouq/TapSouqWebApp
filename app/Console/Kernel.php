@@ -13,11 +13,13 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\Inspire::class,
+        Commands\DailyJobsCmd::class,
+        Commands\FinishCompCampCmd::class,
         Commands\GetApplicationInfo::class,
+        Commands\Inspire::class,
         Commands\KeywordMatcher::class,
-        Commands\SetLog::class,
         Commands\SetCreditLog::class,
+        Commands\SetLog::class,
     ];
 
     /**
@@ -34,31 +36,27 @@ class Kernel extends ConsoleKernel
          * is been added in last day
          */
         $schedule->command('getAppsInfo')
-                 ->everyMinute()
-                 ->withoutOverlapping();                 
+                 ->everyMinute();
         
         /**
          * To match between keywords that user entered in the last days with all application, 
          * the same for new application to be matched with all keywords
          */
         $schedule->command('matchKeywords')
-                 ->everyMinute()
-                 ->withoutOverlapping();                 
+                 ->everyMinute();
 
         /**
          * To get the placement, creative logs from the sdk actions and requests
          */
         $schedule->command('setLog')
-                  ->everyMinute()
-                  ->withoutOverlapping();
+                  ->everyMinute();
 
                   
         /**
          * To get the placement, creative logs from the sdk actions and requests
          */
         $schedule->command('finishCompletedCampaigns')
-                  ->everyMinute()
-                  ->withoutOverlapping();
+                  ->everyMinute();
 
 
         /**

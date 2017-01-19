@@ -11,7 +11,8 @@
 |
 */
 Route::get('test', function(){
-
+	$b = $_GET['b'];
+	$arr = explode(",", $b);
 });
 
 // Authentication routes...
@@ -110,6 +111,9 @@ Route::group(['middleware' => 'auth'], function () {
 				Route::get('device-reports/os-versions', 'ReportCtrl@showDeviceOsVersions');
 				Route::get('device-reports/carriers', 'ReportCtrl@showDeviceCarriers');
 			/** End Admin Reports**/
+			
+			/* Test routes */
+			Route::get('test-algorithm', 'HelpTestCtrl@printAdservingQuery');
 		});
 	});
 });

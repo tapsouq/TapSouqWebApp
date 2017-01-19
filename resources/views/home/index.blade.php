@@ -72,7 +72,10 @@
         </div>
     </section>
     <section class="video">
-        <div class="overlay"></div>
+        <div class="overlay outer-overlay">
+            <div class="inner-overlay"></div>
+        </div>
+        <img src="{{ url('resources/assets/home/images/play.png') }}">
         <video id="siteVideo" width="auto" height="auto">
           <source src="{{ url("resources/assets/custom")}}/video.mp4" type="video/mp4">
           <source src="{{ url("resources/assets/custom")}}/video.ogg" type="video/ogg">
@@ -199,12 +202,10 @@
     <script type="text/javascript">
         var vid = document.getElementById("siteVideo");
         vid.volume = 0.2;
-        $('.video video').hover(function toggleControls() {
-            if (this.hasAttribute("controls")) {
-                this.removeAttribute("controls")
-            } else {
-                this.setAttribute("controls", "controls")
-            }
+        $('.video img').on('click', function toggleControls() {
+            vid.setAttribute("controls", "controls");
+            vid.play();
+            $('.overlay, .video img').addClass('hidden');
         })
     </script>    
 @stop
