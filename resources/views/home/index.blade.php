@@ -72,6 +72,11 @@
         </div>
     </section>
     <section class="video">
+        <header class="text-center">
+            <h3>
+                How it works
+            </h3>
+        </header>
         <div class="overlay outer-overlay">
             <div class="inner-overlay"></div>
         </div>
@@ -202,10 +207,29 @@
     <script type="text/javascript">
         var vid = document.getElementById("siteVideo");
         vid.volume = 0.2;
-        $('.video img').on('click', function toggleControls() {
+        $('.video img').on('click', function() {
+            showVideo();    
+        });
+
+        $('.video video').on('click', function(){
+            showPlayVideo();
+        });
+
+        vid.onended  = function(){
+            showPlayVideo();
+        };
+        vid.onpause = function(){
+            showPlayVideo();
+        };
+        function showVideo(){
             vid.setAttribute("controls", "controls");
             vid.play();
-            $('.overlay, .video img').addClass('hidden');
-        })
+            $('.overlay, .video img, .video header').addClass('hidden');
+        }
+        function showPlayVideo(){
+            vid.pause();
+            vid.removeAttribute("controls");
+            $('.overlay, .video img, .video header').removeClass('hidden');
+        }
     </script>    
 @stop

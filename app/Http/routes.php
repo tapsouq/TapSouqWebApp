@@ -13,6 +13,7 @@
 Route::get('test', function(){
 	$b = $_GET['b'];
 	$arr = explode(",", $b);
+	
 });
 
 // Authentication routes...

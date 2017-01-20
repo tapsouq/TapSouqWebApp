@@ -1,27 +1,23 @@
 <footer>
     <div class="container">
         <div class="row">
-            <div class="col-md-6">
-                <h4>
-                    Latest Article from Blog
-                </h4>
-                <p>
-                    You can add apps from your account pageand integrate SDK in two lines of code.
-                </p>
-            </div>
-            <div class="col-md-6">
-                <h4>
-                    Menu
-                </h4>
+            <div class="col-md-10 col-md-offset-1">
                 <ul class="unstyled-list">
                     <li>
                         <a href="{{ url() }}">Home</a>
                     </li>
                     <li>
-                        <a href="{{ url('blog') }}">Blog</a>
+                        <a href="{{ url('resources-page') }}">Resources</a>
                     </li>
                     <li>
-                        <a href="{{ url('resources') }}">Resources</a>
+                        <a href="{{ url("contact-us") }}">
+                            Contact Us
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url("terms-of-service") }}">
+                            Terms of service
+                        </a>
                     </li>
                     <li>
                         <a href="https://www.facebook.com/tapsouq">
@@ -33,16 +29,6 @@
                         <a href="https://twitter.com/TapSouq ">
                             <i class="fa fa-twitter"></i>
                             Twitter
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url("contact-us") }}">
-                            Contact Us
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url("terms-of-service") }}">
-                            Terms of service
                         </a>
                     </li>
                 </ul>

@@ -131,30 +131,40 @@ body .slider .carousel .slider-caption article ul li{
     width: 100%;
     background: #24a7df url(../../images/video-bg.png);
     height: 100%;
-    background-size: contain;
     background-repeat: no-repeat;
+    background-size: 100%;
 }
 .video .inner-overlay{
     position: absolute;
     width:100%;
     height: 100%; 
-    background: #333;
-    opacity: 0.6;
+    background: #523035;
+    opacity: 0.7;
 }
-.video img{
+.video img {
     cursor: pointer;
     position: absolute;
-    top: 40%;
-    left: 50%;
+    top: 45%;
+    left: 46.5%;
     z-index: 55555555555555555555555555555;
 }
-.video header{
-  text-align: center;
-  padding: 10px;
+.video header {
+    text-align: center;
+    padding: 3px;
+    position: absolute;
+    top: 17%;
+    z-index: 666666666666666666666;
+    color: #fff;
+    width: 100%;
+}
+.video header h3 {
+    font-size: 2.5em;
 }
 .video video{
-  max-height: 500px;
-  max-width: 100%;
+  max-width: 70%;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto; 
 }
 /* Columns sectio*/
 body .cols-section{
@@ -174,7 +184,6 @@ body .cols-section article p{
 body .steps-section{
     background: #f2f2f2;
     padding: 35px 0;
-    border-bottom: 8px solid #27abe3;
 }
 body .steps-section > header{ 
     font-size: 1.9em;
@@ -214,6 +223,7 @@ body .steps-section a.btn{
 body footer {
     background: #04131a;
     padding-top: 50px;
+    border-top: 8px solid #27abe3
 }
 body footer h4{
     text-transform: uppercase;
@@ -239,7 +249,9 @@ body footer ul{
     list-style: none;
 }
 body footer ul li{
-    margin: 5px 0;
+    margin: 5px 10px;
+    float: left;
+
 }
 body footer ul i.fa{
     border: 1px solid #1b292f;
@@ -253,7 +265,14 @@ body footer ul i.fa{
 .navbar-toggle .icon-bar{
     background: #fff;
 }
- 
+.login-box{
+    margin-top: 80px;
+    margin-bottom: 100px;
+} 
+.register-box{
+    margin-top: 30px;
+    margin-bottom: 30px;
+} 
 .login-box, .register-box, .msg-box{
     background: #fff;
     padding: 30px;
@@ -305,4 +324,35 @@ body footer ul i.fa{
     white-space: pre-line;
     background-color: #333;
     color: #fff;
+}
+
+@media( max-width: 768px ){
+    .navbar-toggle{
+        margin-right: 1px;
+    }
+    .navbar-brand{
+        padding: 15px 2px;
+    }
+    .video header h3{
+        font-size: 1.5em;
+        margin: 5px;
+    }
+    .video img{
+        width: 50px;
+    }
+}
+@media( max-width: 450px ){
+    .carousel-inner .item img{
+        display: none;
+    }
+    body .slider .carousel,
+    body .slider{
+        min-height: 500px;
+    }
+    body .slider .carousel .slider-caption{
+        width: 100%;
+    }
+    body .slider .carousel .slider-caption article{
+        margin-top: 10px;
+    }
 }

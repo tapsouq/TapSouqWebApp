@@ -20,12 +20,9 @@
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav navbar-right">
                             <li class="active">
-                                <a href="{{ url() }}">Home</a></li>
-                            <li>
-                                <a href="#">Blog</a>
+                                <a href="{{ url() }}">Home</a>
                             </li>
                             <li><a href="{{ url('resources-page') }}">Resources</a></li>
-                            <li><a href="#">About us</a></li>
                             <li>
                                 <a href="{{ url('auth/login') }}">Login</a>
                             </li>
