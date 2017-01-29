@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
         Commands\Inspire::class,
         Commands\KeywordMatcher::class,
         Commands\SetCreditLog::class,
-        Commands\SetLog::class,
+        Commands\SetAdsLog::class,
     ];
 
     /**
@@ -36,20 +36,21 @@ class Kernel extends ConsoleKernel
          * is been added in last day
          */
         $schedule->command('getAppsInfo')
-                 ->everyMinute();
+                 ->everyThirtyMinutes();
         
         /**
          * To match between keywords that user entered in the last days with all application, 
          * the same for new application to be matched with all keywords
          */
         $schedule->command('matchKeywords')
-                 ->everyMinute();
+                 ->everyThirtyMinutes();
 
         /**
          * To get the placement, creative logs from the sdk actions and requests
          */
-        $schedule->command('setLog')
-                  ->everyMinute();
+
+        $schedule->command('setAdsLog')
+                  ->everyFiveMinutes();
 
                   
         /**

@@ -11,9 +11,14 @@
 |
 */
 Route::get('test', function(){
-	$b = $_GET['b'];
-	$arr = explode(",", $b);
+	$camps = DB::table('campaigns')->get();
 	
+	foreach ($camps as $key => $camp) {
+
+		$coun = explode(',', $camp->countries);
+		print_r($coun); 
+		echo "<br>";
+	}	                            
 });
 
 // Authentication routes...

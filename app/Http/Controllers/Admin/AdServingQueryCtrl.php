@@ -96,7 +96,7 @@ class AdServingQueryCtrl extends Controller
                     DISTINCT `ad_creative`.`id`, `ad_creative`.`name`, `ad_creative`.`format`, `ad_creative`.`layout`, `ad_creative`.`type`, `ad_creative`.`camp_id`,
                     `ad_creative`.`click_url`, `ad_creative`.`image_file`, `ad_creative`.`status`, `ad_creative`.`title`, `ad_creative`.`description`,   
                     ( ROUND( (`camp_users`.`credit` * 1000000 / (UNIX_TIMESTAMP(`campaigns`.`end_date`) - UNIX_TIMESTAMP(`campaigns`.`start_date`)) )) + 1 ) as `priority`,
-                    `ad_placement`.refresh_interval as refreshInterval
+                    `ad_placement`.refresh_interval as refreshInterval, `ad_placement`.`app_id`, `app_users`.`id` as `app_user`, `camp_users`.`id` as `camp_user`
                     {$object->select->{$this->_status}}
                 FROM `ad_creative`
                     INNER JOIN `campaigns`                          ON `campaigns`.`id` = `ad_creative`.`camp_id`
@@ -148,7 +148,7 @@ class AdServingQueryCtrl extends Controller
                     AND
                         /* Layout */
                         {$queryParts->deviceLayoutConditions}
-                    ORDER BY `priority` DESC";
+                    ";
         return \DB::select($this->_query);
     }
 
@@ -176,7 +176,8 @@ class AdServingQueryCtrl extends Controller
     {
     	$var = [];
     	$relevantAdSelect       = ", `campaigns`.`name` as `campName`, `camp_users`.`fname`, `camp_users`.`lname`, `campaigns`.`fcategory`, `campaigns`.`scategory`";
-    	$retrieveJoinDevice     = "INNER JOIN `devices` ON `devices`.`id` = {$this->_deviceId}";
+    	$retrieveAdSelect       = ", devices.country";
+        $retrieveJoinDevice     = "INNER JOIN `devices` ON `devices`.`id` = {$this->_deviceId}";
     	$retrieveCountrySelect  = " ( SELECT COUNT(*) FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id`) = 0
     	                                OR
     	                            `devices`.`country` IN ( SELECT `campaign_countries`.`country_id` FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id` )";
@@ -189,7 +190,7 @@ class AdServingQueryCtrl extends Controller
     	$retrieveJoinCountry    = "INNER JOIN `countries` ON `countries`.`id` = `devices`.`country`";
 
     	$var    = [
-    	        'select'        => [ 'relevant' => $relevantAdSelect,       'retrieve' => '' ],
+    	        'select'        => [ 'relevant' => $relevantAdSelect,       'retrieve' => $retrieveAdSelect ],
     	        'joinDevice'    => [ 'relevant' => '',                      'retrieve' => $retrieveJoinDevice ],
     	        'countrySelect' => [ 'relevant' => $relevantCountrySelect,  'retrieve' => $retrieveCountrySelect ],
     	        'joinCountries' => [ 'relevant' => $relevantJoinCountry,    'retrieve' => $retrieveJoinCountry]

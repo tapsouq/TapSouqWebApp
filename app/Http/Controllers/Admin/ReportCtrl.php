@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 
 use Auth, DB, Validator;
 use App\Models\Category, App\Models\Country, App\Models\Zone;
-use App\Models\Ads, App\Models\SdkAction, App\Models\SdkRequest;
+use App\Models\Ads, App\Models\SdkAction, App\Models\SdkActions;
 use App\Models\Application, App\Models\Device, App\Models\Language;
 class ReportCtrl extends Controller
 {
@@ -105,7 +105,7 @@ class ReportCtrl extends Controller
         $perPage        = $request->input('per-page') ?: $this->_initPerPage;
 
         // Get shown creative
-        $shownAds = SdkRequest::getShownAds($zoneId, $request);
+        $shownAds = SdkActions::getShownAds($zoneId, $request);
 
         // Paginate items with mentioned arguments.
         $items = sizeof($shownAds) ? paginate( $shownAds, $perPage, $request->input('page') ) : [];
@@ -241,8 +241,8 @@ class ReportCtrl extends Controller
 
         // clone the allDevices object to get the active ones.
         $activeDevices  = clone($allDevices);
-        $activeDevices->leftJoin('sdk_requests', 'sdk_requests.device_id', '=', 'devices.id');
-        filterByTimeperiod($activeDevices, $request, "sdk_requests");
+        $activeDevices->leftJoin('sdkactions', 'sdkactions.device_id', '=', 'devices.id');
+        filterByTimeperiod($activeDevices, $request, "sdkactions");
 
         $allDevices     = $allDevices->get();
         $newDevices     = array_pluck( $newDevices->get(), 'devicesCount', 'code');
@@ -283,8 +283,8 @@ class ReportCtrl extends Controller
 
         // clone the allDevices object to get the active ones.
         $activeDevices  = clone($allDevices);
-        $activeDevices->leftJoin('sdk_requests', 'sdk_requests.device_id', '=', 'devices.id');
-        filterByTimeperiod($activeDevices, $request, "sdk_requests");
+        $activeDevices->leftJoin('sdkactions', 'sdkactions.device_id', '=', 'devices.id');
+        filterByTimeperiod($activeDevices, $request, "sdkactions");
 
         $allDevices     = $allDevices->get();
         $newDevices     = array_pluck( $newDevices->get(), 'devicesCount', 'name');
@@ -324,8 +324,8 @@ class ReportCtrl extends Controller
 
         // clone the allDevices object to get the active ones.
         $activeDevices  = clone($allDevices);
-        $activeDevices->leftJoin('sdk_requests', 'sdk_requests.device_id', '=', 'devices.id');
-        filterByTimeperiod($activeDevices, $request, "sdk_requests");
+        $activeDevices->leftJoin('sdkactions', 'sdkactions.device_id', '=', 'devices.id');
+        filterByTimeperiod($activeDevices, $request, "sdkactions");
 
         $allDevices     = $allDevices->get();
         $newDevices     = array_pluck( $newDevices->get(), 'devicesCount', "{$report}");

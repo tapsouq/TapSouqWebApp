@@ -1,0 +1,33 @@
+Available RAM = Global Buffers + (Thread Buffers x max_connections)
+
+max_connections = (Available RAM - Global Buffers) / Thread Buffers
+To get the list of buffers and their values:
+
+SHOW VARIABLES LIKE '%buffer%';
+Here's a list of the buffers and whether they're Global or Thread:
+
+Global Buffers: key_buffer_size, innodb_buffer_pool_size, innodb_log_buffer_size, 
+	innodb_additional_mem_pool_size, net_buffer_size, query_cache_size
+
+Thread Buffers: sort_buffer_size, myisam_sort_buffer_size, read_buffer_size, 
+		join_buffer_size, read_rnd_buffer_size, thread_stack
+
+max_connections = (Available RAM - Global Buffers) / Thread Buffers
+ = 
+( 8G - 243286016 ) /  4158144
+global:
+key_buffer_size : 				33,554,432
+innodb_buffer_pool_size : 		134217728
+innodb_log_buffer_size: 		8388608
+net_buffer_length: 				16384
+query_cache_size: 				67108864
+
+Thread:
+myisam_sort_buffer_size: 		2097152+
+innodb_sort_buffer_size: 		1048576+
+read_buffer_size : 				131072+
+join_buffer_size: 				262144+
+read_rnd_buffer_size: 			262144+
+thread_stack: 					262144+
+preload_buffer_size: 			32768+
+sort_buffer_size: 				62144+

@@ -8,8 +8,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use DB, Validator, Session;
-
-use App\Models\SdkAction, App\Models\SdkRequest, App\Models\Device;
+use App\Models\SdkActions, App\Models\SdkActionsTmp;
+use App\Models\SdkRequest, App\Models\Device;
 use App\Models\Country, App\Models\Language;
 class SdkCtrl extends Controller
 {
@@ -23,33 +23,38 @@ class SdkCtrl extends Controller
      */
     public function addDevice ( Request $request ){
         $array     = $request->segments();
-        
+
         $googleAdvId    = $array[ADD_ADVERTISING_ID];
-        $device         = Device::where('advertising_id', $googleAdvId)->first();
-        if( $device != null ){
-            $response = [ 
-                   'status'     => true,
-                   'device_id'  => $device->id 
-               ];
-            return response()->json($response);
-        }
-
-        $country        = Country::find($array[ADD_COUNTRY]);
-        $language       = Language::find($array[ADD_LANG]);
         $platform       = $array[ADD_PLATFORM];
+        $countryId      = $array[ADD_COUNTRY];
+        $languageId     = $array[ADD_LANG];
+        $sdkVersion     = (float)urldecode($array[TAPSOUQ_SDK_VER]);
 
-        if( $language == null ){
+        // To scheck is the sdk version before sdk version > 0.6
+        if( $sdkVersion < 0.6 ){
+            $device = Device::where('advertising_id', '=', $googleAdvId)->first();
+            if( $device != null ){
+                return [
+                        'status'    => true,
+                        'device_id' => $device->id
+                    ];
+            }
+        }
+       
+        $results    = Device::validateDeviceLangAndCountryIds($languageId, $countryId); 
+
+        if( count( $results ) == 0 ){
             $response = [ 
                     'status'    => false,
-                    'error'     => "The language id isn't valid." 
+                    'error'     => "The country id isn't valid." 
                 ];
             return response()->json($response);   
         }
 
-        if( $country == null  ){
+        if( !( $results[0]->language )  ){
             $response = [ 
                     'status'    => false,
-                    'error'     => "The country id isn't valid." 
+                    'error'     => "The language id isn't valid." 
                 ];
             return response()->json($response);
         }
@@ -65,8 +70,8 @@ class SdkCtrl extends Controller
 
         $device  = new Device();
     
-        $device->language       = $language->id;
-        $device->country        = $country->id;
+        $device->language       = $languageId;
+        $device->country        = $countryId;
         $device->platform       = $array[ADD_PLATFORM]; 
         $device->advertising_id = $googleAdvId; 
         $device->manefacturer   = urldecode($array[ADD_MANEFACTURER]); 
@@ -74,7 +79,7 @@ class SdkCtrl extends Controller
         $device->os_version     = urldecode($array[ADD_OS_VER]);
         $device->os_api_version = urldecode($array[ADD_OS_API]);
         $device->carrier        = urldecode($array[ADD_CARRIER]);
-        $device->sdk_version    = urldecode($array[TAPSOUQ_SDK_VER]);
+        $device->sdk_version    = $sdkVersion;
 
         if( $device->save() ){
             $response = [
@@ -102,18 +107,21 @@ class SdkCtrl extends Controller
     public function updateDevice ( Request $request ){
 
         $array      = $request->segments();
-        $country    = Country::find($array[UPDATE_COUNTRY]);
-        $language   = Language::find($array[UPDATE_LANG]);
+        $countryId    = $array[UPDATE_COUNTRY];
+        $languageId   = $array[UPDATE_LANG];
 
         $deviceId   = $array[UPDATE_DEVICE_ID];
         $device     = Device::find($deviceId);
 
         if( $device != null ){
-            if( $language != null ){
-                if( $country != null ){
 
-                    $device->language       = $language->id;
-                    $device->country        = $country->id;
+            $results    = Device::validateDeviceLangAndCountryIds($languageId, $countryId);
+            
+            if( count( $results ) != 0 ){
+                if( $results[0]->language ){
+
+                    $device->language       = $languageId;
+                    $device->country        = $countryId;
                     $device->manefacturer   = urldecode($array[UPDATE_MANEFACTURER]); 
                     $device->model          = urldecode($array[UPDATE_MODEL]);
                     $device->os_version     = urldecode($array[UPDATE_OS_VER]);
@@ -136,13 +144,13 @@ class SdkCtrl extends Controller
                 }else {
                     $response = [
                             'status'    => false,
-                            'error'     => "The country id isn't valid."
+                            'error'     => "The language id isn't valid."
                         ];
                 }
             }else {
                 $response = [
                         'status'    => false,
-                        'error'     => "The language id isn't valid."
+                        'error'     => "The country id isn't valid."
                     ];
             }
         }else{
@@ -177,15 +185,15 @@ class SdkCtrl extends Controller
                 break;
             case SHOW_ACTION:
                 # code ...
-                return $this->_insertSdkAction(SHOW_ACTION, $requestId, $creativeId);
+                return $this->_insertSdkAction($request);
                 break;
             case CLICK_ACTION:
                 # code ...
-                return $this->_insertSdkAction(CLICK_ACTION, $requestId, $creativeId);
+                return $this->_insertSdkAction($request);
                 break;
             case INSTALL_ACTION:
                 # code ...
-                return $this->_insertSdkAction(INSTALL_ACTION, $requestId, $creativeId);
+                return $this->_insertSdkAction( $request);
                 break;
             default:
                 return $this->_returnNotValidAction( $action );
@@ -210,7 +218,7 @@ class SdkCtrl extends Controller
         $appPackage     = $inputs[APP_PACKAGE];
 
         // to insert request action into database
-        $requestId = SdkRequest::insertRequest($placementId, 0, $deviceId);
+        $requestId = SdkActionsTmp::insertRequest($placementId, $deviceId);
         if( $requestId ){
 
             // To get suitable creative ad if ther is.
@@ -226,25 +234,17 @@ class SdkCtrl extends Controller
     }
 
     /**
-     * _insertSdkAction. To insert show action
+     * _insertSdkAction. To insert sdk actions
      *
-     * @param int $action
-     * @param int $requestId
-     * @param int $creativeId
-     * @param int $deviceId
+     * @param  \Illuminate\Http\Request $request
      * @return json
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _insertSdkAction ( $action, $requestId, $creativeId){
+    public function _insertSdkAction ( $request){
         
-        if( $action == SHOW_ACTION ){
-            // update sdk actions table with impression action.
-            SdkRequest::updateRequest( $requestId, $creativeId);
-        }
-
         // insert the sdk action into DB
-        $inserted = SdkAction::insertAction($action, $requestId);
+        $inserted = SdkActionsTmp::insertAction($request);
 
         if($inserted){
             $response = [

@@ -189,18 +189,7 @@ class CampaignCtrl extends Controller
         $categories = $this->_categories;
         $countries  = $this->_countries;
         $keywords   = $this->_keywords;
-        
-        /*
-            $selected_cats      = DB::table( 'campaign_categories' )
-                                    ->where( 'camp_id', '=', $camp_id )
-                                    ->lists( 'cat_id' );
-            array_push($selected_cats, '');
-            array_push($selected_cats, '');
-        */
 
-        $selected_countries = DB::table( 'campaign_countries' )
-                                ->where( 'camp_id', '=', $camp_id )
-                                ->lists( 'country_id' );
         $selectedKeys       = DB::table( 'campaign_keywords' )
                                 ->leftJoin( 'keywords', 'keywords.id', '=', 'campaign_keywords.keyword_id' )
                                 ->where( 'campaign_keywords.camp_id', '=', $camp_id )
@@ -318,6 +307,8 @@ class CampaignCtrl extends Controller
         $camp->fcategory        = $request->has('fcategory') ? $request->fcategory : NULL;
         $camp->scategory        = $request->has('scategory') ? $request->scategory : NULL;
 
+        $camp->countries        = $request->has('country') ? implode(',', $request->country) : null;
+
         if( $request->has('status') ){
             if( $request->status == DELETED_CAMP ){
                 // delete all ads to these campaign
@@ -328,23 +319,6 @@ class CampaignCtrl extends Controller
         }
 
         $camp->save();
-
-        // $categories = [];
-        // if( $request->has('fcategory') || $request->has('scategory') ){
-
-        //     $request->has('fcategory') ? array_push($categories, $request->fcategory) : '';
-        //     $request->has('scategory') ? array_push($categories, $request->scategory) : '';
-            
-        //     syncPivot( 'campaign_categories', 'camp_id', $camp->id, 'cat_id', $categories );
-        // }else{
-        //     DB::table('campaign_categories')
-        //         ->where('camp_id', '=', $camp->id)
-        //         ->delete();
-        // }
-
-        $countries = $request->has( 'country' ) ? $request->country : [];
-        syncPivot( 'campaign_countries', 'camp_id', $camp->id, 'country_id', $countries );
-
 
         // save application keywords
         $this->_saveCampKeywords( $request, $camp->id );

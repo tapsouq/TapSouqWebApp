@@ -139,7 +139,7 @@
                                             <select class="form-control country-select" name="country[]" multiple="">
                                                 <option value="">{{ trans('admin.all_countries') }}</option>
                                                 @foreach( $countries as $key => $country )
-                                                    <option value="{{ $country->id }}" {{ isset($camp) ? ( in_array($country->id, $selected_countries) ? 'selected' : '' ) : ( old('country') ? ( in_array($country->id, old('country')) ? 'selected' :'' ) : '' ) }} >
+                                                    <option value="{{ $country->id }}" {{ isset($camp) ? ( in_array($country->id, explode(',', $camp->countries) ) ? 'selected' : '' ) : ( old('country') ? ( in_array($country->id, old('country')) ? 'selected' :'' ) : '' ) }} >
                                                         {{ $country->name }}
                                                     </option>
                                                 @endforeach

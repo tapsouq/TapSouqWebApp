@@ -78,10 +78,14 @@ class AdServingCtrl extends Controller
             return [
                     'status'        => true,
                     'requestId'     => $this->_requestId,
+                    'general_frequency_capping' => config('system.general_frequency_capping'),
                     'adsObject'     => (array) $selectedAd
                 ];
         }else{
-
+            return [
+                    'status'    => false,
+                    'error'     => "There is no suitable ads for this unit."
+                ];
             // Get why there is no relevant ads. To help testing
             $errorValidator = new ValidateAdServingEmptyCtrl($this->_placementId, $this->_deviceId, $this->_appPackage, $this->_requestId);
             return $errorValidator->getEmptyRelevantError();
