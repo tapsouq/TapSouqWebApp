@@ -35,6 +35,8 @@ Route::get( 'verify-email', 'Auth\AuthController@verifyEmail' );
 Route::get('/', 'HomeCtrl@index');
 Route::get('terms-of-service', 'HomeCtrl@showTermOfService');
 Route::get('resources-page', 'HomeCtrl@showResourcesPage');
+Route::get('contact-us', 'HomeCtrl@showContactUs');
+Route::post('save-contactus', 'HomeCtrl@saveContactUs');
 
 // Middlware fo authinticated active users
 Route::group(['middleware' => 'auth'], function () {

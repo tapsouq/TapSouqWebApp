@@ -108,7 +108,7 @@ class AuthController extends Controller
      */
     private function _sendVerifyMail ( $user ){
             
-        return Mail::send('admin.emails.verify', ['user' => $user ], function ($m) use ( $user ) {
+        return Mail::send('emails.verify', ['user' => $user ], function ($m) use ( $user ) {
            $m->from( getSiteInfo()->site_email , getSiteInfo()->site_title );
 
            $m->to( $user->email , $user->fname . " " . $user->lname )->subject( trans( 'admin.please_verfiy_your_email' ) );

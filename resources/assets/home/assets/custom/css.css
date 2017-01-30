@@ -362,3 +362,8 @@ body footer p a i.fa{
         margin-top: 10px;
     }
 }
+
+/* Contact us */
+.contactus-section{
+  min-height: 350px;
+}

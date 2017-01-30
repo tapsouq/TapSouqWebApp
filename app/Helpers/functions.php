@@ -26,7 +26,8 @@ if( ! function_exists( 'getSiteInfo' ) ){
 	function getSiteInfo (  ){
 		$array = [
 			'site_title'  		=> trans( 'lang.tabsouq' ),
-			'site_email'		=> "info@tapsouq.smart-apps-ar.com"
+			'site_email'		=> "info@tapsouq.com",
+            'contactUsEmail'    => 'contact-us@tapsouq.com'
 		];
 
 		return json_decode( json_encode( $array ) );

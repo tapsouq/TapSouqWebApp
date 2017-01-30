@@ -88,8 +88,7 @@ class AdServingQueryCtrl extends Controller
     private function _setQuery (){
 
     	$object     = $this->_adaptStatusDiffInAlgorithm();
-        $conditions = $this->_adServingQueryParts();
-        $queryParts = $this->_adServingQueryParts();
+        $queryParts = $this->_adServingQueryParts( $object );
 
         $this->_query = "
                 SELECT 
@@ -124,7 +123,8 @@ class AdServingQueryCtrl extends Controller
                         {$queryParts->diffUserConditions}
                     AND
                     (
-                        {$object->countrySelect->{$this->_status}}
+                        /* Campaign countries */
+                        {$queryParts->campCountriesConditions}
                     )
                     AND
                         /* Campaign Time */
@@ -178,13 +178,9 @@ class AdServingQueryCtrl extends Controller
     	$relevantAdSelect       = ", `campaigns`.`name` as `campName`, `camp_users`.`fname`, `camp_users`.`lname`, `campaigns`.`fcategory`, `campaigns`.`scategory`";
     	$retrieveAdSelect       = ", devices.country";
         $retrieveJoinDevice     = "INNER JOIN `devices` ON `devices`.`id` = {$this->_deviceId}";
-    	$retrieveCountrySelect  = " ( SELECT COUNT(*) FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id`) = 0
-    	                                OR
-    	                            `devices`.`country` IN ( SELECT `campaign_countries`.`country_id` FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id` )";
+    	$retrieveCountrySelect  = "`devices`.`country`";
     	
-    	$relevantCountrySelect  = " ( SELECT COUNT(*) FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id`) = 0
-    	                                OR
-    	                            {$this->_countryId} IN ( SELECT `campaign_countries`.`country_id` FROM `campaign_countries` WHERE `campaign_countries`.`camp_id` = `campaigns`.`id` )";
+    	$relevantCountrySelect  = "{$this->_countryId}";
 
     	$relevantJoinCountry    = "INNER JOIN `countries` ON `countries`.`id` = {$this->_countryId}";
     	$retrieveJoinCountry    = "INNER JOIN `countries` ON `countries`.`id` = `devices`.`country`";
@@ -201,12 +197,12 @@ class AdServingQueryCtrl extends Controller
     /**
      * _adServingQueryParts. It's the parts of the algorithm query.
      *
-     * @param  param
+     * @param  object.
      * @return return
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _adServingQueryParts()
+    public function _adServingQueryParts( $object=null )
     {
     	$_category = 
     			"(  
@@ -222,7 +218,7 @@ class AdServingQueryCtrl extends Controller
                     )
                 )";
 
-        $_keywords =
+        $_keywords  =
         		"(
                     CASE
                         WHEN `campaign_keywords`.`keyword_id` IS NULL 
@@ -232,11 +228,21 @@ class AdServingQueryCtrl extends Controller
                     END
                 )";
 
-        $_diffUser = "`camp_users`.`id` != `app_users`.`id`";
+        $_countries =  
+                "(
+                    CASE
+                        WHEN `campaigns`.`countries` IS NULL 
+                            THEN 1
+                        WHEN `campaigns`.`countries` IS NOT NULL
+                            THEN {$object->countrySelect->{$this->_status}} IN ( `campaigns`.`countries` )
+                    END
+                )";
 
-        $_campTime = "NOW() BETWEEN `campaigns`.`start_date` AND `campaigns`.`end_date`";
+        $_diffUser  = "`camp_users`.`id` != `app_users`.`id`";
 
-        $_credit = 
+        $_campTime  = "NOW() BETWEEN `campaigns`.`start_date` AND `campaigns`.`end_date`";
+
+        $_credit    = 
         		"(
                     (
                             `camp_users`.`role` != {$this->_admin} 
@@ -273,6 +279,7 @@ class AdServingQueryCtrl extends Controller
     	$this->_queryParts = [
                 "categoryConditions"        => $_category,
                 "keywordConditions"         => $_keywords,
+                "campCountriesConditions"   => $_countries,
                 "diffUserConditions"        => $_diffUser,
                 "campTimeConditions"        => $_diffUser,
                 "creditConditions"          => $_credit,

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use Validator, Mail;
+
 class HomeCtrl extends Controller
 {
     // the main Title of all pages controlled by this controller
@@ -59,8 +61,8 @@ class HomeCtrl extends Controller
     /**
      * showResourcesPage . Show Term Of Service page.
      *
-     * @param  param
-     * @return return
+     * @param  void
+     * @return \Illuminate\Http\Response
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
@@ -73,5 +75,75 @@ class HomeCtrl extends Controller
                     ->with(compact($data));  
     }
 
- 
+    /**
+     * showContactUs. To show contact us page.
+     *
+     * @param  void
+     * @return \Illuminate\Http\Response
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function showContactUs()
+    {
+        $mTitle = $this->_mTitle;
+        $title  = trans('admin.contact_us');
+        $data   = [ 'mTitle', 'title' ];
+
+        return view('home.contact-us')
+                    ->with(compact($data));
+    }
+
+    /**
+     * saveContactUs. To save contact us post request.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function saveContactUs( Request $request )
+    {
+        $validator = Validator::make($request->all(), [
+                'name'      => 'required',
+                'title'     => 'required',
+                'email'     => 'required|email',
+                'subject'   => 'required'
+            ]);
+
+        if( $validator->fails() ){
+            return redirect()->back()
+                        ->withInput()
+                        ->withErrors( $validator )
+                        ->with( 'error', trans( 'lang.validate_msg' ) );
+        }else{
+            if( $this->_sendContactUsEmail($request) ){
+                $status = 'success';
+                $msg = trans( 'lang.sucess_send_contactus' );
+            }else{
+                $status = 'error';
+                $msg = trans( 'lang.there_are_such_error' );
+            }
+
+            return redirect()->back()
+                        ->with($status, $msg );
+        }
+    }
+
+    /**
+     * _sendContactUsEmail. To send the mail to the contct-us@tapsouq.com mail.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return boolean
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function _sendContactUsEmail(Request $request)
+    {
+        return Mail::send('emails.contact-us', ['request' => $request ], function ($mail) use ( $request ) {
+                   $mail->from( $request->email , $request->title );
+
+                   $mail->to( getSiteInfo()->contactUsEmail , getSiteInfo()->site_title )
+                        ->subject( trans( 'admin.msgFromContactUs' ) );
+               });
+    }
 }
