@@ -3,7 +3,6 @@
 @section( 'head' )
     
 @stop
-
 @section( 'content' )
     <section class="slider"> 
         <div class="container">
@@ -47,7 +46,7 @@
                                     <article> 
                                         <h2>Main Benefits</h2>
                                         <ul>
-                                            <li>About 90% of monetization ad requests are not filled. So, tapsouq can utilize your ad inventory.</li>
+                                            <li>About 70% of monetization ad requests are not filled. So, tapsouq can utilize your ad inventory.</li>
                                             <li>Gather ads in your account and use them in the big launch of new application.</li>
                                             <li>Or, spend your ads day by day to get new users for the current applications.</li>
                                             <li>Filter ads and apps that are being promoted in your apps.</li>
@@ -111,7 +110,7 @@
                     <article class="text-center">
                         <header>
                             <h3>
-                                Cross Promotion
+                            Free Downloads
                             </h3>
                         </header>
                         <div>
@@ -119,7 +118,7 @@
                                 <img src="{{ url('resources/assets/home') }}/images/gross-promotion.png" alt="Gross Promotion">
                             </p>
                             <p>
-                                Utilize the network of your Apps and promote the new app. 
+                                Get free downloads without paying any cent. Only 10% margin of served ads go to tapsouq. 
                             </p>
                         </div>
                     </article>

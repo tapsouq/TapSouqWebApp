@@ -146,7 +146,7 @@
                                                 {{ Request::has('camps') ? trans( 'admin.spent_credits' ) : trans( 'admin.gained_credits' ) }}
                                             </span>
                                             <span class="info-box-number">
-                                                {{ $credits = $total->credit ?: 0 }}$  
+                                                {{ $credits = $total->credit ?: 0 }}
                                             </span>
                                             <?php $progress = $total->requests ? ( round($total->credit / $total->requests,2) * 100 ) : 0; ?>
                                             <div class="progress">

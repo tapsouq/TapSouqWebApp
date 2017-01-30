@@ -213,5 +213,6 @@ return [
 	"carrier_reports"			=> "Carriers",
 	"os_version_reports"		=> "OS Versions",
 	"imp_per_day"				=> "Impressions per day",
-	"resources"					=> "Resources Page"
+	"resources"					=> "Resources Page",
+	"msgFromContactUs"			=> "From Contact us page",
 ];

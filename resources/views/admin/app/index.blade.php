@@ -37,9 +37,9 @@
                                     <th>{{ trans( 'lang.name' ) }}</th>
                                     <th>{{ trans( 'admin.requests' ) }}</th>
                                     <th>{{ trans( 'admin.impressions' ) }}</th>
+                                    <th>{{ trans( 'admin.fill_rate' ) }}</th>
                                     <th>{{ trans( 'admin.clicks' ) }}</th>
                                     <th>{{ trans( 'admin.ctr' ) }}</th>
-                                    <th>{{ trans( 'admin.fill_rate' ) }}</th>
                                     <th>{{ trans( 'admin.convs' ) }}</th>
                                     <th>{{ trans( 'admin.num_of_ads' ) }}</th>
                                     <th>{{ trans( 'lang.status' ) }}</th>
@@ -68,16 +68,16 @@
                                                 {{ $value->impressions ?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $value->clicks ?: 0 }}
-                                            </td>
-                                            <td>
-                                                {{ $value->impressions ? round($value->clicks/$value->impressions,2)*100 : 0 }}%
-                                            </td>
-                                            <td>
                                                 {{ $value->requests ? round($value->impressions / $value->requests,2)*100: 0 }}%
                                             </td>
                                             <td>
-                                                {{ $value->impressions ? round( $value->installed/$value->impressions,2)*100 : 0  }}%
+                                                {{ $value->clicks ?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $value->impressions ? round($value->clicks/$value->impressions,4)*100 : 0 }}%
+                                            </td>
+                                            <td>
+                                                {{ $value->installed ?: 0  }}
                                             </td>
                                             <td>
                                                 {{ getAppAdsCount($value->id) }}
@@ -115,10 +115,10 @@
                                             </td>
                                             <td> 0 </td>
                                             <td> 0 </td>
+                                            <td> 0% </td>
                                             <td> 0 </td>
                                             <td> 0% </td>
-                                            <td> 0% </td>
-                                            <td> 0% </td>
+                                            <td> 0 </td>
                                             <td>
                                                 {{ getAppAdsCount($_value->id) }}
                                             </td>

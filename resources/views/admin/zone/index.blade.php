@@ -37,9 +37,9 @@
                                     <th>{{ trans( 'lang.name' ) }}</th>
                                     <th>{{ trans( 'admin.requests' ) }}</th>
                                     <th>{{ trans( 'admin.impressions' ) }}</th>
+                                    <th>{{ trans( 'admin.fill_rate' ) }}</th>
                                     <th>{{ trans( 'admin.clicks' ) }}</th>
                                     <th>{{ trans( 'admin.ctr' ) }}</th>
-                                    <th>{{ trans( 'admin.fill_rate' ) }}</th>
                                     <th>{{ trans( 'admin.convs' ) }}</th>
                                     <th>{{ trans( 'lang.status' ) }}</th>
                                     @if( \Auth::user()->role == ADMIN_PRIV )
@@ -66,16 +66,16 @@
                                                 {{ $ad->impressions ?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $ad->clicks ?: 0 }}
-                                            </td>
-                                            <td>
-                                                {{ $ad->impressions ? round($ad->clicks / $ad->impressions, 2) * 100 : 0 }}%
-                                            </td>
-                                            <td>
                                                 {{ $ad->requests ? round($ad->impressions/$ad->requests, 2) * 100 : 0 }}%
                                             </td>
                                             <td>
-                                                {{ $ad->impressions ? round($ad->installed / $ad->impressions, 2) * 100 : 0 }}%
+                                                {{ $ad->clicks ?: 0 }}
+                                            </td>
+                                            <td>
+                                                {{ $ad->impressions ? round($ad->clicks / $ad->impressions, 4) * 100 : 0 }}%
+                                            </td>
+                                            <td>
+                                                {{ $ad->installed ?: 0 }}
                                             </td>
                                             <td>
                                                 <div class="label {{ $css[ $ad->status ] }}">
@@ -125,10 +125,10 @@
                                             </td>
                                             <td> 0 </td>
                                             <td> 0 </td>
+                                            <td> 0% </td>
                                             <td> 0 </td>
                                             <td> 0% </td>
-                                            <td> 0% </td>
-                                            <td> 0% </td>
+                                            <td> 0 </td>
                                             <td>
                                                 <div class="label {{ $css[ $_value->status ] }}">
                                                     {{ $states[ $_value->status ] }}
@@ -137,10 +137,10 @@
                                             <td>
                                                 @if( $_value->status != DELETED_APP && \Auth::user()->role == ADMIN_PRIV )
                                                     <div class="btn-group">
-                                                        <a href="{{ url('reports/relevant-ads/' . $_value->id ) }}" title="{{ trans('admin.show_relevant_ads') }}" class="btn btn-sm btn-info">
+                                                        <a href="{{ url('reports/relevant-ads/' . $_value->id ) }}" title="{{ trans('admin.show_relevant_ads') }}" class="btn btn-sm btn-warning">
                                                             <i class="fa fa-exchange"></i>
                                                         </a>
-                                                        <a href="{{ url('reports/shown-ads/' . $_value->id ) }}" title="{{ trans('admin.show_shown_ads') }}" class="btn btn-sm btn-warning">
+                                                        <a href="{{ url('reports/shown-ads/' . $_value->id ) }}" title="{{ trans('admin.show_shown_ads') }}" class="btn btn-sm btn-info">
                                                             <i class="fa fa-laptop"></i>
                                                         </a>
                                                     </div>

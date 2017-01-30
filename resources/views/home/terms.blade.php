@@ -137,23 +137,6 @@
 							<li>
 								Third Party Services. TapSouq may use third party services providers to make certain services available to You, including to view performance metrics. Such third party services may change at any time, in TapSouq’s sole discretion. You are solely responsible for the use and security of any accounts made available by way of such third party services and You are solely responsible for any activities of any person authorized by You to have access to such accounts.
 							</li>
-							<li>
-								International Compliance. You will not use TapSouq to serve Publisher Ads or Demand Ads from, or target Publisher Ads or Demand Ads to, countries, entities, or individuals subject to U.S. trade sanctions or other U.S. export control laws. You will not use any TapSouq Materials in connection with any Publisher Network, or part of Publisher Network, that is distributed or otherwise made available to any countries, entities, or individuals subject to U.S. trade sanctions or other U.S. export control laws. Further, You represent and warrant that You 
-								<ol>
-									<li>
-										are not located in, under the control of, or a national or resident of any country to which the United States has embargoed goods or services; 
-									</li>
-									<li>
-										are not identified as a “Specially Designated National” by the Office of Foreign Assets Control; 
-									</li>
-									<li>
-										are not placed on the U.S. Commerce Department’s Denied Persons List; 
-									</li>
-									<li>
-										and will not access or use any of the Services if any applicable laws in Your country prohibit You from doing so in accordance with this Agreement.
-									</li>
-								</ol>
-							</li>
 						</ol>
 					</li>
 					<li>

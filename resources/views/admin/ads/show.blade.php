@@ -83,7 +83,7 @@
                                             {{ trans( 'admin.ctr' ) }}
                                         </span>
                                         <span class="info-box-number">
-                                            {{ $ctr = $adsDetails->impressions ? round($adsDetails->clicks / $adsDetails->impressions ,2) * 100 : 0 }}%
+                                            {{ $ctr = $adsDetails->impressions ? round($adsDetails->clicks / $adsDetails->impressions ,4) * 100 : 0 }}%
                                         </span>
 
                                         <div class="progress">
@@ -102,7 +102,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">{{ trans( 'admin.convs' ) }}</span>
                                         <span class="info-box-number">
-                                            {{ $convs = $adsDetails->clicks ? round( $adsDetails->installed/$adsDetails->clicks, 2) * 100 : 0 }}%  
+                                            {{ $convs = $adsDetails->installed ?: 0 }}  
                                         </span>
 
                                         <div class="progress">

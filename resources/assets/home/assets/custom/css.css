@@ -234,7 +234,7 @@ body footer p,
 body footer p a,
 body footer ul,
 body footer ul li a{
-    color: #1b292f;
+    color: rgb(118, 122, 124);
 }
 body footer p a{
     margin: 0 10px;

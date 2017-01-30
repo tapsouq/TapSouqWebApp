@@ -126,7 +126,7 @@
                                             {{ trans( 'admin.ctr' ) }}
                                         </span>
                                         <span class="info-box-number">
-                                            {{ $ctr = $zoneDetails->impressions ? round($zoneDetails->clicks / $zoneDetails->impressions ,2) * 100 : 0 }}%
+                                            {{ $ctr = $zoneDetails->impressions ? round($zoneDetails->clicks / $zoneDetails->impressions ,4) * 100 : 0 }}%
                                         </span>
 
                                         <div class="progress">
@@ -145,7 +145,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">{{ trans( 'admin.convs' ) }}</span>
                                         <span class="info-box-number">
-                                            {{ $convs = $zoneDetails->clicks ? round( $zoneDetails->installed/$zoneDetails->clicks, 2) * 100 : 0 }}%  
+                                            {{ $convs =  $zoneDetails->installed ?: 0 }}  
                                         </span>
 
                                         <div class="progress">

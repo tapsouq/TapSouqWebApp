@@ -35,9 +35,11 @@
 								</td>
 								<td>{{ trans( 'admin.requests' ) }}</td>
 								<td>{{ trans( 'admin.impressions' ) }}</td>
+								<td>{{ trans( 'admin.fill_rate' ) }}</td>
 								<td>{{ trans( 'admin.clicks' ) }}</td>
 								<td>{{ trans( 'admin.ctr' ) }}</td>
 								<td>{{ trans( 'admin.convs' ) }}</td>
+								<td>{{ trans( 'admin.credit' ) }}</td>
 								<td>{{ trans( 'lang.status' ) }}</td>
 								<td>{{ trans( 'lang.actions' ) }}</td>
 							</tr>
@@ -56,9 +58,11 @@
 										</td>
 										<td>{{ $item->requests ?: 0 }}</td>
 										<td>{{ $item->impressions ?: 0 }}</td>
+										<td>{{ $item->requests ? round( $item->impressions / $item->requests, 2) * 100 : 0 }}%</td>
 										<td>{{ $item->clicks ?: 0 }}</td>
-										<td>{{ ($item->requests != 0 ) ? round( $item->clicks / $item->requests, 2) * 100 : 0 }}%</td>
-										<td>{{ ($item->clicks != 0 ) ? round( $item->installed / $item->clicks, 2) * 100 : 0 }}%</td>
+										<td>{{ $item->impressions ? round( $item->clicks / $item->impressions, 4) * 100 : 0 }}%</td>
+										<td>{{ $item->installed ?: 0 }}</td>
+										<td>{{ $item->credit ?: 0 }}</td>
 										<td>
 											<div class="label {{ $css[ $item->status ] }}">
 												{{ config( 'consts.user_status' )[ $item->status ] }}
@@ -89,9 +93,11 @@
 										</td>
 										<td> 0 </td>
 										<td> 0 </td>
+										<td>0%</td>
 										<td> 0 </td>
 										<td>0%</td>
-										<td>0%</td>
+										<td>0</td>
+										<td>{{ $_value->credit ?: 0 }}</td>
 										<td>
 											<div class="label {{ $css[ $_value->status ] }}">
 												{{ config( 'consts.user_status' )[ $_value->status ] }}

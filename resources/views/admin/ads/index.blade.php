@@ -63,10 +63,10 @@
                                                     {{ $ad->clicks ?: 0 }}
                                                 </td>
                                                 <td>
-                                                    {{ $ad->impressions ? round($ad->clicks / $ad->impressions , 2) * 100 : 0 }}%
+                                                    {{ $ad->impressions ? round($ad->clicks / $ad->impressions , 4) * 100 : 0 }}%
                                                 </td>
                                                 <td>
-                                                    {{ $ad->clicks ? round($ad->installed / $ad->clicks , 2) * 100 : 0 }}%
+                                                    {{ $ad->installed ?: 0 }}
                                                 </td>
                                                 <td>
                                                     <div class="label {{ $css[ $ad->status ] }}">
@@ -107,7 +107,7 @@
                                                 <td> 0 </td>
                                                 <td> 0 </td>
                                                 <td> 0% </td>
-                                                <td> 0% </td>
+                                                <td> 0 </td>
                                                 <td>
                                                     <div class="label {{ $css[ $_value->status ] }}">
                                                         {{ $states[ $_value->status ] }}

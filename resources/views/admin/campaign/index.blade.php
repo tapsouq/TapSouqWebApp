@@ -36,6 +36,7 @@
                                     <th>{{ trans( 'lang.name' ) }}</th>
                                     <th>{{ trans( 'admin.impressions' ) }}</th>
                                     <th>{{ trans( 'admin.clicks' ) }}</th>
+                                    <th>{{ trans( 'admin.ctr' ) }}</th>
                                     <th>{{ trans( 'admin.convs' ) }}</th>
                                     <th>{{ trans( 'admin.start_date' ) }}</th>
                                     <th>{{ trans( 'admin.end_date' ) }}</th>
@@ -62,7 +63,10 @@
                                                 {{ $camp->clicks?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $camp->clicks ? round($camp->installed / $camp->clicks , 2) * 100 : 0 }}%
+                                                {{ $camp->impressions ? round($camp->clicks / $camp->impressions , 4) * 100 : 0 }}%
+                                            </td>
+                                            <td>
+                                                {{ $camp->installed ?: 0 }}
                                             </td>
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->start_date )->format('m/d/Y g:i A') }}</td>
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->end_date )->format('m/d/Y g:i A') }}</td>
@@ -106,6 +110,7 @@
                                             <td> 0 </td>
                                             <td> 0 </td>
                                             <td> 0% </td>
+                                            <td> 0 </td>
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $_value->start_date )->format('m/d/Y g:i A') }}</td>
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $_value->end_date )->format('m/d/Y g:i A') }}</td>
                                             <td>

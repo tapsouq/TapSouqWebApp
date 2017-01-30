@@ -11,70 +11,77 @@
 			<div class="row">
 				<div class="col-md-12">
 					<h3>
-						To integrate ads follow the following steps
+						To integrate tapsouq sdk and show ads in your app follow the following steps:
 					</h3>
 				</div>
 				<div class="col-md-12">
 					<ol>
 						<li>
-							download sdk from here: <a href="">tapsouq-sdk-library.zip</a>
+							download sdk from here: <a href="{{ url('resources/assets/home/tapsouq-sdk-library.rar') }}">tapsouq-sdk-library.zip</a>
 							<br>
-							extract the downloaded file then you will find the library file tapsouq-sdk.aar and SampleProject to see how banners and interstitial working.
+							extract the downloaded file then you will find the library file tapsouq-sdk.aar and SampleProject to see how banners and interstitial are working.
 						</li>
 						<li>
-							Adding tapsouq library.
+							Create tapsouq library in Android Studio:
 							<br>
 							<span class="ml20">
 								Follow the following steps to add tapsouq-sdk.aar file to your android studio project.
 							</span>
 							<ol class="ml20">
 								<li>
-									open project structure.
-									<img src="{{ url() }}/resources/assets/home/images/resources/2-a.jpg" alt="open project structure.">
+									Click File -> New -> New Module -> Choose Import new JAR/AAR Module.
+									<img src="{{ url() }}/resources/assets/home/images/resources/2-a.jpg" alt="Click File -> New -> New Module -> Choose Import new JAR/AAR Module">
 								</li>
 								<li>
-									locate .aar library file.
-									<img src="{{ url() }}/resources/assets/home/images/resources/2-b.jpg" alt="locate .aar library file.">
+									Locate and open tapsouq-sdk-v1.0.aar library file from the extracted folder. Then click finish. Note that the module will be shown in your project modules list.
+									<img src="{{ url() }}/resources/assets/home/images/resources/2-b.jpg" alt="Locate and open tapsouq-sdk-v1.0.aar library file from the extracted folder. Then click finish. Note that the module will be shown in your project modules list.">
 								</li>
 								<li>
-									add the file to your project.
+									Add the module to your project as follow:
+									<br>
+									Open File Menu-> Project Structure -> Select your app from the left pane -> Dependencies Tab -> Click + Button -> Select Module Dependency -> and Select tap-souq-sdk module, then click OK.
 									<img src="{{ url() }}/resources/assets/home/images/resources/2-c.jpg" alt="add the file to your project.">
 								</li>
 								<li>
-									now you can start adding a few lines of code to integrate banners and interstitial. 
+									now you can start adding a few lines of code to integrate banners and interstitial.
 								</li>
 							</ol>
 						</li>
 						<li>
-							Banner Ads Integration.
+							Banner Ad Integration:
 							<ol class="ml20">
 								<li>
-									add xml tag of tapsouq sdk.
+									Login to your account and Add new app, then add new Ad unit (select banner format) and keep the Ad Unit ID to be used in step c. 
+								</li>
+								<li>
+									add xml tag of tapsouq banner.
 									<pre>
-									&lt;sdk.tapsouq.com.tapsouqsdk.ads.TapSouqBannerAd
-										android:id="@+id/banner_view"
-										android:layout_width="match_parent"
-										android:layout_height="wrap_content"
-										android:scaleType="fitXY" /&gt;
+										&lt;.tapsouq.sdk.ads.TapSouqBannerAd
+										    android:id="@+id/banner_view"
+										    android:layout_width="match_parent"
+										    android:layout_height="wrap_content" /&gt;
 									</pre>
 								</li>
 								<li>
-									in your main activity add the following line of codes:
-									<pre>TapSouqBannerAd bottomBanner = (TapSouqBannerAd) findViewById(R.id.banner_view);
-										bottomBanner.setAdUnitID("8");
-										bottomBanner.load();</pre>
+									In your Activity add the following line of codes:
+									<pre>// define the string field adUnitId
+										private String adUnitId = "8";
+										...
+										//add banner code in your activity onCreate() method
+										TapSouqBannerAd banner = (TapSouqBannerAd) findViewById(R.id.banner_view);
+										banner.setAdUnitID(adUnitId);
+										banner.load();</pre>
 								</li>
 								<li>
-									If you want to add listener to track when the ads shown, clicked or closed, add the listener like the following steps:
+									For testing purposes, you must set banner test mode before banner.load().
 									<pre>
-										TapSouqBannerAd bannerAd = (TapSouqBannerAd) findViewById(R.id.banner_view);
-										bannerAd.setAdUnitID(bannerAdUnit);
-										bannerAd.setListener(new TapSouqBannerAd.BannerAdListener() {
-										    @Override
-										    public void adLoaded(TapSouqBannerAd banner) {
-										        //do your stuff
-										    }
-
+										banner.setTestMode(true); //remove this line before publishing
+									</pre>
+								</li>
+								<li>
+									(Optional) If you want to add listener to track when the Ad is shown, clicked, failed, put this code before loading the banner:
+									<pre>
+										banner.setListener(new TapSouqListener() {
 										    @Override
 										    public void adShown() {
 
@@ -89,19 +96,13 @@
 										    }
 
 										    @Override
-										    public void adClosed() {
+										    public void adFailed() {
 
 										        //do your stuff
 										    }
 
-										    @Override
-										    public void appInstalled() {
-
-										        //do your stuff
-										    }
-										}
-										);
-										bannerAd.load();
+												
+										});
 									</pre>
 								</li>
 							</ol>
@@ -109,48 +110,61 @@
 						<li>
 							Interstitial Ads Integration.
 							<pre>
-								public class MainActivity extends AppCompatActivity {
+								banner.setListener(new TapSouqListener() {
+								    @Override
+								    public void adShown() {
 
-								    private String interstitialAdUnit = "12";
+								        //do your stuff
+								    }
+
 
 								    @Override
-								    protected void onCreate(Bundle savedInstanceState) {
-								        super.onCreate(savedInstanceState);
-								        setContentView(R.layout.activity_main);
+								    public void adClicked() {
 
-
-								        TapSouqInterstitialAd interstitialAd = new TapSouqInterstitialAd(this);
-								        interstitialAd.setAdUnitID(interstitialAdUnit);
-								        interstitialAd.setListener(new TapSouqInterstitialAd.InterstitialListener() {
-								            @Override
-								            public void adLoaded(TapSouqInterstitialAd loadedInterstitialAd) {
-								                loadedInterstitialAd.showAd();
-								            }
-
-								            @Override
-								            public void adShown() {
-
-								            }
-
-								            @Override
-								            public void adClicked() {
-
-								            }
-
-								            @Override
-								            public void adClosed() {
-
-								            }
-
-								            @Override
-								            public void appInstalled() {
-
-								            }
-								        });
-								        interstitialAd.load();
-
+								        //do your stuff
 								    }
-								}
+
+								    @Override
+								    public void adFailed() {
+
+								        //do your stuff
+								    }
+
+										
+								});
+							</pre>
+						</li>
+						<li>
+							(Optional) How to integrate tapsouq ads with admob:
+							<br>
+							You can put tapsouq Ads directly in your app and/or you can integrate them with admob. When admob ads are failed to load you can simply call tapsouq ads.
+							<pre>
+								admobInterstitialAd = new InterstitialAd(this);
+								admobInterstitialAd.setAdUnitId(admobAdUnitId);
+								admobInterstitialAd.setAdListener(new AdListener() {
+
+								    @Override
+								    public void onAdFailedToLoad(int errorCode) {
+
+								        final TapSouqInterstitialAd interstitialAd = new TapSouqInterstitialAd(this);
+								        interstitialAd.setAdUnitID(tapsouqAdUnitId);
+								        interstitialAd.setListener(new TapSouqListener() {
+								            @Override
+								            public void adLoaded() {
+								                if (interstitialAd.isAdLoaded() {
+								                    interstitialAd.showAd();
+								                }
+								            }
+								            //you can override other methods, if you need 
+								            // like adShown(), adClicked(), adClosed(), AdFailed()
+								        });
+
+
+								        super.onAdFailedToLoad(errorCode);
+								    }
+								});
+
+								admobInterstitialAd.loadAd(new AdRequest.Builder().build());
 
 							</pre>
 						</li>

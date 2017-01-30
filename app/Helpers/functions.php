@@ -232,7 +232,7 @@ if( ! function_exists('adaptChartData') ){
                     $array['credit'][]    = [ strtotime($item->date) * 1000, (int)$item->credit ];
                 }
 
-                $ctr        = $item->impressions != 0 ? round( $item->clicks/$item->impressions, 2) * 100 : 0;
+                $ctr        = $item->impressions != 0 ? round( $item->clicks/$item->impressions, 4) * 100 : 0;
                 $array['impressions'][] = [ strtotime($item->date) * 1000, (int)$item->impressions ];
                 $array['clicks'][] = [ strtotime($item->date) * 1000, (int)$item->clicks ];
                 $array['ctr'][] = [ strtotime($item->date) * 1000, $ctr ];
