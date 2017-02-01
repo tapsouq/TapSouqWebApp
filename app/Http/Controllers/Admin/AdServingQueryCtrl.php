@@ -50,15 +50,15 @@ class AdServingQueryCtrl extends Controller
      * getCreativeAds. To get the most suitable creative ads for placement zone.
      *
      * @param int $placementId.
-     * @param int $deviceId.
+     * @param int $countryId.
      * @param string $appPackage.
      * @return array
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function getCreativeAds ($deviceId){
+    public function getCreativeAds ($countryId){
     	$this->_status = 'retrieve';
-    	$this->_deviceId = $deviceId;
+    	$this->_countryId = $countryId;
         return $this->_setQuery();
     }
 
@@ -93,18 +93,17 @@ class AdServingQueryCtrl extends Controller
         $this->_query = "
                 SELECT 
                     DISTINCT `ad_creative`.`id`, `ad_creative`.`name`, `ad_creative`.`format`, `ad_creative`.`layout`, `ad_creative`.`type`, `ad_creative`.`camp_id`,
-                    `ad_creative`.`click_url`, `ad_creative`.`image_file`, `ad_creative`.`status`, `ad_creative`.`title`, `ad_creative`.`description`,   
+                    `ad_creative`.`click_url`, `ad_creative`.`image_file`, `ad_creative`.`status`, `ad_creative`.`title`, `ad_creative`.`description`, {$this->_countryId} as `country`,
                     ( ROUND( (`camp_users`.`credit` * 1000000 / (UNIX_TIMESTAMP(`campaigns`.`end_date`) - UNIX_TIMESTAMP(`campaigns`.`start_date`)) )) + 1 ) as `priority`,
                     `ad_placement`.refresh_interval as refreshInterval, `ad_placement`.`app_id`, `app_users`.`id` as `app_user`, `camp_users`.`id` as `camp_user`
                     {$object->select->{$this->_status}}
                 FROM `ad_creative`
                     INNER JOIN `campaigns`                          ON `campaigns`.`id` = `ad_creative`.`camp_id`
                     INNER JOIN `ad_placement`                       ON `ad_placement`.`format` = `ad_creative`.`format`
-                    INNER JOIN `applications` `app`                 ON `app`.`platform` = `campaigns`.`target_platform`
-                    {$object->joinDevice->{$this->_status}}
+                    INNER JOIN `applications` `app`                 ON `app`.`platform`  = `campaigns`.`target_platform`
                     INNER JOIN `users` `camp_users`                 ON `camp_users`.`id` = `campaigns`.`user_id`
                     INNER JOIN `users` `app_users`                  ON `app_users`.`id`  = `app`.`user_id`
-                    {$object->joinCountries->{$this->_status}}
+                    INNER JOIN `countries`                          ON `countries`.`id`  = {$this->_countryId} 
                     LEFT  JOIN `campaign_keywords`                  ON `campaign_keywords`.`camp_id` = `campaigns`.`id`
                 WHERE
                         `ad_placement`.`id` = {$this->_placementId}
@@ -176,20 +175,10 @@ class AdServingQueryCtrl extends Controller
     {
     	$var = [];
     	$relevantAdSelect       = ", `campaigns`.`name` as `campName`, `camp_users`.`fname`, `camp_users`.`lname`, `campaigns`.`fcategory`, `campaigns`.`scategory`";
-    	$retrieveAdSelect       = ", devices.country";
-        $retrieveJoinDevice     = "INNER JOIN `devices` ON `devices`.`id` = {$this->_deviceId}";
-    	$retrieveCountrySelect  = "`devices`.`country`";
-    	
-    	$relevantCountrySelect  = "{$this->_countryId}";
-
-    	$relevantJoinCountry    = "INNER JOIN `countries` ON `countries`.`id` = {$this->_countryId}";
-    	$retrieveJoinCountry    = "INNER JOIN `countries` ON `countries`.`id` = `devices`.`country`";
+    	$retrieveAdSelect       = "";
 
     	$var    = [
-    	        'select'        => [ 'relevant' => $relevantAdSelect,       'retrieve' => $retrieveAdSelect ],
-    	        'joinDevice'    => [ 'relevant' => '',                      'retrieve' => $retrieveJoinDevice ],
-    	        'countrySelect' => [ 'relevant' => $relevantCountrySelect,  'retrieve' => $retrieveCountrySelect ],
-    	        'joinCountries' => [ 'relevant' => $relevantJoinCountry,    'retrieve' => $retrieveJoinCountry]
+    	        'select'        => [ 'relevant' => $relevantAdSelect,       'retrieve' => $retrieveAdSelect ]
     	    ];
     	return json_decode(json_encode($var));
     }
@@ -234,7 +223,7 @@ class AdServingQueryCtrl extends Controller
                         WHEN `campaigns`.`countries` IS NULL 
                             THEN 1
                         WHEN `campaigns`.`countries` IS NOT NULL
-                            THEN {$object->countrySelect->{$this->_status}} IN ( `campaigns`.`countries` )
+                            THEN {$this->_countryId} IN ( `campaigns`.`countries` )
                     END
                 )";
 

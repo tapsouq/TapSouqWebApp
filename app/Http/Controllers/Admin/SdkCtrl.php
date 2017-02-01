@@ -217,12 +217,19 @@ class SdkCtrl extends Controller
         $placementId    = $inputs[PLACEMENT_ID];
         $appPackage     = $inputs[APP_PACKAGE];
 
+        if( $request->has('country') ){
+            $countryId = $request->input('country');
+        }else{
+            $device = Device::find($deviceId);
+            $countryId = ($device != null) ? $device->country : 0; 
+        }
+
         // to insert request action into database
         $requestId = SdkActionsTmp::insertRequest($placementId, $deviceId);
         if( $requestId ){
 
             // To get suitable creative ad if ther is.
-            $AdServing = new AdServingCtrl($placementId, $deviceId, $appPackage, $requestId );
+            $AdServing = new AdServingCtrl($placementId, $deviceId, $appPackage, $requestId, $countryId );
             return $AdServing->getSuitableCreativeAd($request->input('ads'));
         }else{
             $response = [

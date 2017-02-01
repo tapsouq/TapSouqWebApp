@@ -19,6 +19,8 @@ class AdServingCtrl extends Controller
     private $_appPackage;
     // Sdk request id.
     private $_requestId;
+    // Country id.
+    private $_countryId;
 
     /**
      * __construct. To init class.
@@ -31,12 +33,13 @@ class AdServingCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function __construct($placementId, $deviceId, $appPackage, $requestId)
+    public function __construct($placementId, $deviceId, $appPackage, $requestId, $countryId = null)
     {
         $this->_placementId = $placementId;
         $this->_deviceId = $deviceId;
         $this->_appPackage = $appPackage;
         $this->_requestId = $requestId;
+        $this->_countryId = $countryId;
     }
 
     /**
@@ -55,7 +58,7 @@ class AdServingCtrl extends Controller
         
         // Get a list of relevant ads that suit the placement ad that sent the sdk request
         $adServingQuery = new AdServingQueryCtrl($this->_placementId, $this->_appPackage);
-        $relevantAds = $adServingQuery->getCreativeAds($this->_deviceId);  
+        $relevantAds = $adServingQuery->getCreativeAds($this->_countryId);  
 
         if( sizeof($relevantAds) > 0 ){
 
