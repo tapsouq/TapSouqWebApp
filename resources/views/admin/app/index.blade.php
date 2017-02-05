@@ -40,7 +40,9 @@
                                     <th>{{ trans( 'admin.fill_rate' ) }}</th>
                                     <th>{{ trans( 'admin.clicks' ) }}</th>
                                     <th>{{ trans( 'admin.ctr' ) }}</th>
+                                    @if( Auth::user()->role == ADMIN_PRIV )
                                     <th>{{ trans( 'admin.convs' ) }}</th>
+                                    @endif
                                     <th>{{ trans( 'admin.num_of_ads' ) }}</th>
                                     <th>{{ trans( 'lang.status' ) }}</th>
                                     <th>{{ trans( 'lang.actions' ) }}</th>
@@ -76,9 +78,11 @@
                                             <td>
                                                 {{ $value->impressions ? round($value->clicks/$value->impressions,4)*100 : 0 }}%
                                             </td>
+                                            @if( Auth::user()->role == ADMIN_PRIV )
                                             <td>
                                                 {{ $value->installed ?: 0  }}
                                             </td>
+                                            @endif
                                             <td>
                                                 {{ getAppAdsCount($value->id) }}
                                             </td>
@@ -118,7 +122,9 @@
                                             <td> 0% </td>
                                             <td> 0 </td>
                                             <td> 0% </td>
+                                            @if( Auth::user()->role == ADMIN_PRIV )
                                             <td> 0 </td>
+                                            @endif
                                             <td>
                                                 {{ getAppAdsCount($_value->id) }}
                                             </td>

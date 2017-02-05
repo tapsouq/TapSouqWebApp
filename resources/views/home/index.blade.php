@@ -210,14 +210,7 @@
             showVideo();    
         });
 
-        $('.video video').on('click', function(){
-            showPlayVideo();
-        });
-
         vid.onended  = function(){
-            showPlayVideo();
-        };
-        vid.onpause = function(){
             showPlayVideo();
         };
         function showVideo(){

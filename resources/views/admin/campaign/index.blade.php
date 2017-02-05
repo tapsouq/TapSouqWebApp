@@ -37,7 +37,9 @@
                                     <th>{{ trans( 'admin.impressions' ) }}</th>
                                     <th>{{ trans( 'admin.clicks' ) }}</th>
                                     <th>{{ trans( 'admin.ctr' ) }}</th>
+                                    @if( Auth::user()->role == ADMIN_PRIV )
                                     <th>{{ trans( 'admin.convs' ) }}</th>
+                                    @endif
                                     <th>{{ trans( 'admin.start_date' ) }}</th>
                                     <th>{{ trans( 'admin.end_date' ) }}</th>
                                     <th>{{ trans( 'admin.num_of_ads' ) }}</th>
@@ -65,9 +67,11 @@
                                             <td>
                                                 {{ $camp->impressions ? round($camp->clicks / $camp->impressions , 4) * 100 : 0 }}%
                                             </td>
+                                            @if( Auth::user()->role == ADMIN_PRIV )
                                             <td>
                                                 {{ $camp->installed ?: 0 }}
                                             </td>
+                                            @endif
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->start_date )->format('m/d/Y g:i A') }}</td>
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->end_date )->format('m/d/Y g:i A') }}</td>
                                             <td>
@@ -110,7 +114,9 @@
                                             <td> 0 </td>
                                             <td> 0 </td>
                                             <td> 0% </td>
+                                            @if( Auth::user()->role == ADMIN_PRIV )
                                             <td> 0 </td>
+                                            @endif
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $_value->start_date )->format('m/d/Y g:i A') }}</td>
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $_value->end_date )->format('m/d/Y g:i A') }}</td>
                                             <td>

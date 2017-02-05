@@ -17,7 +17,7 @@
 				<div class="col-md-12">
 					<ol>
 						<li>
-							download sdk from here: <a href="{{ url('resources/assets/home/tapsouq-sdk-library.rar') }}">tapsouq-sdk-library.zip</a>
+							download sdk from here: <a href="{{ url('resources/assets/home/tapsouq-sdk-library.rar') }}">tapsouq-sdk-library.rar</a>
 							<br>
 							extract the downloaded file then you will find the library file tapsouq-sdk.aar and SampleProject to see how banners and interstitial are working.
 						</li>
@@ -45,6 +45,18 @@
 								<li>
 									now you can start adding a few lines of code to integrate banners and interstitial.
 								</li>
+								<li>
+									Add these lines to your build.gradle file:
+									<pre>
+										dependencies {
+										  compile 'com.github.bumptech.glide:glide:3.7.0'
+										  compile 'com.android.support:support-v4:19.1.0'
+										}
+									</pre>
+								</li>
+								<li>
+									now you can start adding a few lines of code to integrate banners and interstitial.
+								</li>
 							</ol>
 						</li>
 						<li>
@@ -56,7 +68,7 @@
 								<li>
 									add xml tag of tapsouq banner.
 									<pre>
-										&lt;.tapsouq.sdk.ads.TapSouqBannerAd
+										&lt;com.tapsouq.sdk.ads.TapSouqBannerAd
 										    android:id="@+id/banner_view"
 										    android:layout_width="match_parent"
 										    android:layout_height="wrap_content" /&gt;

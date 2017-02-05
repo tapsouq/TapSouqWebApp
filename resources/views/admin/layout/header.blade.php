@@ -20,11 +20,8 @@
         <ul class="nav navbar-nav">
         	<?php $userCredit = Auth::user()->credit; ?>
             <!-- Messages: style can be found in dropdown.less-->
-            <li class="">
-            	<a href="#"  class="credit" title="{{ trans("admin.ur_credit") . $userCredit }}">
-             		<i class="balance fa fa-shopping-cart"></i>
-              		<span class="label label-warning">{{ $userCredit }}</span>
-                </a>
+            <li class="credit">
+                <span class="label label-warning">Credit: {{ $userCredit }}</span>
             </li>
             @if( 1 == 0 )
             <!-- Notifications: style can be found in dropdown.less -->

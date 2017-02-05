@@ -13,5 +13,5 @@ return [
 	 |
 	 */
 
-	'general_frequency_capping' => 60
+	'general_frequency_capping' => 2
 ];

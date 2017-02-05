@@ -209,7 +209,7 @@ class UserCtrl extends Controller
         }else{
 
             // save profile properties
-            $user           = $this->user;
+            $user           = $this->_user;
             $user->fname    = $request->fname;
             $user->lname    = $request->lname;
             $user->country  = $request->country;

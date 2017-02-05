@@ -138,6 +138,7 @@
                                     <!-- /.info-box-content -->
                                 </div>
                             </div>
+                            @if( Auth::user()->role == ADMIN_PRIV )
                             <div class="col-md-4">
                                 <div class="info-box bg-light-blue">
                                     <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
@@ -157,6 +158,7 @@
                                     <!-- /.info-box-content -->
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </div>
                 @else

@@ -55,4 +55,6 @@ return [
 	'success'					=> "Success",
 	'info'						=> "Information",
 	'error'						=> "Error",
+	'sucess_send_contactus'		=> "The message is sent successfully",
+	'there_are_such_error'		=> "There are such error"
 ];

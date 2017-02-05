@@ -38,7 +38,9 @@
                                         <th>{{ trans( 'admin.impressions' ) }}</th>
                                         <th>{{ trans( 'admin.clicks' ) }}</th>
                                         <th>{{ trans( 'admin.ctr' ) }}</th>
+                                        @if( Auth::user()->role == ADMIN_PRIV )
                                         <th>{{ trans( 'admin.convs' ) }}</th>
+                                        @endif
                                         <th>{{ trans( 'lang.status' ) }}</th>
                                         <th>{{ trans( 'lang.actions' ) }}</th>
                                     </tr>
@@ -65,9 +67,11 @@
                                                 <td>
                                                     {{ $ad->impressions ? round($ad->clicks / $ad->impressions , 4) * 100 : 0 }}%
                                                 </td>
+                                                @if( Auth::user()->role == ADMIN_PRIV )
                                                 <td>
                                                     {{ $ad->installed ?: 0 }}
                                                 </td>
+                                                @endif
                                                 <td>
                                                     <div class="label {{ $css[ $ad->status ] }}">
                                                         {{ $states[ $ad->status ] }}
@@ -107,7 +111,9 @@
                                                 <td> 0 </td>
                                                 <td> 0 </td>
                                                 <td> 0% </td>
+                                                @if( Auth::user()->role == ADMIN_PRIV )
                                                 <td> 0 </td>
+                                                @endif
                                                 <td>
                                                     <div class="label {{ $css[ $_value->status ] }}">
                                                         {{ $states[ $_value->status ] }}

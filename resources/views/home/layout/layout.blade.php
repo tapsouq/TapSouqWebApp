@@ -21,6 +21,7 @@
         ga('create', 'UA-90420504-1', 'auto');
         ga('send', 'pageview');
     </script>
+    <meta name="google-site-verification" content="lE5knuMD-BLZt7K4zc8zWvpuf6ZVdpcK-qOrFvRhJR0" />
 </head>
 <body>
     <div class="main">
