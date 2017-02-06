@@ -24,7 +24,7 @@ return [
 	"remember_me"				=> "Remember Me",
 	"forgot_password"			=> "I forgot my password",
 	"register_membership"		=> "Sign Up",
-	"verify_your_email"			=> "Your account is created successfully. Please activate your email.",
+	"verify_your_email"			=> "Your account is created successfully. Please activate your email.(Check your spam and junk emails in case it's not in inbox)",
 	"alert"						=> "Alert!",
 	'edit'						=> "Edit",
 	'delete'					=> "Delete",

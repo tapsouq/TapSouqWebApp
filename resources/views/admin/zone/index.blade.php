@@ -34,6 +34,7 @@
                         <table class="table table-hover table-striped">
                             <thead>
                                 <tr>
+                                    <th>{{ trans( 'lang.id' ) }}</th>
                                     <th>{{ trans( 'lang.name' ) }}</th>
                                     <th>{{ trans( 'admin.requests' ) }}</th>
                                     <th>{{ trans( 'admin.impressions' ) }}</th>
@@ -56,6 +57,7 @@
                                     @foreach( $ads as $key => $ad )
                                         <?php $ids[] = $ad->id;?>
                                         <tr>
+                                            <td>{{ $ad->id }}</td>
                                             <td>
                                                 <a href="{{ url( 'zone/' . $ad->id ) }}">
                                                     {{ $ad->name }}
@@ -122,6 +124,9 @@
                                 @foreach( $allZones as $_key => $_value )
                                     @if( ! in_array($_value->id, $ids) )
                                         <tr>
+                                            <td>
+                                                {{ $_value->id }}
+                                            </td>
                                             <td>
                                                 <a href="{{ url( 'zone/' . $_value->id ) }}">
                                                     {{ $_value->name }}

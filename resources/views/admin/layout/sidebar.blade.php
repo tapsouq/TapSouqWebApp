@@ -159,6 +159,12 @@
                 </ul>
             </li>
             @endif
+            <li class="{{ Request::segment(1) == 'resources-page' ? 'active' : '' }}">
+                <a href="{{ url( 'resources-page' ) }}">
+                    <i class="fa fa-android"></i>
+                    <span> {{ trans( 'admin.resources' ) }} </span>
+                </a>
+            </li>
         </ul>
     </section>
     <!-- /.sidebar -->
