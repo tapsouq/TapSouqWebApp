@@ -191,12 +191,14 @@ class ZoneCtrl extends Controller
         $mTitle         = $this->_mTitle;
         $title          = trans( 'admin.add_new_place_ad' );
 
-        // get the id from the previous link
-        $app_id     =   $request->input('app');
-        $previous   = \URL::previous();
+        // check that the application belongs to that user
+        $app_id  =   $request->input('app');
+        $app     = Application::where('id', $app_id)
+                                ->where('user_id', $this->_user->id)
+                                ->first();
 
         // redirect to dashboard with spam message if the application isn't valid.
-        if( ! $app_id ){
+        if( ! $app ){
             return redirect('admin')->with( 'warning', trans('lang.spam_msg') );
         }
 

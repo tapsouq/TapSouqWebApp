@@ -34,7 +34,7 @@
                         <table class="table table-hover table-striped">
                             <thead>
                                 <tr>
-                                    <th>{{ trans( 'lang.id' ) }}</th>
+                                    <th>{{ trans( 'lang.adId' ) }}</th>
                                     <th>{{ trans( 'lang.name' ) }}</th>
                                     <th>{{ trans( 'admin.requests' ) }}</th>
                                     <th>{{ trans( 'admin.impressions' ) }}</th>

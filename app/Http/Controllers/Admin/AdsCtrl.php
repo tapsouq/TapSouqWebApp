@@ -168,11 +168,13 @@ class AdsCtrl extends Controller
         $mTitle     = $this->_mTitle;
         $title      = trans( 'admin.add_new_ad' );
         
-        // To get the camp_id
+        // To check that the campaign belongs to that user
         $camp_id    = $request->input('camp');
-        $previous   = \URL::previous();
+        $camp       = Campaign::where('id', $camp_id)
+                                ->where('user_id', $this->_user->id)
+                                ->first();
 
-        if( ! $camp_id )
+        if( ! $camp )
             return redirect('admin')->with( 'warning', trans('lang.spam_msg') );
 
         $data   = [ 'mTitle', 'title', 'camp_id' ];
