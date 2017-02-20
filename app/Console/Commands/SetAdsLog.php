@@ -40,25 +40,25 @@ class SetAdsLog extends Command
     public function handle()
     {
 
-        $logFiveMinutesAgo = $this->_getLogFiveMinutesAgo();
+        $logThirtyMinutesAgo = $this->_getLogThirtyMinutesAgo();
 
-        if( count( $logFiveMinutesAgo ) ){
+        if( count( $logThirtyMinutesAgo ) ){
             
-            $this->_divideLogToPlacementAndCreativeLogs( $logFiveMinutesAgo );
+            $this->_divideLogToPlacementAndCreativeLogs( $logThirtyMinutesAgo );
 
         }
         
     }
 
     /**
-     * _getLogFiveMinutesAgo. To get the log the range from 7 minutes ago to 2 minutes ago.
+     * _getLogThirtyMinutesAgo. To get the log the range from 7 minutes ago to 2 minutes ago.
      *
      * @param  param
      * @return array
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _getLogFiveMinutesAgo()
+    public function _getLogThirtyMinutesAgo()
     {
         return DB::select("
                 SELECT * 
@@ -90,6 +90,7 @@ class SetAdsLog extends Command
                 $this->_setAdLog($row, 'creative_id', $creativeLog);
             }
         }
+
         \DB::table('placement_log')->insert( $placementLog );
         \DB::table('creative_log')->insert( $creativeLog );
         \DB::table('sdkactions')->insert( $sdkActions );
@@ -132,8 +133,8 @@ class SetAdsLog extends Command
                     'clicks'        => $clicks,
                     'installed'     => $installed,
                     'credits'       => $credits,        
-                    'created_at'    => date('Y-m-d H:i:s', $time),
-                    'updated_at'    => date('Y-m-d H:i:s', $time)
+                    'created_at'    => $row->updated_at,
+                    'updated_at'    => $row->updated_at
                 ];
         }
 
@@ -162,7 +163,7 @@ class SetAdsLog extends Command
                 'app_user'      => $row->app_user,
                 'camp_user'     => $row->camp_user,
                 'created_at'    => date('Y-m-d') . ' ' . $row->created_at,
-                'updated_at'    => date('Y-m-d') . ' ' . $row->updated_at,
+                'updated_at'    => $row->updated_at,
             ];
         return $row->id;
     }

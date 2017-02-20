@@ -140,10 +140,10 @@ class HomeCtrl extends Controller
     public function _sendContactUsEmail(Request $request)
     {
         return Mail::send('emails.contact-us', ['request' => $request ], function ($mail) use ( $request ) {
-                   $mail->from( $request->email , $request->title );
+                   $mail->from( $request->email , $request->name );
 
                    $mail->to( getSiteInfo()->contactUsEmail , getSiteInfo()->site_title )
-                        ->subject( trans( 'admin.msgFromContactUs' ) );
+                        ->subject( $request->title );
                });
     }
 }

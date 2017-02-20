@@ -39,7 +39,7 @@ class ZoneCtrl extends Controller
         $this->_user            = Auth::user();
         $this->_categories      = array_pluck( Category::all()->toArray(), 'name', 'id' ); 
         $this->_countries       = Country::all();
-        $this->_applications    = Application::where( 'user_id', '=', $this->_user->id )
+        $this->_applications    = Application::where( 'user_id', '=', Auth::user()->id )
                                         ->where( 'status', '=', ACTIVE_APP )
                                         ->get();
 

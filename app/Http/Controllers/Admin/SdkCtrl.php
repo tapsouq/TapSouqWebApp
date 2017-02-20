@@ -13,6 +13,22 @@ use App\Models\SdkRequest, App\Models\Device;
 use App\Models\Country, App\Models\Language;
 class SdkCtrl extends Controller
 {
+
+    /**
+     * tmpAddDevice. Function desciption.
+     *
+     * @param  param
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function tmpAddDevice( Request $request )
+    {
+        $array = $request->segments();
+        $array[TAPSOUQ_SDK_VER] = $array[ADD_CARRIER];
+        $array[ADD_CARRIER] = 'No-carrier';
+        return $this->_addDevice($array);
+    }
     /**
      * addDevice. To add new device while launching the application.
      *
@@ -24,76 +40,7 @@ class SdkCtrl extends Controller
     public function addDevice ( Request $request ){
         $array     = $request->segments();
 
-        $googleAdvId    = $array[ADD_ADVERTISING_ID];
-        $platform       = $array[ADD_PLATFORM];
-        $countryId      = $array[ADD_COUNTRY];
-        $languageId     = $array[ADD_LANG];
-        $sdkVersion     = (float)urldecode($array[TAPSOUQ_SDK_VER]);
-
-        // To scheck is the sdk version before sdk version > 0.6
-        if( $sdkVersion < 0.6 ){
-            $device = Device::where('advertising_id', '=', $googleAdvId)->first();
-            if( $device != null ){
-                return [
-                        'status'    => true,
-                        'device_id' => $device->id
-                    ];
-            }
-        }
-       
-        $results    = Device::validateDeviceLangAndCountryIds($languageId, $countryId); 
-
-        if( count( $results ) == 0 ){
-            $response = [ 
-                    'status'    => false,
-                    'error'     => "The country id isn't valid." 
-                ];
-            return response()->json($response);   
-        }
-
-        if( !( $results[0]->language )  ){
-            $response = [ 
-                    'status'    => false,
-                    'error'     => "The language id isn't valid." 
-                ];
-            return response()->json($response);
-        }
-
-        $platforms = array_keys(config('consts.app_platforms'));
-        if( ! in_array($platform, $platforms ) ){
-             $response = [ 
-                     'status'    => false,
-                     'error'     => "The platform isn't valid." 
-                 ];
-             return response()->json($response);   
-        }
-
-        $device  = new Device();
-    
-        $device->language       = $languageId;
-        $device->country        = $countryId;
-        $device->platform       = $array[ADD_PLATFORM]; 
-        $device->advertising_id = $googleAdvId; 
-        $device->manefacturer   = urldecode($array[ADD_MANEFACTURER]); 
-        $device->model          = urldecode($array[ADD_MODEL]);
-        $device->os_version     = urldecode($array[ADD_OS_VER]);
-        $device->os_api_version = urldecode($array[ADD_OS_API]);
-        $device->carrier        = urldecode($array[ADD_CARRIER]);
-        $device->sdk_version    = $sdkVersion;
-
-        if( $device->save() ){
-            $response = [
-                    'status'        => true,
-                    'device_id'     => $device->id
-                ];
-        }else{
-            $response = [ 
-                    'status'    => false,
-                    'error'     => 'Ther are such error!'
-                ];
-        }
-
-        return response()->json($response);
+        return $this->_addDevice($array);
     }
 
     /**
@@ -281,5 +228,87 @@ class SdkCtrl extends Controller
             ];
 
         return response()->json( $response );
+    }
+
+    /**
+     * _addDevice. To add device.
+     *
+     * @param  param
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    public function _addDevice( $array )
+    {
+        $googleAdvId    = $array[ADD_ADVERTISING_ID];
+        $platform       = $array[ADD_PLATFORM];
+        $countryId      = $array[ADD_COUNTRY];
+        $languageId     = $array[ADD_LANG];
+        $sdkVersion     = (float)urldecode($array[TAPSOUQ_SDK_VER]);
+
+        // To scheck is the sdk version before sdk version > 0.6
+        if( $sdkVersion < 0.6 ){
+            $device = Device::where('advertising_id', '=', $googleAdvId)->first();
+            if( $device != null ){
+                return [
+                        'status'    => true,
+                        'device_id' => $device->id
+                    ];
+            }
+        }
+        
+        $results    = Device::validateDeviceLangAndCountryIds($languageId, $countryId); 
+
+        if( count( $results ) == 0 ){
+            $response = [ 
+                    'status'    => false,
+                    'error'     => "The country id isn't valid." 
+                ];
+            return response()->json($response);   
+        }
+
+        if( !( $results[0]->language )  ){
+            $response = [ 
+                    'status'    => false,
+                    'error'     => "The language id isn't valid." 
+                ];
+            return response()->json($response);
+        }
+
+        $platforms = array_keys(config('consts.app_platforms'));
+        if( ! in_array($platform, $platforms ) ){
+             $response = [ 
+                     'status'    => false,
+                     'error'     => "The platform isn't valid." 
+                 ];
+             return response()->json($response);   
+        }
+
+        $device  = new Device();
+        
+        $device->language       = $languageId;
+        $device->country        = $countryId;
+        $device->platform       = $array[ADD_PLATFORM]; 
+        $device->advertising_id = $googleAdvId; 
+        $device->manefacturer   = urldecode($array[ADD_MANEFACTURER]); 
+        $device->model          = urldecode($array[ADD_MODEL]);
+        $device->os_version     = urldecode($array[ADD_OS_VER]);
+        $device->os_api_version = urldecode($array[ADD_OS_API]);
+        $device->carrier        = urldecode($array[ADD_CARRIER]);
+        $device->sdk_version    = $sdkVersion;
+
+        if( $device->save() ){
+            $response = [
+                    'status'        => true,
+                    'device_id'     => $device->id
+                ];
+        }else{
+            $response = [ 
+                    'status'    => false,
+                    'error'     => 'Ther are such error!'
+                ];
+        }
+
+        return response()->json($response);   
     }
 }

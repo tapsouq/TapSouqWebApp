@@ -158,6 +158,27 @@
                    </li>
                 </ul>
             </li>
+            <li class="treeview  {{ in_array( Request::segment(1), [ 'simi-cats' ] ) ? 'active' : '' }}">
+                <a href="">
+                    <i class="fa fa-hashtag"></i>
+                    <span>{{ trans("admin.categorySimilarity") }}</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li class="{{ Request::url() == url('simi-cats/show') ? 'active' : '' }}">
+                        <a href="{{ url('simi-cats/show') }}">
+                            <i class="fa fa-circle-o"></i> {{ trans( 'admin.showSimiCats' ) }}
+                        </a>
+                    </li>
+                    <li class="{{ Request::url() == url('simi-cats/edit') ? 'active' : '' }}">
+                        <a href="{{ url('simi-cats/edit') }}">
+                            <i class="fa fa-circle-o"></i> {{ trans( 'admin.editSimiCats' ) }}
+                        </a>
+                    </li>
+                </ul>
+            </li>
             @endif
             <li class="{{ Request::segment(1) == 'resources-page' ? 'active' : '' }}">
                 <a href="{{ url( 'resources-page' ) }}" target="_blank">

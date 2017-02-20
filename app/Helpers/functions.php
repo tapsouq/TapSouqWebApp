@@ -27,7 +27,7 @@ if( ! function_exists( 'getSiteInfo' ) ){
 		$array = [
 			'site_title'  		=> trans( 'lang.tabsouq' ),
 			'site_email'		=> "info@tapsouq.com",
-            'contactUsEmail'    => 'contact-us@tapsouq.com'
+            'contactUsEmail'    => "info@tapsouq.com"
 		];
 
 		return json_decode( json_encode( $array ) );
@@ -332,5 +332,26 @@ if( ! function_exists( 'paginate' ) ){
         $itemsForCurrentPage = array_slice($items, $offSet, $perPage, true);
 
         return new LengthAwarePaginator($itemsForCurrentPage, count($items), $perPage,Paginator::resolveCurrentPage(), array('path' => Paginator::resolveCurrentPath()));
+    }
+}
+
+if( ! function_exists('getCatNames') ){
+    /**
+     * getCatNames. To get the name of similarties categories.
+     *
+     * @param  string $catsIds comma seperated ids
+     * @return string comma seperated names.
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    function getCatNames( $catsIds )
+    {
+        $catsIdsArray = explode(',', $catsIds);
+
+        $cats = \App\Models\Category::whereIn('id', $catsIdsArray)
+                    ->lists('name')
+                    ->toArray();
+
+        return count($cats) ? implode(', ', $cats) : trans('admin.no_cats') ;
     }
 }

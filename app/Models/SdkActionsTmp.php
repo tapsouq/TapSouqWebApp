@@ -26,7 +26,7 @@ class SdkActionsTmp extends Model
                 'creative_id'   => 0,
                 'action'        => 1,
                 'created_at'    => date('H:i:s'),
-                'updated_at'    => date('H:i:s')
+                'updated_at'    => date('Y-m-d H:i:s')
             ];
 
         return DB::table('sdkactions_tmp')->insertGetId( $values );
@@ -119,7 +119,7 @@ class SdkActionsTmp extends Model
         }
         $values['creative_id']  = $creativeId;
         $values['action'] = $action;
-        $values['updated_at'] = date('H:i:s');
+        $values['updated_at'] = date('Y-m-d H:i:s');
 
         return DB::table('sdkactions_tmp')
                     ->where( 'id', '=', $requestId )

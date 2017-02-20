@@ -10,15 +10,9 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-Route::get('test', function(){
-	$camps = DB::table('campaigns')->get();
-	
-	foreach ($camps as $key => $camp) {
-
-		$coun = explode(',', $camp->countries);
-		print_r($coun); 
-		echo "<br>";
-	}	                            
+Route::get('shou-test', function(){
+	$cat = "cat_10";
+	echo substr($cat, 4);		                            
 });
 
 // Authentication routes...
@@ -108,18 +102,19 @@ Route::group(['middleware' => 'auth'], function () {
 			/** End Keywords Module **/
 
 			/** Admin Reports **/
-				Route::get('reports/relevant-ads/{id}', 'ReportCtrl@showRelevant'); // To show all relevant ads
-				Route::get('reports/shown-ads/{id}', 'ReportCtrl@showShownAds'); // To show all relevant ads
-				Route::get('reports/campaigns-and-creatives', 'ReportCtrl@showCampAndAds');
-				Route::get('reports/show-all-apps', 'ReportCtrl@showAllApps');
-				Route::get('device-reports/{report}', 'ReportCtrl@showDeviceReports');
-/*				Route::get('device-reports/languages', 'ReportCtrl@showDeviceLanguages');
-				Route::get('device-reports/manufacturers', 'ReportCtrl@showDevicemanufacturers');
-				Route::get('device-reports/models', 'ReportCtrl@showDeviceModels');
-				Route::get('device-reports/os-versions', 'ReportCtrl@showDeviceOsVersions');
-				Route::get('device-reports/carriers', 'ReportCtrl@showDeviceCarriers');
+			Route::get('reports/relevant-ads/{id}', 'ReportCtrl@showRelevant'); // To show all relevant ads
+			Route::get('reports/shown-ads/{id}', 'ReportCtrl@showShownAds'); // To show all relevant ads
+			Route::get('reports/campaigns-and-creatives', 'ReportCtrl@showCampAndAds');
+			Route::get('reports/show-all-apps', 'ReportCtrl@showAllApps');
+			Route::get('device-reports/{report}', 'ReportCtrl@showDeviceReports');
 			/** End Admin Reports**/
 			
+			/** Similar Categories  **/
+			Route::get('simi-cats/show', 'SimilarCategoriesCtrl@index');
+			Route::get('simi-cats/edit', 'SimilarCategoriesCtrl@edit');
+			Route::post('save-simi-cats', 'SimilarCategoriesCtrl@save');
+			/** End Category Similarity **/
+
 			/* Test routes */
 			Route::get('test-algorithm', 'HelpTestCtrl@printAdservingQuery');
 		});
@@ -129,6 +124,11 @@ Route::group(['middleware' => 'auth'], function () {
 Route::get(
 	"create_device/{platform}/{advertising_id}/{manufacturer}/{model}/{os_api_number}/{os_version}/{language}/{country}/{carrier}/{tap_souq_sdk_version}",
 	"Admin\SdkCtrl@addDevice"
+);
+
+Route::get(
+	"create_device/{platform}/{advertising_id}/{manufacturer}/{model}/{os_api_number}/{os_version}/{language}/{country}//{tap_souq_sdk_version}",
+	"Admin\SdkCtrl@tmpAddDevice"
 );
 
 Route::get(
