@@ -37,7 +37,7 @@
                                     <div class="radio-list">
                                         @foreach( $platforms as $key => $value )
                                             <label>
-                                                <input type="radio" name="platform" value="{{ $key }}" class="minimal-blue" {{ isset($_app)? ( $_app->platform == $key ? 'checked' : '' ) : ( old('platform') == $key ? 'checked' : '' ) }} required="">
+                                                <input type="radio" name="platform" value="{{ $key }}" class="minimal-blue" {{ isset($_app)? ( $_app->platform == $key ? 'checked' : '' ) : ( old('platform') == $key ? 'checked' : '' ) }} {{ $key == IOS_PLATFORM ? "disabled" : "" }} required="">
                                                 <span class="radio-label">{{ $value }}</span> 
                                             </label>
                                             @endforeach
@@ -64,7 +64,7 @@
                                     <div class="icon-container">
                                         <div class="col-md-4">
                                             <a href="#" class="thumbnail">
-                                                <img src="{{ url('public/uploads/app-icons/' . $_app->icon ) }}" alt="{{ trans( 'admin.app_icon' ) }}">
+                                                <img src="{{ url('uploads/app-icons/' . $_app->icon ) }}" alt="{{ trans( 'admin.app_icon' ) }}">
                                             </a>
                                         </div>
                                     </div>

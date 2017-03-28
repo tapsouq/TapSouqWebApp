@@ -25,7 +25,7 @@ class SdkActionsTmp extends Model
                 'device_id'     => $deviceId,
                 'creative_id'   => 0,
                 'action'        => 1,
-                'created_at'    => date('H:i:s'),
+                'created_at'    => time(),
                 'updated_at'    => date('Y-m-d H:i:s')
             ];
 
@@ -73,13 +73,11 @@ class SdkActionsTmp extends Model
 			        						
 			        $campId    	= (int) $camp->id;
 			        $campUser 	= (int) $camp->user_id;
-	        		
 	        	}
 
 	        	if( ! ( $countryTier && $countryId) ){
 	        		$country = DB::table('countries')
 	        						->select('countries.id', 'countries.tier');
-	        		
 	        		if( ! $countryId ){
 	        			$country->leftJoin('devices', 'devices.country', '=', 'countries.id')
 	        					->where('devices.id', '=', $deviceId);

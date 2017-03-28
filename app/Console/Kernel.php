@@ -16,10 +16,9 @@ class Kernel extends ConsoleKernel
         Commands\DailyJobsCmd::class,
         Commands\FinishCompCampCmd::class,
         Commands\GetApplicationInfo::class,
-        Commands\Inspire::class,
         Commands\KeywordMatcher::class,
-        Commands\SetCreditLog::class,
         Commands\SetAdsLog::class,
+        Commands\SetCatsLog::class
     ];
 
     /**
@@ -59,17 +58,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('finishCompletedCampaigns')
                   ->everyMinute();
 
-
-        /**
-         * To set credit every day for every user.
-         */
-        $schedule->command('setCreditLog')
-                  ->dailyAt('23:59:59');
-
         /**
          * To do daily jobs
          */
         $schedule->command('execDailyJobs')
-                    ->dailyAt('00:00:00'); 
+                    ->dailyAt('00:00:00');
+
     }
 }

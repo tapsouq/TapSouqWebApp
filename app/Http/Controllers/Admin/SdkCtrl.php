@@ -175,7 +175,7 @@ class SdkCtrl extends Controller
         $requestId = SdkActionsTmp::insertRequest($placementId, $deviceId);
         if( $requestId ){
 
-            // To get suitable creative ad if ther is.
+            // To get suitable creative ad if there is.
             $AdServing = new AdServingCtrl($placementId, $deviceId, $appPackage, $requestId, $countryId );
             return $AdServing->getSuitableCreativeAd($request->input('ads'));
         }else{

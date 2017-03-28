@@ -59,17 +59,17 @@
                                                     </a>
                                                 </td>
                                                 <td>
-                                                    {{ $ad->impressions ?: 0 }}
+                                                    {{ number_format($ad->impressions, 0, ".", "," ) ?: 0 }}
                                                 </td>
                                                 <td>
-                                                    {{ $ad->clicks ?: 0 }}
+                                                    {{ number_format($ad->clicks, 0, ".", "," ) ?: 0 }}
                                                 </td>
                                                 <td>
-                                                    {{ $ad->impressions ? round($ad->clicks / $ad->impressions , 4) * 100 : 0 }}%
+                                                    {{ $ad->impressions ? number_format( ( $ad->clicks * 100 / $ad->impressions) , 2) : 0 }}%
                                                 </td>
                                                 @if( Auth::user()->role == ADMIN_PRIV )
                                                 <td>
-                                                    {{ $ad->installed ?: 0 }}
+                                                    {{ number_format($ad->installed, 0, ".", "," ) ?: 0 }}
                                                 </td>
                                                 @endif
                                                 <td>

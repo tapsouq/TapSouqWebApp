@@ -40,7 +40,7 @@
                                         @if( sizeof( $platforms = config('consts.app_platforms') ) > 0 )
                                             <div class="radio-list">
                                                 @foreach( $platforms as $key => $value )
-                                                    <input type="radio" name="target_platform" class="minimal-blue" value="{{ $key }}" {{ isset($camp) ? ( $camp->target_platform == $key ? 'checked' : '' ) : ( old('target_platform') == $key ? 'checked' :'' ) }}>
+                                                    <input type="radio" name="target_platform" class="minimal-blue" value="{{ $key }}" {{ isset($camp) ? ( $camp->target_platform == $key ? 'checked' : '' ) : ( old('target_platform') == $key ? 'checked' :'' ) }} {{ $key == IOS_PLATFORM ? "disabled" : "" }} required>
                                                     <span class="radio-label">
                                                         {{ $value }}
                                                     </span>

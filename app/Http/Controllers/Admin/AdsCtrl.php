@@ -334,7 +334,7 @@ class AdsCtrl extends Controller
         $ad->click_url     = $request->click_url;
         
         if( $request->hasFile( 'image_file' ) ){
-            $ad->image_file    = uploadFile($request->image_file , 'public/uploads/ad-images/');
+            $ad->image_file    = uploadFile($request->image_file , 'uploads/ad-images/');
         }
 
         $ad->title         = $request->type == TEXT_AD ?  $request->title : '';

@@ -161,7 +161,7 @@
             <li class="treeview  {{ in_array( Request::segment(1), [ 'simi-cats' ] ) ? 'active' : '' }}">
                 <a href="">
                     <i class="fa fa-hashtag"></i>
-                    <span>{{ trans("admin.categorySimilarity") }}</span>
+                    <span>{{ trans("admin.SimilarCategories") }}</span>
                     <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>

@@ -40,5 +40,11 @@ class FinishCompCampCmd extends Command
         \DB::table('campaigns')
             ->where('end_date', '<', date('Y-m-d H:i:s'))
             ->update(['status' => COMPLETED_CAMP]);
+
+        \DB::table('users')
+            ->whereRaw("consumed_imps >= free_imps")
+            ->update([
+                    'free_imps' => NULL
+                ]);
     }
 }

@@ -192,13 +192,15 @@ class DashboardCtrl extends Controller
     		$creditLog->where('date', '<=', date('Y-m-d') . ' 23:59:59')
     					->where('date', '>=', date_create()->sub(date_interval_create_from_date_string('6 days'))->format("Y-m-d 00:00:00"));
     	}
-    	$items = $creditLog->select(DB::raw('date, credit') )
+    	$items = $creditLog->select(DB::raw('date, credit, gained_credit, spent_credit') )
     						->orderBy('date')->get();
 
     	// Init the array for the credit chart.
         foreach ($items as $key => $item) {
             if( $item->date ){
-            	$array['credit'][]    = [ strtotime($item->date) * 1000, (int)$item->credit ];
+                $array['netCredit'][]    = [ strtotime($item->date) * 1000, (int)$item->credit ];
+                $array['gainedCredit'][] = [ strtotime($item->date) * 1000, (int)$item->gained_credit ];
+            	$array['spentCredit'][]  = [ strtotime($item->date) * 1000, (int)$item->spent_credit ];
             }
         }
 

@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Country, App\Models\Category, App\Models\Campaign;
 use App\Models\Ads, App\Models\CreativeLog;
-use App\Models\Keyword;
+use App\Models\Keyword, App\Models\SimilarCategory;
 use Validator, DB, Auth, App\User;
 
 use Raulr\GooglePlayScraper\Scraper;
@@ -306,8 +306,17 @@ class CampaignCtrl extends Controller
 
         $camp->fcategory        = $request->has('fcategory') ? $request->fcategory : NULL;
         $camp->scategory        = $request->has('scategory') ? $request->scategory : NULL;
+        $camp->simi_cats         = SimilarCategory::getSimiCats($camp->fcategory, $camp->scategory);
 
         $camp->countries        = $request->has('country') ? implode(',', $request->country) : null;
+
+        $timeDiff = strtotime($request->end_date) - time();
+        
+        if( $timeDiff > 0 ){
+            $camp->status = RUNNING_CAMP;
+        }else{
+            $camp->status = COMPLETED_CAMP;
+        }
 
         if( $request->has('status') ){
             if( $request->status == DELETED_CAMP ){

@@ -7,6 +7,9 @@ define( 'MOBILE', 1 );
 define( 'TABLET', 2 );
 define( 'PORTRAIT', 1 );
 define( 'LANDSCAPE', 2 );
+define( 'FILTER_BY_DAY', 'd');
+define( 'FILTER_BY_WEEK', 'w');
+define( 'FILTER_BY_MONTH', 'm');
 
 // for User system Module
 define( 'DEV_PRIV', 1 );
@@ -101,3 +104,5 @@ define("ERROR_UPDATED", 2);
 // For Ad serving algorithm
 define("RETRIEVE_ADS", 1); // for retrieve creative ads.
 define("RELEVANT_ADS", 2); // for relevant ads for the placement ad.
+define("NO_SIMI_RELEVANT", 0);
+define("SIMI_RELEVANT", 1);

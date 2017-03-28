@@ -18,13 +18,12 @@
 
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
-        	<?php $userCredit = Auth::user()->credit; ?>
+        	<?php $userCredit = number_format( Auth::user()->credit, 2, ".", "," ); ?>
             <!-- Messages: style can be found in dropdown.less-->
             <li class="">
-            	<a href="#"  class="credit" title="{{ trans("admin.ur_credit") . $userCredit }}">
-             		<i class="">Credit</i>
-              		<span class="label label-warning">{{ $userCredit }}</span>
-                </a>
+            	<a class="credit" title="{{ trans("admin.ur_credit") . $userCredit }}">
+              		<span class="label label-warning"><i>Credit : </i> {{ $userCredit }}</span>
+               </a>
             </li>
             @if( 1 == 0 )
             <!-- Notifications: style can be found in dropdown.less -->

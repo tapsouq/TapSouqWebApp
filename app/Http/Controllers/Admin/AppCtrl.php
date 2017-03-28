@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use Validator, Auth, DB;
 use App\Models\Category, App\Models\Application;
 use App\Models\Zone, App\Models\PlacementLog;
-use App\User;
+use App\User, App\Models\SimilarCategory;
 class AppCtrl extends Controller
 {
     /**
@@ -357,14 +357,17 @@ class AppCtrl extends Controller
 
         $app->fcategory     = $request->fcategory;
         $app->scategory     = $request->scategory;
+        $app->simi_cats     = SimilarCategory::getSimiCats($request->fcategory, $request->scategory);
 
         $app->package_id    = $request->package_id;
 
         if( $request->hasFile( 'icon' ) ){
-            $app->icon          = uploadFile( $request->icon , 'public/uploads/app-icons' );
+            $app->icon          = uploadFile( $request->icon , 'uploads/app-icons' );
         }
+
 
         $app->save();
         return $app;
     }
+
 }

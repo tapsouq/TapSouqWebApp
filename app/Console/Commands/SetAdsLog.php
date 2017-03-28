@@ -51,20 +51,21 @@ class SetAdsLog extends Command
     }
 
     /**
-     * _getLogThirtyMinutesAgo. To get the log the range from 7 minutes ago to 2 minutes ago.
+     * _getLogThirtyMinutesAgo. To get the log since thirty minutes ago.
      *
      * @param  param
      * @return array
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _getLogThirtyMinutesAgo()
+    private function _getLogThirtyMinutesAgo()
     {
         return DB::select("
-                SELECT * 
+                SELECT `sdkactions_tmp`.*, `countries`.`tier`
                     FROM `sdkactions_tmp`
+                    LEFT JOIN `countries` ON `countries`.`id` = `sdkactions_tmp`.`country_id`
                     WHERE 
-                        `sdkactions_tmp`.`created_at` <  TIME( SUBTIME( NOW(), '00:30:00' ) )
+                        `sdkactions_tmp`.`created_at` <  ( UNIX_TIMESTAMP() - 60 * 30 )
             ");
     }
 
@@ -81,20 +82,29 @@ class SetAdsLog extends Command
         $placementLog = [];
         $creativeLog  = [];
         $sdkActions   = [];
+        $creditsData = [];
         $ids          = [];
+
+        // get the admin user id
+        $adminUserId      = $this->_getAdminUserId();
 
         if( count( $allLogs ) ){
             foreach ($allLogs as $key => $row) {
                 $ids[] = $this->_setSdkActions($row, $sdkActions);
                 $this->_setAdLog($row, 'placement_id', $placementLog);
                 $this->_setAdLog($row, 'creative_id', $creativeLog);
+
+                $this->_setCreditsLog($row, $creditsData, $adminUserId);
             }
+
+            $this->_insertCreditData($creditsData);
         }
 
         \DB::table('placement_log')->insert( $placementLog );
         \DB::table('creative_log')->insert( $creativeLog );
         \DB::table('sdkactions')->insert( $sdkActions );
         \DB::table('sdkactions_tmp')->whereIn('id', $ids)->delete();
+
     }
 
     /**
@@ -105,12 +115,12 @@ class SetAdsLog extends Command
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _setAdLog($row, $adsType, &$adLog)
+    private function _setAdLog($row, $adsType, &$adLog)
     {
         $time        = time() - ( 30 * 60 ); 
         $adsId       = $row->{$adsType};
         $action      = $row->action;
-        $tier        = $row->country_tier;
+        $tier        = $row->tier;
         $impressions = ($action >= SHOW_ACTION) ? 1 : 0; 
         $clicks      = ($action >= CLICK_ACTION) ? 1 : 0; 
         $installed   = ($action == INSTALL_ACTION) ? 1 : 0;
@@ -125,7 +135,7 @@ class SetAdsLog extends Command
             $adLog[ $adsId ]['credits']      += $credits;
         
         }else if( $adsId ){
-            
+
             $adLog[ $adsId ] = [
                     'ads_id'        => $adsId,
                     'requests'      => 1,
@@ -137,7 +147,6 @@ class SetAdsLog extends Command
                     'updated_at'    => $row->updated_at
                 ];
         }
-
     }
 
     /**
@@ -148,7 +157,7 @@ class SetAdsLog extends Command
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _setSdkActions($row, &$sdkActions)
+    private function _setSdkActions($row, &$sdkActions)
     {
         $sdkActions[] = [
                 'id'            => $row->id,
@@ -159,12 +168,113 @@ class SetAdsLog extends Command
                 'app_id'        => $row->app_id,
                 'camp_id'       => $row->camp_id,
                 'country_id'    => $row->country_id,
-                'country_tier'  => $row->country_tier,
+                'country_tier'  => $row->tier,
                 'app_user'      => $row->app_user,
                 'camp_user'     => $row->camp_user,
-                'created_at'    => date('Y-m-d') . ' ' . $row->created_at,
+                'created_at'    => $row->updated_at,
                 'updated_at'    => $row->updated_at,
             ];
         return $row->id;
+    }
+
+
+    /**
+     * _getAdminUserId. To get the admin users ids.
+     *
+     * @param  param
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _getAdminUserId()
+    {
+        return \App\User::select('id')
+                    ->where('role', ADMIN_PRIV)
+                    ->first()
+                    ->id;    
+    }
+
+
+    /**
+     * _setCreditsLog. To set the credit log array.
+     *
+     * @param  object $row
+     * @param  array $creditsData
+     * @param  int $adminUserId
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _setCreditsLog($row, &$creditsData, $adminUserId)
+    {   
+        $appUser  = $row->app_user;
+        $campUser = $row->camp_user;
+        $credit   = $row->tier;
+        $adminCredit = round($credit * 0.1, 2);
+        
+        if( $row->action < CLICK_ACTION || ! $campUser || ! $appUser ){
+            return $row->id;
+        }
+
+        if( $campUser == $adminUserId ){
+            
+            if( isset( $creditsData[$campUser] ) ){
+                $creditsData[$campUser]["spent"] += $adminCredit;
+            }else{
+                $creditsData[$campUser]["spent"] = $adminCredit;
+            }
+        }else{        
+            if( isset($creditsData[$appUser] ) ){
+                $creditsData[$appUser]["gained"] += $credit;
+            }else{
+                $creditsData[$appUser] = [
+                        "gained"    => $credit,
+                        "spent"     => 0
+                    ];
+            }
+
+            if( isset($creditsData[$campUser]) ){
+                $creditsData[$campUser]["spent"] += $credit;
+            }else{
+                $creditsData[$campUser] = [
+                        "gained"    => 0,
+                        "spent"     => $credit
+                    ];
+            }
+            
+            if( isset($creditsData[$adminUserId]) ){
+                $creditsData[$adminUserId]["gained"] += $adminCredit;
+            }else{
+                $creditsData[$adminUserId]["gained"] = $adminCredit;
+            }
+        }
+        return $row->id;
+    }
+
+
+    /**
+     * _insertCreditData. To insert the credits into credits table.
+     *
+     * @param  param
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _insertCreditData($creditsData)
+    {
+        foreach ($creditsData as $userId => $data) {
+            
+            $gained = isset($data["gained"]) ? $data["gained"] : 0;
+            $spent  = isset($data["spent"])  ? $data["spent"]  : 0;
+            $netCredit =  $gained - $spent;
+            
+            $values = [ $netCredit, $gained, $spent, $userId ];
+            
+            DB::update(
+                    "UPDATE `daily_log` 
+                        SET `credit` = `credit` + ?, `gained_credit` = `gained_credit` + ?, `spent_credit` = `spent_credit` + ? 
+                        WHERE `user_id` = ? AND date(created_at) = CURDATE()
+                    ", $values);
+        }
     }
 }

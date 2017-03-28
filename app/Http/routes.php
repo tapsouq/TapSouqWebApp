@@ -10,10 +10,6 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-Route::get('shou-test', function(){
-	$cat = "cat_10";
-	echo substr($cat, 4);		                            
-});
 
 // Authentication routes...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
@@ -37,6 +33,7 @@ Route::group(['middleware' => 'auth'], function () {
 	// Name space not to repeate admin per controller for every route
 	Route::group(['namespace' => 'Admin'], function()
 	{
+
 		// Dashboard
 		Route::get( 'admin', 'DashboardCtrl@index' );
 	
@@ -117,6 +114,9 @@ Route::group(['middleware' => 'auth'], function () {
 
 			/* Test routes */
 			Route::get('test-algorithm', 'HelpTestCtrl@printAdservingQuery');
+
+			/*  Test */
+			Route::get('test', 'TestCtrl@index');
 		});
 	});
 });

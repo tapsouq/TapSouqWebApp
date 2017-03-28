@@ -88,5 +88,12 @@ return [
             2 => 'Show Action',
             3 => 'Click Action',
             4 => 'Install Action'
+        ],
+
+    // for charts filter
+    'charts_filters' => [
+            'd'     => "DATE",
+            'w'     => "WEEK",
+            'm'     => "MONTH"
         ]
 ];

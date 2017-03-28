@@ -14,7 +14,7 @@ return [
 	"company"					=> "Company",
 	"agree_the"					=> "I agree to the",
 	"terms"						=> "terms",
-	"already_have_membership" 	=> "I already have a membership",
+	"already_have_membership" 	=> "I already have an account",
 	"tabsouq"					=> "TabSouq",
 	"tab"						=> "Tab",
 	"souq"						=> "Souq",
@@ -55,8 +55,9 @@ return [
 	"success"					=> "Success",
 	"info"						=> "Information",
 	"error"						=> "Error",
-	"sucess_send_contactus"		=> "The message is sent successfully",
+	"sucess_send_contactus"		=> "Thank you. Your email is sent successfully",
 	"there_are_such_error"		=> "There are such error",
 	"id"						=> "ID",
-	"adId"						=> "Ad Unit ID"
+	"adId"						=> "Ad Unit ID",
+
 ];

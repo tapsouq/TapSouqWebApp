@@ -32,64 +32,40 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="info-box bg-aqua">
-                                    <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
 
                                     <div class="info-box-content">
                                         <span class="info-box-text">
                                             {{ trans( 'admin.impressions' ) }}  
                                         </span>
                                         <span class="info-box-number">
-                                            {{ $adsDetails->impressions }}
+                                            {{ number_format($adsDetails->impressions, 0, ".", "," ) }}
                                         </span>
-
-                                      <div class="progress">
-                                        <?php $progress = $adsDetails->requests ? ( round( $adsDetails->impressions / $adsDetails->requests, 2)  * 100 ) : 0 ?>
-                                        <div class="progress-bar" style="width: {{$progress}}%"></div>
-                                      </div>
-                                            <span class="progress-description">
-                                            </span>
                                     </div>
                                     <!-- /.info-box-content -->
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="info-box bg-green">
-                                    <span class="info-box-icon"><i class="fa  fa-clock-o"></i></span>
-
                                     <div class="info-box-content">
                                         <span class="info-box-text">
                                             {{ trans( 'admin.clicks' ) }}
                                         </span>
                                         <span class="info-box-number">
-                                            {{ $adsDetails->clicks }}
+                                            {{ number_format($adsDetails->clicks, 0, ".", "," ) }}
                                         </span>
-
-                                        <div class="progress">
-                                            <?php $progress = $adsDetails->requests ? ( round($adsDetails->clicks / $adsDetails->requests,2) * 100 ) : 0; ?>
-                                            <div class="progress-bar" style="width: {{ $progress }}%"></div>
-                                        </div>
-                                            <span class="progress-description">
-                                            </span>
                                     </div>
                                     <!-- /.info-box-content -->
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="info-box bg-red">
-                                    <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
 
                                     <div class="info-box-content">
                                         <span class="info-box-text">
                                             {{ trans( 'admin.ctr' ) }}
                                         </span>
                                         <span class="info-box-number">
-                                            {{ $ctr = $adsDetails->impressions ? round($adsDetails->clicks / $adsDetails->impressions ,4) * 100 : 0 }}%
-                                        </span>
-
-                                        <div class="progress">
-                                            <div class="progress-bar" style="width: {{ $ctr * 100 }}%"></div>
-                                        </div>
-                                        <span class="progress-description">
+                                            {{ $ctr = $adsDetails->impressions ? number_format( ( $adsDetails->clicks * 100 / $adsDetails->impressions) ,2) : 0 }}%
                                         </span>
                                     </div>
                                     <!-- /.info-box-content -->
@@ -98,18 +74,10 @@
                             @if( Auth::user()->role == ADMIN_PRIV )
                             <div class="col-md-3">
                                 <div class="info-box bg-light-blue">
-                                    <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
-
                                     <div class="info-box-content">
                                         <span class="info-box-text">{{ trans( 'admin.convs' ) }}</span>
                                         <span class="info-box-number">
-                                            {{ $convs = $adsDetails->installed ?: 0 }}  
-                                        </span>
-
-                                        <div class="progress">
-                                            <div class="progress-bar" style="width: {{  $convs * 100 }}%"></div>
-                                        </div>
-                                        <span class="progress-description">
+                                            {{ number_format($adsDetails->installed, 0, ".", "," ) ?: 0 }}  
                                         </span>
                                     </div>
                                     <!-- /.info-box-content -->

@@ -78,23 +78,40 @@ class AdServingQueryCtrl extends Controller
     }
 
     /**
-     * _setQuery. To set the query for retrieve relevant ads to be shown or creative ads as sdk response.
+     * _setQuery. To set the main query.
+     *
+     * @param  param
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _setQuery()
+    {
+        $exactQuery = $this->_setQueryString();
+        $simiQuery  = $this->_setQueryString(SIMI_RELEVANT);
+
+        $this->_query = $exactQuery . " UNION " . $simiQuery;
+
+        return \DB::select($this->_query);
+    }
+
+    /**
+     * _setQueryString. To set the query for retrieve relevant ads to be shown or creative ads as sdk response.
      *
      * @param void
      * @return array
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    private function _setQuery (){
+    private function _setQueryString ($simiStatus = NO_SIMI_RELEVANT){
 
     	$object     = $this->_adaptStatusDiffInAlgorithm();
-        $queryParts = $this->_adServingQueryParts( $object );
+        $queryParts = $this->_adServingQueryParts( $simiStatus );
 
-        $this->_query = "
+         return "
                 SELECT 
-                    DISTINCT `ad_creative`.`id`, `ad_creative`.`name`, `ad_creative`.`format`, `ad_creative`.`layout`, `ad_creative`.`type`, `ad_creative`.`camp_id`,
+                    DISTINCT `ad_creative`.`id`, `ad_creative`.`name`, `ad_creative`.`format`, `ad_creative`.`layout`, `ad_creative`.`type`, `ad_creative`.`camp_id`, '{$simiStatus}' as simi_relevant,
                     `ad_creative`.`click_url`, `ad_creative`.`image_file`, `ad_creative`.`status`, `ad_creative`.`title`, `ad_creative`.`description`, {$this->_countryId} as `country`,
-                    ( ROUND( (`camp_users`.`credit` * 1000000 / (UNIX_TIMESTAMP(`campaigns`.`end_date`) - UNIX_TIMESTAMP(`campaigns`.`start_date`)) )) + 1 ) as `priority`,
                     `ad_placement`.refresh_interval as refreshInterval, `ad_placement`.`app_id`, `app_users`.`id` as `app_user`, `camp_users`.`id` as `camp_user`
                     {$object->select->{$this->_status}}
                 FROM `ad_creative`
@@ -148,8 +165,8 @@ class AdServingQueryCtrl extends Controller
                         /* Layout */
                         {$queryParts->deviceLayoutConditions}
                     ";
-        return \DB::select($this->_query);
     }
+
 
     /**
      * getQuery. To get the query for test reasons.
@@ -191,9 +208,20 @@ class AdServingQueryCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _adServingQueryParts( $object=null )
+    public function _adServingQueryParts( $simiStatus )
     {
-    	$_category = 
+    	if( $simiStatus ){
+            $_category = "(  
+                    `campaigns`.`fcategory` IN ( `app`.`simi_cats` )
+                OR
+                    `campaigns`.`scategory` IN ( `app`.`simi_cats` )
+                OR
+                    `app`.`fcategory` IN ( `campaigns`.`simi_cats` )
+                OR
+                    `app`.`scategory` IN ( `campaigns`.`simi_cats` )
+            )";
+        }else{
+            $_category = 
     			"(  
                         `campaigns`.`scategory` IN (`app`.`fcategory`, `app`.`scategory` )
                 
@@ -206,6 +234,7 @@ class AdServingQueryCtrl extends Controller
                             `campaigns`.`scategory` IS NULL
                     )
                 )";
+        }
 
         $_keywords  =
         		"(

@@ -60,7 +60,7 @@
 		            					{{ $ad->clicks }}
 		            				</td>
 		            				<td>
-		            					{{ $ad->impressions ? (round($ad->clicks / $ad->impressions * 100 )) : 0  }}%
+		            					{{ $ad->impressions ? number_format( ( $ad->clicks / $ad->impressions * 100 ), 2) : 0  }}%
 		            				</td>
 		            				<td>
 		            					<button data-toggle="modal" data-target="#show-keywords" data-name="{{ $ad->adName }}" data-keywords="{{ getCampKeywords($ad->fatherId) }}" class="btn btn-sm btn-info show-keywords">{{ trans('admin.keywords') }}</button>

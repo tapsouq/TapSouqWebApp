@@ -216,26 +216,26 @@ if( ! function_exists('adaptChartData') ){
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
     function adaptChartData ( $items, $tableName, $notCamp = true, $dashboard = false ){
-        $items = $items->groupBy('date')
+        $items = $items->groupBy("date")
                         ->orderBy( "{$tableName}.created_at", 'ASC')
                         ->get();
 
         $array = [];
         foreach ($items as $key => $item) {
-            if( $item->date ){
+            if( $item->time ){
                 if( $notCamp ){
                     $fillRate   = $item->requests != 0 ? round( $item->impressions/$item->requests, 2 ) * 100 : 0;
-                    $array['requests'][] = [ strtotime($item->date) * 1000, (int)$item->requests ];
-                    $array['fill_rate'][] = [ strtotime($item->date) * 1000, $fillRate ];
+                    $array['requests'][] = [ strtotime($item->time) * 1000, (int)$item->requests ];
+                    $array['fill_rate'][] = [ strtotime($item->time) * 1000, $fillRate ];
                 }
                 if($dashboard){
-                    $array['credit'][]    = [ strtotime($item->date) * 1000, (int)$item->credit ];
+                    $array['credit'][]    = [ strtotime($item->time) * 1000, (int)$item->credit ];
                 }
 
-                $ctr        = $item->impressions != 0 ? round( $item->clicks/$item->impressions, 4) * 100 : 0;
-                $array['impressions'][] = [ strtotime($item->date) * 1000, (int)$item->impressions ];
-                $array['clicks'][] = [ strtotime($item->date) * 1000, (int)$item->clicks ];
-                $array['ctr'][] = [ strtotime($item->date) * 1000, $ctr ];
+                $ctr        = $item->impressions != 0 ? round(( $item->clicks * 100 /$item->impressions), 2) : 0;
+                $array['impressions'][] = [ strtotime($item->time) * 1000, (int)$item->impressions ];
+                $array['clicks'][] = [ strtotime($item->time) * 1000, (int)$item->clicks ];
+                $array['ctr'][] = [ strtotime($item->time) * 1000, $ctr ];
             }
         }
         return $array;
@@ -353,5 +353,29 @@ if( ! function_exists('getCatNames') ){
                     ->toArray();
 
         return count($cats) ? implode(', ', $cats) : trans('admin.no_cats') ;
+    }
+}
+
+if( ! function_exists('setFullUrlExcept') ){
+    /**
+     * setFullUrlExcept. to set the full url except a parameter given.
+     *
+     * @param  mixed
+     * @return string
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    function setFullUrlExcept($except)
+    {
+        $url = Request::url() . "?";
+        $queryParameters = Request::except($except);
+
+        if( count($queryParameters) ){
+            $pars = implode("&", $queryParameters);
+            foreach ($queryParameters as $key => $value) {
+                $url .= "{$key}={$value}&";
+            }
+        }
+        return $url;
     }
 }

@@ -20,7 +20,8 @@ class HelpTestCtrl extends Controller
      */
     public function printAdservingQuery(Request $request)
     {
-    	$deviceId = $request->input('deviceId');
+        $deviceId = $request->input('deviceId');
+    	$countryId = $request->input('countryId');
     	$placementId = $request->input('placementId');
     	$creativeId = $request->input('creativeId');
     	$requestId = $request->input('requestId');
@@ -28,7 +29,6 @@ class HelpTestCtrl extends Controller
     	$appPackage = $request->input('appPackage');
 
     	$adServingQuery = new AdServingQueryCtrl($placementId, $appPackage);
-    	$adServingQuery->getCreativeAds ($deviceId);
-    	echo $adServingQuery->getQuery();
+    	var_dump($adServingQuery->getCreativeAds ($countryId));
     }
 }

@@ -64,23 +64,23 @@
                                                 </a>
                                             </td>
                                             <td>
-                                                {{ $value->requests ?: 0 }}
+                                                {{ number_format( $value->requests, 0, ".", "," ) ?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $value->impressions ?: 0 }}
+                                                {{ number_format( $value->impressions, 0, ".", "," ) ?: 0 }}
                                             </td>
                                             <td>
                                                 {{ $value->requests ? round($value->impressions / $value->requests,2)*100: 0 }}%
                                             </td>
                                             <td>
-                                                {{ $value->clicks ?: 0 }}
+                                                {{ number_format( $value->clicks, 0, ".", "," ) ?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $value->impressions ? round($value->clicks/$value->impressions,4)*100 : 0 }}%
+                                                {{ $value->impressions ? number_format( ( $value->clicks * 100 / $value->impressions ), 2 ) : 0 }}%
                                             </td>
                                             @if( Auth::user()->role == ADMIN_PRIV )
                                             <td>
-                                                {{ $value->installed ?: 0  }}
+                                                {{ number_format( $value->installed, 0, ".", "," ) ?: 0  }}
                                             </td>
                                             @endif
                                             <td>

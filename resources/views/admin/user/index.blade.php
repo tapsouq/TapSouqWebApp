@@ -14,7 +14,10 @@
 				@include('admin.partial.filterTimePeriod')
 				<div class="table">
 					@if( sizeof( $allUsers ) > 0 )
-					<div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+						@if(sizeof($tableItems))
+							@include("admin.partial.yaxisfilter")
+							<div id="chart-container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+						@endif
 					<div>
 						<div class="pull-left">
 							<div class="btn-toolbar">
@@ -47,7 +50,8 @@
 						<tbody>
 							<?php $css = [ PENDING_USER => 'label-info', ACTIVE_USER => 'label-success', SUSPEND_USER => 'label-warning' ] ?>
 							<?php $ids = [];?>
-							@if($tableItems)
+							<?php $requestsTot = $impressionsTot = $clicksTot = $installedTot = $creditsTot = 0; ?>
+							@if(count($tableItems))
 								@foreach( $tableItems as $key => $item )
 									<?php $ids[] = $item->id; ?>
 									<tr>
@@ -56,13 +60,13 @@
 												{{ $item->fname . " " . $item->lname }}
 											</a>
 										</td>
-										<td>{{ $item->requests ?: 0 }}</td>
-										<td>{{ $item->impressions ?: 0 }}</td>
+										<td>{{ number_format( $item->requests, 0, ".", "," ) ?: 0 }}</td>
+										<td>{{ number_format( $item->impressions, 0, ".", "," ) ?: 0 }}</td>
 										<td>{{ $item->requests ? round( $item->impressions / $item->requests, 2) * 100 : 0 }}%</td>
-										<td>{{ $item->clicks ?: 0 }}</td>
-										<td>{{ $item->impressions ? round( $item->clicks / $item->impressions, 4) * 100 : 0 }}%</td>
-										<td>{{ $item->installed ?: 0 }}</td>
-										<td>{{ $item->credit ?: 0 }}</td>
+										<td>{{ number_format( $item->clicks, 0, ".", "," ) ?: 0 }}</td>
+										<td>{{ $item->impressions ? number_format(( $item->clicks * 100 / $item->impressions), 2) : 0 }}%</td>
+										<td>{{ number_format( $item->installed, 0, ".", "," ) ?: 0 }}</td>
+										<td>{{ number_format( $item->credit, 0, ".", "," ) ?: 0 }}</td>
 										<td>
 											<div class="label {{ $css[ $item->status ] }}">
 												{{ config( 'consts.user_status' )[ $item->status ] }}
@@ -81,6 +85,13 @@
 											</div>
 										</td>
 									</tr>
+									<?php
+										$requestsTot += $item->requests;
+										$impressionsTot += $item->impressions;
+										$clicksTot += $item->clicks;
+										$installedTot += $item->installed;
+										$creditsTot += $item->credit;
+									?>
 								@endforeach
 							@endif
 							@foreach($allUsers as $_key => $_value)
@@ -118,6 +129,34 @@
 									</tr>
 								@endif
 							@endforeach
+							<tr>
+								<td>
+									{{ trans("admin.total") }}
+								</td>
+								<td>
+									{{ number_format($requestsTot, 0, ".", ",") }}
+								</td>
+								<td>
+									{{ number_format($impressionsTot, 0, ".", ",") }}
+								</td>
+								<td>
+									{{ $requestsTot ? round( $impressionsTot * 100 / $requestsTot) : 0  }}%
+								</td>
+								<td>
+									{{ number_format($clicksTot, 0, ".", ",") }}
+								</td>
+								<td>
+									{{ $impressionsTot ? round( $clicksTot * 100 / $impressionsTot, 2 ) : 0  }}%
+								</td>
+								<td>
+									{{ number_format($installedTot, 0, ".", ",") }}
+								</td>
+								<td>
+									{{ number_format($creditsTot, 0, ".", ",") }}
+								</td>
+								<td></td>
+								<td></td>
+							</tr>
 						</tbody>
 					</table>
 					@else

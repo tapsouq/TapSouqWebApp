@@ -106,7 +106,9 @@ class SimilarCategoriesCtrl extends Controller
      */
     private function _saveSimilarCategories($inputs)
     {
-    	
+        DB::table('similar_cats')
+            ->update(['simi_cats' => '']);
+
     	foreach ($inputs as $key => $value) {
     		
     		// Select controls names are cat_{categoryId}, that's why we substr from the char 4.
@@ -121,12 +123,13 @@ class SimilarCategoriesCtrl extends Controller
     		if( $similarCategory == null ){
     			SimilarCategory::insert($array);
     		}else{
-	    		$similarCategory->update($array);
+                DB::table('similar_cats')
+                    ->where('cat_id', $categoryId)
+                    ->update($array);
     		}
     	}
-
     	// upadte the similar categories for the applications and campaigns due to the change in the similar categories.
-    	$this->_updateCampAndAppsSimiCats();
+        return $this->_updateCampAndAppsSimiCats('applications') && $this->_updateCampAndAppsSimiCats('campaigns');
     }
 
     /**
@@ -137,9 +140,24 @@ class SimilarCategoriesCtrl extends Controller
      * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
      * @copyright Smart Applications Co. <www.smartapps-ye.com>
      */
-    public function _updateCampAndAppsSimiCats()
+    public function _updateCampAndAppsSimiCats( $tableName )
     {
-    	$simiCats = SimilarCategory::getAppsSimiCats();
+
+    	$tableSimiCats = SimilarCategory::getTableSimiCats($tableName);
     	
+        foreach ($tableSimiCats as $unitSimiCats) {
+
+            $newSimiCats = "";
+            $simiFirstCats  = $unitSimiCats->simi_fcats ? explode(',', $unitSimiCats->simi_fcats) : [];
+            $simiSecondCats = $unitSimiCats->simi_scats ? explode(',', $unitSimiCats->simi_scats) : [];
+            $newSimiCats = implode(',', array_unique( array_merge($simiFirstCats, $simiSecondCats) ) );
+
+            if( $newSimiCats ){
+                DB::table($tableName)
+                    ->where('id', $unitSimiCats->id)
+                    ->update([ "simi_cats" => $newSimiCats ]);
+            }
+        }
+        return true;
     }
 }

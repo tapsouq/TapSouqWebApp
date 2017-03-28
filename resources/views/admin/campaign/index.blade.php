@@ -59,17 +59,17 @@
                                                 </a>
                                             </td>
                                             <td>
-                                                {{ $camp->impressions?: 0 }}
+                                                {{ number_format($camp->impressions, 0, ".", "," ) ?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $camp->clicks?: 0 }}
+                                                {{ number_format($camp->clicks, 0, ".", "," ) ?: 0 }}
                                             </td>
                                             <td>
-                                                {{ $camp->impressions ? round($camp->clicks / $camp->impressions , 4) * 100 : 0 }}%
+                                                {{ $camp->impressions ? number_format( ( $camp->clicks * 100 / $camp->impressions) , 2) : 0 }}%
                                             </td>
                                             @if( Auth::user()->role == ADMIN_PRIV )
                                             <td>
-                                                {{ $camp->installed ?: 0 }}
+                                                {{ number_format($camp->installed, 0, ".", "," )  ?: 0 }}
                                             </td>
                                             @endif
                                             <td>{{ date_create_from_format( "Y-m-d H:i:s", $camp->start_date )->format('m/d/Y g:i A') }}</td>

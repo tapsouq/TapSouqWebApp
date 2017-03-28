@@ -119,7 +119,7 @@
                                             @if( isset( $ad ) )
                                                 <div class="icon-container">
                                                     <p href="#" class="thumbnail">
-                                                        <img class="responsive-img" src="{{ url('public/uploads/ad-images/' . $ad->image_file ) }}" alt="{{ trans( 'admin.image_file' ) }}">
+                                                        <img class="responsive-img" src="{{ url('uploads/ad-images/' . $ad->image_file ) }}" alt="{{ trans( 'admin.image_file' ) }}">
                                                     </p>
                                                 </div>
                                             @endif

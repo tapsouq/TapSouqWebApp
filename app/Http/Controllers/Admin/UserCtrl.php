@@ -15,7 +15,7 @@ class UserCtrl extends Controller
 	// _mTitle, the main title for all view relating to user module.
     private $_mTitle;
     protected $_user;
-
+    private $_filterTypes ;
     /**
        * __construct
        *
@@ -27,6 +27,7 @@ class UserCtrl extends Controller
       public function __construct ( ){
         $this->_user = Auth::user();
       	$this->_mTitle = trans( 'admin.users' );
+        $this->_filterTypes = config('consts.charts_filters');
       }
 
 
@@ -40,7 +41,10 @@ class UserCtrl extends Controller
       */
      public function index ( Request $request ){
         $mTitle = $this->_mTitle;
+        $filterType = $request->has('fi') ? $request->input('fi') : FILTER_BY_DAY;
         
+        $filter = isset($this->_filterTypes[$filterType]) ? $this->_filterTypes[$filterType] : $this->_filterTypes[FILTER_BY_DAY];
+
         // To manage tabs between advertisers and publisher users.
         if( $request->has('adv') ){
             $title  = trans( 'admin.all_users' ) . ' > ' . trans('admin.advertisers');
@@ -50,7 +54,7 @@ class UserCtrl extends Controller
                             ->select(
                                 "users.*",
                                 "creative_log.created_at AS time",
-                                DB::raw('DATE( `creative_log`.`created_at` ) AS date'),
+                                DB::raw("{$filter}( `creative_log`.`created_at` ) AS date"),
                                 DB::raw('SUM(`creative_log`.`requests`) AS requests '),
                                 DB::raw('SUM(`creative_log`.`impressions`) AS impressions '),
                                 DB::raw('SUM(`creative_log`.`clicks`) AS clicks '),
@@ -78,7 +82,7 @@ class UserCtrl extends Controller
                                     'applications.user_id',
                                     'countries.name as country_name',
                                     'placement_log.created_at as time',
-                                    DB::raw('DATE(placement_log.created_at) AS date'),
+                                    DB::raw("{$filter}(placement_log.created_at) AS date"),
                                     DB::raw('SUM(`placement_log`.`requests`) AS requests'), 
                                     DB::raw('SUM(`placement_log`.`impressions`) AS impressions'), 
                                     DB::raw('SUM(`placement_log`.`clicks`) AS clicks'),

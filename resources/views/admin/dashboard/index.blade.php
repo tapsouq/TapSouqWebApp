@@ -31,20 +31,12 @@
                                 @if( ! Request::has('camps') )
                                 <div class="col-md-4">
                                     <div class="info-box bg-yellow">
-                                        <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
-
                                         <div class="info-box-content">
                                             <span class="info-box-text">
                                                 {{ trans( 'admin.requests' ) }}  
                                             </span>
                                             <span class="info-box-number">
-                                                {{ $total->requests }}
-                                            </span>
-
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: 100%"></div>
-                                            </div>
-                                            <span class="progress-description">
+                                                {{ number_format($total->requests, 0, ".", ",") }}
                                             </span>
                                         </div>
                                         <!-- /.info-box-content -->
@@ -53,42 +45,26 @@
                                 @endif
                                 <div class="{{ Request::input('camps') ? 'col-md-3' : 'col-md-4' }}">
                                     <div class="info-box bg-aqua">
-                                        <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
-
                                         <div class="info-box-content">
                                             <span class="info-box-text">
                                                 {{ trans( 'admin.impressions' ) }}  
                                             </span>
                                             <span class="info-box-number">
-                                                {{ $total->impressions }}
+                                                {{ number_format($total->impressions, 0, ".", ",") }}
                                             </span>
-
-                                          <div class="progress">
-                                            <?php $progress = $total->requests ? ( round( $total->impressions / $total->requests, 2)  * 100 ) : 0 ?>
-                                            <div class="progress-bar" style="width: {{$progress}}%"></div>
-                                          </div>
                                         </div>
                                         <!-- /.info-box-content -->
                                     </div>
                                 </div>
                                 <div class="{{ Request::has('camps') ? 'col-md-3' : 'col-md-4'}}">
                                     <div class="info-box bg-green">
-                                        <span class="info-box-icon"><i class="fa  fa-clock-o"></i></span>
-
                                         <div class="info-box-content">
                                             <span class="info-box-text">
                                                 {{ trans( 'admin.clicks' ) }}
                                             </span>
                                             <span class="info-box-number">
-                                                {{ $total->clicks }}
+                                                {{ number_format($total->clicks, 0, ".", ",") }}
                                             </span>
-
-                                            <div class="progress">
-                                                <?php $progress = $total->requests ? ( round($total->clicks / $total->requests,2) * 100 ) : 0; ?>
-                                                <div class="progress-bar" style="width: {{ $progress }}%"></div>
-                                            </div>
-                                                <span class="progress-description">
-                                                </span>
                                         </div>
                                         <!-- /.info-box-content -->
                                     </div>
@@ -96,21 +72,13 @@
                                 @if( ! Request::has('camps'))
                                 <div class="col-md-4">
                                     <div class="info-box bg-purple">
-                                        <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
-
                                         <div class="info-box-content">
                                             <span class="info-box-text">
                                                 {{ trans( 'admin.fill_rate' ) }}  
                                             </span>
                                             <span class="info-box-number">
-                                                {{ $fillRate = $total->requests ? round($total->impressions / $total->requests, 2 ) * 100 : 0 }}%
+                                                {{ $total->requests ? round($total->impressions / $total->requests, 2 ) * 100 : 0 }}%
                                             </span>
-
-                                          <div class="progress">
-                                            <div class="progress-bar" style="width: {{ $fillRate * 100  }}%"></div>
-                                          </div>
-                                                <span class="progress-description">
-                                                </span>
                                         </div>
                                         <!-- /.info-box-content -->
                                     </div>
@@ -118,20 +86,12 @@
                                 @endif
                                 <div class="{{ Request::has('camps') ? 'col-md-3' : 'col-md-4' }}">
                                     <div class="info-box bg-red">
-                                        <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
-
                                         <div class="info-box-content">
                                             <span class="info-box-text">
                                                 {{ trans( 'admin.ctr' ) }}
                                             </span>
                                             <span class="info-box-number">
-                                                {{ $ctr = $total->impressions ? round($total->clicks / $total->impressions ,2) * 100 : 0 }}%
-                                            </span>
-
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: {{ $ctr }}%"></div>
-                                            </div>
-                                            <span class="progress-description">
+                                                {{ $total->impressions ? number_format(($total->clicks * 100 / $total->impressions), 2) : 0 }}%
                                             </span>
                                         </div>
                                         <!-- /.info-box-content -->
@@ -139,20 +99,12 @@
                                 </div>
                                 <div class="{{ Request::has('camps') ? 'col-md-3' : 'col-md-4' }}">
                                     <div class="info-box bg-move">
-                                        <span class="info-box-icon"><i class="fa fa-clock-o"></i></span>
-
                                         <div class="info-box-content">
                                             <span class="info-box-text">
                                                 {{ Request::has('camps') ? trans( 'admin.spent_credits' ) : trans( 'admin.gained_credits' ) }}
                                             </span>
                                             <span class="info-box-number">
-                                                {{ $credits = $total->credit ?: 0 }}
-                                            </span>
-                                            <?php $progress = $total->requests ? ( round($total->credit / $total->requests,2) * 100 ) : 0; ?>
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: {{  $progress }}%"></div>
-                                            </div>
-                                            <span class="progress-description">
+                                                {{ number_format($total->credit, 0, ".", ",") ?: 0 }}
                                             </span>
                                         </div>
                                         <!-- /.info-box-content -->
@@ -173,6 +125,37 @@
     <script type="text/javascript">
         $(function(){
             creditData = JSON.parse( '{!! json_encode($creditCharts) !!}' );
+            
+            var tooltip = {
+                    crosshairs : true,
+                    useHTML : true,
+                    formatter : function(){
+                        var day = moment(this.point.x).format('dd, MMMM Do YYYY');
+                        var html = "<div id='custom-tooltip'> " + day + "<br>";
+                        html += "<span class='span-requests'><i class='fa fa-circle'></i>" + this.series.name + " : </span>" + number_format(this.point.y, 0, ".", ",") + "</div>"
+                        
+                        return html;
+                    }
+                };
+            var tooltip = {
+                    crosshairs : true,
+                    useHTML : true,
+                    formatter : function(){
+                        var values = getOtherValues( this.point.x );
+                        var day = moment(this.point.x).format('dd, MMMM Do YYYY');
+                        var html = "<div id='custom-tooltip'> " + day + "<br>";
+                        for( i=0; i< values.length; i++ ){
+                            var name = (values[i][0]).replace(/\s/g, '').toLowerCase();
+                            var metricName = values[i][0];
+                            var metricVal  = values[i][1];
+                            metricVal = number_format(metricVal, 0, ".", ",");
+
+                            html += "<span class='span-" + name + "'><i class='fa fa-circle'></i>" + metricName + " : </span>" + metricVal + "<br>"
+                        }
+                        html += "</div>"
+                        return html;
+                    }
+                };
 
             var creditChart = new Highcharts.chart({
                 chart: {
@@ -185,7 +168,7 @@
                 xAxis: {
                     type: 'datetime'
                 },
-                yAxis: { // Primary yAxis
+                yAxis: [{ // Primary yAxis
                     labels: {
                         format: '{value}',
                         style: {
@@ -193,16 +176,28 @@
                         }
                     },
                     title: {
-                        text: '{{ trans( 'admin.actions' ) }}',
+                        text: '{{ trans( 'admin.netCredit' ) }}',
                         style: {
                             color: '#000'
                         }
                     },
                     min: 0
-                },
-                tooltip : {
-                    crosshairs : true
-                },
+                },{ // secondary yAxis
+                    labels: {
+                        format: '{value}',
+                        style: {
+                            color: '#000'
+                        }
+                    },
+                    title: {
+                        style: {
+                            color: '#000'
+                        }
+                    },
+                    min: 0,
+                    opposite: true
+                }],
+                tooltip : tooltip,
                 plotOptions: {
                     spline: {
                         marker: {
@@ -220,10 +215,40 @@
                     y : 20
                 },
                 series: [{
-                    name: '{{ trans( 'admin.credit' ) }}',
-                    data: creditData.credit
+                    name: '{{ trans( 'admin.netCredit' ) }}',
+                    data: creditData.netCredit
+                },{
+                    name: '{{ trans( 'admin.gainedCredit' ) }}',
+                    data: creditData.gainedCredit,
+                    yAxis: 1
+                },{
+                    name: '{{ trans( 'admin.spentCredit' ) }}',
+                    data: creditData.spentCredit,
+                    yAxis:1
                 }]
             });
+
+            function getOtherValues(x){
+                var array = [];
+
+                for (var i = 0; i < creditChart.series.length; i++) {
+                    if(creditChart.series[i].visible){
+                        var points = creditChart.series[i].points;
+                        for (var j =0; j < points.length; j++) {
+                            if( points[j].x == x){
+                                var suffix = creditChart.series[i].tooltipOptions.valueSuffix
+                                if( suffix == undefined ){
+                                    suffix = "";
+                                }
+                                y = points[j].y + suffix;
+                                break;
+                            }
+                        } 
+                        array.push( [ creditChart.series[i].name, y ] );
+                    }
+                }
+                return array;
+            } 
         });
     </script>
 @stop

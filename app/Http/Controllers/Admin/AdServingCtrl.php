@@ -62,24 +62,20 @@ class AdServingCtrl extends Controller
 
         if( sizeof($relevantAds) > 0 ){
 
-            // Get an array of ads ids as key and it's priority as value.
-            $relevantAdsWithPriorities  = array_pluck($relevantAds, 'priority', 'id');
-
-            // Adapt $relevantAds array by making an array with ads ids as key and the ads objects as it's values.
-            $callBackFcn = [ "App\Http\Controllers\Admin\AdServingCtrl", "_adaptRelevantAdsArray"];
-            $relevantAdsWithIdAsKey     = array_reduce($relevantAds, $callBackFcn, []);
+            $relevantAdsPriority =  $this->_loopOverAdsAndDoSomeProcessing($relevantAds, $shownAds);
 
             // To exclude the shown ads for that device
-            $adsArray = $this->_excludeShownAdsForThatDevice($relevantAdsWithPriorities, $shownAds);
+            $filteredAds = $this->_excludeShownAdsForThatDevice($relevantAdsPriority, $shownAds);
 
             // The selected ad id by using the probability function.
-            $selectedAdKey = $this->_sortAdsByProbability( $adsArray, array_sum($adsArray) );
+            $selectedAdKey = $this->_sortAdsByProbability( $filteredAds, array_sum($filteredAds) );
 
             // Get the ad object using ad id.
-            $selectedAd = $relevantAdsWithIdAsKey[ $selectedAdKey ];
+            $selectedAd = $relevantAds[ $selectedAdKey ];
 
             return [
                     'status'        => true,
+                    'imagesPath'    => url('uploads/ad-images/'),
                     'requestId'     => $this->_requestId,
                     'general_frequency_capping' => config('system.general_frequency_capping'),
                     'adsObject'     => (array) $selectedAd
@@ -96,6 +92,35 @@ class AdServingCtrl extends Controller
 
     }
 
+    /**
+     * _loopOverAdsAndDoSomeProcessing. To loop over the ads array and process it.
+     *
+     * @param  reference $relevantAds
+     * @param  string $shownAds
+     * @return return
+     * @author Abdulkareem Mohammed <a.esawy.sapps@gmail.com>
+     * @copyright Smart Applications Co. <www.smartapps-ye.com>
+     */
+    private function _loopOverAdsAndDoSomeProcessing( &$relevantAds, $shownAds )
+    {
+        $new = [];
+        $relevantAdsIds = [];
+        $relevantAdsPriority = [];
+
+        foreach( $relevantAds as $relevantAd ){
+            // to prevent repeated Ids
+            if( in_array($relevantAd->id, $relevantAdsIds ) ) continue;
+            
+            $relevantAdId = $relevantAd->id;
+            $new[$relevantAdId] = $relevantAd;
+            $relevantAdsIds[] = $relevantAdId; 
+
+            $relevantAdsPriority[$relevantAdId] = $relevantAd->simi_relevant ? 0.5 : 1;
+        }
+        $relevantAds = $new;
+        
+        return $relevantAdsPriority;
+    }
   	/**
   	 * _sortAdsByProbability. To sort ads using probability function.
   	 *

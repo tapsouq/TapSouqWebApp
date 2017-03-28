@@ -70,7 +70,7 @@
 	            		<table id="countryTable" class="table table-bordered table-hover table-striped">
 		            		<thead>
 		            			<tr> 
-		            				<th>{{ trans( 'lang.country' ) }}</th>
+		            				<th>Report Title</th>
                                     <th>{{ trans( 'admin.all_devices' ) }}</th>
                                     <th>{{ trans( 'admin.new_devices' ) }}</th>
                                     <th>{{ trans( 'admin.active_devices' ) }}</th>
