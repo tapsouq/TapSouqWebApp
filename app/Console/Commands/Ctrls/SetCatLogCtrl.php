@@ -145,6 +145,7 @@ class SetCatLogCtrl
                 }
             }
 
+            /** Comment it until test it and assure that it's working good
             // If no relevant in first and second category, check the similar categories.
             if( ! count($relevantCats["appCats"]) ){
                 $appSimiCats  = isset($appCategories["simi_cats"])  ? $appCategories["simi_cats"]  : [];
@@ -175,6 +176,7 @@ class SetCatLogCtrl
                 }
 
             }
+            */
         }
 
         return $relevantCats;
